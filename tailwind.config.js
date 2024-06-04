@@ -11,6 +11,7 @@ export default {
         'brown-light':"#734c4c",
         'snow':"#FFFAFA",
         'snow-dark':'#DDC4C4',
+        'admin-orange':'#FF8B6A',
         
       },
       backgroundImage: {
