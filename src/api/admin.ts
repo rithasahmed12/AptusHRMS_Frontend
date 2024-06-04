@@ -75,6 +75,15 @@ export const approveRequest = async (id: string) => {
     }
   };
 
+  export const getPlan = async()=>{
+    try {
+      const resposne = await Api.get(adminRoutes.getPlans,{withCredentials:true});
+      return resposne;
+    } catch (error) {
+      console.log(error); 
+    }
+  }
+
   interface Plans{
     planName:string,
     planAmount:string,
@@ -91,4 +100,31 @@ export const approveRequest = async (id: string) => {
         
     }
   }
+
+  export const listPlan = async (id: string) => {
+    try {
+      const response = await Api.patch(adminRoutes.listPlan(id), {}, { withCredentials: true });
+      return response;
+    } catch (error) {
+      return error;
+    }
+  };
+
+  export const unlistPlan = async (id: string) => {
+    try {
+      const response = await Api.patch(adminRoutes.unlistPlan(id), {}, { withCredentials: true });
+      return response;
+    } catch (error) {
+      return error;
+    }
+  };
+
+  export const editPlan = async (id: string,body:Plans) => {
+    try {
+      const response = await Api.put(adminRoutes.editPlan(id),body, { withCredentials: true });
+      return response;
+    } catch (error) {
+      return error;
+    }
+  };
   

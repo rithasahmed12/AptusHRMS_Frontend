@@ -17,8 +17,12 @@ const AddPlansModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
             console.log('response:',response);
             
             if(response?.status === 201){
-                toast.success("plan created successfully");
-                onClose();
+                if(response.data.success){
+                  toast.success(response.data.message);
+                  onClose();
+                }else{
+                  toast.error(response.data.message);
+                }
             }
         } catch (error) {
             toast.error('Something went wrong')

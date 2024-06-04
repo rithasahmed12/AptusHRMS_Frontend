@@ -1,8 +1,37 @@
 import NavBar from "../common/NavBar";
 import PlanContainer from "../common/PlanContainer";
 import Footer from "../common/Footer";
+import { useEffect, useState } from "react";
+import { getPlan } from "../../../api/admin";
+import { toast } from "react-toastify";
+
+interface Plans {
+  _id: string,
+  plan_name: string,
+  duration: number,
+  max_employees: number,
+  plan_price: number,
+  is_listed: boolean,
+}
 
 const PricingPage = () => {
+  const [plans, setPlans] = useState<Plans[]>([]);
+
+  const fetchPlans = async () => {
+    try {
+      const response = await getPlan();
+      console.log(response?.data);
+      const listedPlans = response?.data.filter((plan: Plans) => plan.is_listed);
+      setPlans(listedPlans.reverse());
+    } catch (error) {
+      toast.error('Error Fetching Data');
+    }
+  }
+
+  useEffect(() => {
+    fetchPlans();
+  }, [])
+
   return (
     <>
       <NavBar />
@@ -11,7 +40,6 @@ const PricingPage = () => {
           Pricing
         </h1>
         <p>
-          {" "}
           Affordable pricing tailored to fit your business needs. Take the
           hassle out of HR management <br /> and unlock your team's full
           potential today!
@@ -22,30 +50,20 @@ const PricingPage = () => {
           Choose the best plan for you
         </h1>
       </div>
-      <div className="flex flex-col md:flex-row md:justify-center md:gap-7 mb-12">
-        <PlanContainer
-          color="white"
-          planName="Free Trial"
-          days={7}
-          employeeCount={10}
-          price={0}
-        />
-        <PlanContainer
-          color="brown"
-          planName="Standard"
-          days={28}
-          employeeCount={50}
-          price={2999}
-        />
-        <PlanContainer
-          color="white"
-          planName="Professional"
-          days={28}
-          employeeCount={100}
-          price={4999}
-        />
+      <div className="flex justify-center mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
+          {plans.map((plan: Plans, index) => (
+            <PlanContainer
+              key={plan._id}
+              color={index % 2 === 0 ? "white" : "brown"} // Alternate colors or use any logic to determine color
+              planName={plan.plan_name}
+              days={plan.duration}
+              employeeCount={plan.max_employees}
+              price={plan.plan_price}
+            />
+          ))}
+        </div>
       </div>
-
       <Footer />
     </>
   );
