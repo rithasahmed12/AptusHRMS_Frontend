@@ -1,11 +1,17 @@
+// AdminPages.tsx
 import Sidebar from './Sidebar/Sidebar';
 import Navbar from './Navbar/Navbar';
-import { Outlet } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 type Props = {}
 
 const AdminPages = (props: Props) => {
-    return (
+  const { adminInfo } = useSelector((store: any) => store.adminInfo);
+
+  return (
+    <>
+      {adminInfo ? (
         <div className="flex h-full">
           <Sidebar />
           <div className="flex-1 flex flex-col">
@@ -13,7 +19,11 @@ const AdminPages = (props: Props) => {
             <Outlet />
           </div>
         </div>
-      );
+      ) : (
+        <Navigate to="/admin" replace />
+      )}
+    </>
+  );
 }
 
-export default AdminPages
+export default AdminPages;

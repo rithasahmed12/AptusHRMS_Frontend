@@ -27,7 +27,7 @@ const RegsiterForm = () => {
       setIsLoading(false);
       
       if(res?.data.success){
-        dispatch(setCustomerInfo({name,mobile,domain,email,password}))
+        dispatch(setCustomerInfo({name,mobile,domain,email,password,success:false}))
         navigate('/purchase/otp');  
       }
     }

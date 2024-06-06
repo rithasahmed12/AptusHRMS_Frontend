@@ -1,8 +1,21 @@
 import { ArrowLeftEndOnRectangleIcon, BellAlertIcon, DocumentMagnifyingGlassIcon, InboxStackIcon, UserCircleIcon } from '@heroicons/react/24/outline';
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { logout } from '../../../redux/slices/adminSlice/adminSlice';
+import { useDispatch } from 'react-redux';
+import { toast } from 'react-toastify';
+
 
 const Sidebar: React.FC = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const handleLogout = ()=>{
+    dispatch(logout());
+    navigate('/admin')
+    toast.success('Logout Successfull!')
+  }
+
   return (
     <div className="w-64 space-y-6 py-7 px-2 absolute top-16 h-full left-0">
       <nav className="space-y-1">
@@ -54,17 +67,15 @@ const Sidebar: React.FC = () => {
           Plans
         </NavLink>
 
-        <NavLink 
-          to='/admin/v1/logout'
-          className={({ isActive }) =>
-            `py-2.5 px-4 gap-3 flex rounded transition duration-300 cursor-pointer hover:bg-gray-100 ${
-              isActive ? 'bg-gray-200 font-semibold' : ''
-            }`
+        <button 
+        onClick={handleLogout}
+          className={
+            `py-2.5 px-4 gap-3 w-full flex rounded transition duration-300 cursor-pointer hover:bg-gray-100`
           }
         >
           <ArrowLeftEndOnRectangleIcon height={24} color='#3d3d3d' />
           Logout
-        </NavLink>
+        </button>
       </nav>
     </div>
   );

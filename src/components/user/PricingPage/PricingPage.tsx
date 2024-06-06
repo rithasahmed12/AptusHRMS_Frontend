@@ -2,8 +2,8 @@ import NavBar from "../common/NavBar";
 import PlanContainer from "../common/PlanContainer";
 import Footer from "../common/Footer";
 import { useEffect, useState } from "react";
-import { getPlan } from "../../../api/admin";
 import { toast } from "react-toastify";
+import { getPricingPlans } from "../../../api/user";
 
 interface Plans {
   _id: string,
@@ -19,10 +19,9 @@ const PricingPage = () => {
 
   const fetchPlans = async () => {
     try {
-      const response = await getPlan();
+      const response = await getPricingPlans();
       console.log(response?.data);
-      const listedPlans = response?.data.filter((plan: Plans) => plan.is_listed);
-      setPlans(listedPlans.reverse());
+      setPlans(response?.data);
     } catch (error) {
       toast.error('Error Fetching Data');
     }

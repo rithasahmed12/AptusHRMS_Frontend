@@ -1,37 +1,47 @@
-import { useState, useRef } from 'react';
+import React, { useState } from 'react';
+import { NavigateFunction, useNavigate, Navigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { setAdminInfo } from '../../../redux/slices/adminSlice/adminSlice';
 import adminBackground from '../../../assets/admin_login.png';
 import useWindowWidth from '../../../customHooks/useWindowWidth';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { adminLogin } from '../../../api/admin';
 import { toast } from 'react-toastify';
-import { NavigateFunction, useNavigate } from 'react-router-dom';
-
 
 const LoginPage = () => {
-  const isMobile:boolean = useWindowWidth();
+  const { adminInfo } = useSelector((store: any) => store.adminInfo);
 
-  const navigate:NavigateFunction = useNavigate();
+  const isMobile = useWindowWidth();
+  const dispatch = useDispatch();
+
+  const navigate: NavigateFunction = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  const togglePasswordVisibility = ():void => {
+  const togglePasswordVisibility = (): void => {
     setShowPassword(!showPassword);
   };
 
-  const handleSubmit = async(e:React.FormEvent<HTMLFormElement>)=>{
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const response = await adminLogin({email,password});
-      if(response?.status === 201){
-        toast.success('Login Successfull!');
+      const response = await adminLogin({ email, password });
+      
+      if (response?.status === 201) {
+        toast.success('Login Successful!');
+        dispatch(setAdminInfo({ ...response.data }));
         navigate('/admin/v1/dashboard');
-      }else{
-       toast.error(response?.data.message)
-      }  
+      } else {
+        toast.error(response?.data.message);
+      }
     } catch (error) {
       toast.error('An unexpected error occurred.');
     }
+  }
+
+  if (adminInfo) {
+    return <Navigate to="/admin/v1/dashboard" replace />;
   }
 
   return (
@@ -60,7 +70,6 @@ const LoginPage = () => {
             <div className="mb-10 mx-7 relative">
               <label htmlFor="password" className="block mb-1">Password*</label>
               <input
-                
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}

@@ -7,6 +7,8 @@ import OTPForm from "../components/user/RegisterPage/utils/OTPForm";
 import SuccessCard from "../components/user/RegisterPage/utils/SuccessCard";
 import RegsiterForm from "../components/user/RegisterPage/utils/RegsiterForm";
 import PlanSelectionForm from "../components/user/RegisterPage/utils/PlanSelectionForm";
+import ProtectedRoute from "../components/user/protect/ProtectedRoute";
+import ProtectedSuccessRoute from "../components/user/protect/ProtectsuccessRoute";
 
 const UserRoutes = () => {
   return (
@@ -15,10 +17,31 @@ const UserRoutes = () => {
       <Route path="/pricing" element={<PricingPage />} />
       <Route path="/contact" element={<ContactPage />} />
       <Route path="/purchase" element={<RegisterPage />}>
-        <Route index element={<RegsiterForm/>} />
-        <Route path="otp" element={<OTPForm/>} />
-        <Route path="plan" element={<PlanSelectionForm />} />
-        <Route path="success" element={<SuccessCard />} />
+        <Route index element={<RegsiterForm />} />
+        <Route
+          path="otp"
+          element={
+            <ProtectedRoute>
+              <OTPForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="plan"
+          element={
+            <ProtectedRoute>
+              <PlanSelectionForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="success"
+          element={
+            <ProtectedSuccessRoute>
+              <SuccessCard />
+            </ProtectedSuccessRoute>
+          }
+        />
       </Route>
     </Routes>
   );

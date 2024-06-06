@@ -13,10 +13,14 @@ const customerSlice = createSlice({
         setCustomerInfo: (state, action) => {
             state.customerInfo = action.payload;
             localStorage.setItem('customerInfo', JSON.stringify(action.payload));
+        },
+        removeCustomerInfo:(state) => {
+            state.customerInfo = null;
+            localStorage.removeItem('customerInfo')
         }
     }
 });
 
-export const { setCustomerInfo } = customerSlice.actions;
+export const { setCustomerInfo,removeCustomerInfo } = customerSlice.actions;
 
 export default customerSlice.reducer;
