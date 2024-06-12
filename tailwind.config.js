@@ -16,7 +16,16 @@ export default {
       },
       backgroundImage: {
         'gradient-brown':'linear-gradient(271deg, #AC6C6C 0%, #462C2C 45%)'
-      }
+      },
+      keyframes: {
+        slideDown: {
+          '0%': { transform: 'translateY(-100%)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+      },
+      animation: {
+        slideDown: 'slideDown 0.5s ease-out',
+      },
     },
   },
   plugins: [],
