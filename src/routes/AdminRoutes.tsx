@@ -15,7 +15,7 @@ const AdminRoutes = ()=>{
                 <Route path="requests" element={<Requests/>} />
                 <Route path="customers" element={<Customers/>} />
                 <Route path="plans" element={<Plans/>} />
-            </Route>
+            </Route>   
         </Routes>
     )
 }

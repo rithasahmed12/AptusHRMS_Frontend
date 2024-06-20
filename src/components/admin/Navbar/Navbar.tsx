@@ -1,7 +1,31 @@
 import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import Swal from 'sweetalert2';
+import { logout } from '../../../redux/slices/adminSlice/adminSlice';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleLogout = async()=>{
+    const result = await Swal.fire({
+      title: "Question",
+      text: "Are you sure you want to Logout?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Logout",
+      cancelButtonText: "Cancel",
+    })
+    if(result.isConfirmed){
+      dispatch(logout());
+      navigate('/admin')
+      toast.success('Logout Successfull!')
+    }
+   
+  }
 
   return (
     <nav className="bg-white shadow-md">
@@ -27,7 +51,7 @@ const Navbar = () => {
               {dropdownOpen && (
                 <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5">
                   <button
-                    onClick={() => alert('Logout')}
+                    onClick={handleLogout}
                     className="block px-4 py-2 text-sm text-gray-700 w-full text-left">
                     Logout
                   </button>

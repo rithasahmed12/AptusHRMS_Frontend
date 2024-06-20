@@ -26,13 +26,15 @@ const OTPForm = () => {
   }, [timer]);
 
   const handleChange = (index: number, value: string) => {
-    const newOtp = [...otp];
-    newOtp[index] = value;
-    setOtp(newOtp);
-
-    if (value && index < 3) {
-      const nextInput = document.querySelector(`input[data-index="${index + 1}"]`) as HTMLInputElement;
-      nextInput.focus();
+    if (/^\d*$/.test(value)) {
+      const newOtp = [...otp];
+      newOtp[index] = value;
+      setOtp(newOtp);
+  
+      if (value && index < 3) {
+        const nextInput = document.querySelector(`input[data-index="${index + 1}"]`) as HTMLInputElement;
+        nextInput.focus();
+      }
     }
   };
 

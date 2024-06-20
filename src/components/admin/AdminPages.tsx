@@ -1,12 +1,10 @@
-// AdminPages.tsx
 import Sidebar from './Sidebar/Sidebar';
 import Navbar from './Navbar/Navbar';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
-type Props = {}
 
-const AdminPages = (props: Props) => {
+const AdminPages = () => {
   const { adminInfo } = useSelector((store: any) => store.adminInfo);
 
   return (

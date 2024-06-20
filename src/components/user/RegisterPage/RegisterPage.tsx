@@ -11,10 +11,10 @@ const RegisterPage: React.FC<RegisterPageProps> = () => {
 
   return (
     <>
-      <NavBar />
+      <NavBar  />
       <div
         className={`${
-          isMobile ? "flex-col h-[1000px]" : "h-svh justify-between items-center flex"
+          isMobile ? "flex-col h-[1070px]" : "h-[800px] justify-between items-center flex"
         } bg-gradient-brown  `}
       >
         {isMobile ? (

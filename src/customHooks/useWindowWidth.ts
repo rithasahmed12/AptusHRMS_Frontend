@@ -8,7 +8,7 @@ function useWindowWidth() {
       setIsMobile(window.innerWidth <= 769);
     };
 
-    handleResize(); // Call initially to set the initial state
+    handleResize();
     window.addEventListener("resize", handleResize);
 
     return () => {

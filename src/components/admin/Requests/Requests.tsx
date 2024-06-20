@@ -59,18 +59,24 @@ const Requests = () => {
   };
 
   const handleDecline = async (requestId: string) => {
-    const result = await Swal.fire({
-      title: "Confirmation",
-      text: "Are you sure you want to decline this request?",
-      icon: "question",
+    const { value: reason } = await Swal.fire({
+      title: "Decline Reason",
+      input: 'textarea',
+      inputLabel: 'Please provide the reason for declining this request:',
+      inputPlaceholder: 'Enter your reason here...',
       showCancelButton: true,
-      confirmButtonText: "Decline",
+      confirmButtonText: "Submit",
       cancelButtonText: "Cancel",
+      inputValidator: (value) => {
+        if (!value) {
+          return 'You need to write something!';
+        }
+      }
     });
-
-    if (result.isConfirmed) {
-      try {
-        const response:any = await declineRequest(requestId);
+  
+    if (reason) {
+      try {    
+        const response: any = await declineRequest(requestId, reason);
         if(response.status === 200){
           toast.success("Request declined successfully");
           fetchRequests();
@@ -78,6 +84,8 @@ const Requests = () => {
       } catch (error) {
         toast.error("Failed to decline request");
       }
+    } else {
+      toast.info("Decline action was cancelled");
     }
   };
 

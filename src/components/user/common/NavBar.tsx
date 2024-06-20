@@ -2,9 +2,9 @@ import { useState } from "react";
 import BrownButton from "./BrownButton";
 import { Link, NavLink} from "react-router-dom";
 
-type Props = {};
 
-const NavBar = (props: Props) => {
+
+const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleSidebar = () => setIsOpen(!isOpen); 

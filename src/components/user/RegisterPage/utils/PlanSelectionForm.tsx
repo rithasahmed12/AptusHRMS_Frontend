@@ -15,6 +15,7 @@ interface Plans {
 
 const PlanSelectionForm = () => {
   const [selectedPlan, setSelectedPlan] = useState<any>({});
+  const [isLoading, setIsLoading] = useState(false);
 
   const { customerInfo } = useSelector((state: any) => state.customerInfo);
 
@@ -49,6 +50,8 @@ const PlanSelectionForm = () => {
       customer: customerInfo,
     };
 
+    setIsLoading(true);
+
     const response = await fetch(
       "http://localhost:3001/payment/checkout-session",
       {
@@ -69,6 +72,8 @@ const PlanSelectionForm = () => {
       stripe?.redirectToCheckout({
         sessionId: session.id,
       });
+
+      setIsLoading(false);
 
       dispatch(
         setCustomerInfo({
@@ -110,10 +115,16 @@ const PlanSelectionForm = () => {
         ))}
       </div>
       <button
+        disabled={isLoading}
+        style={isLoading ? { backgroundColor: "#7D6464" } : {}}
         onClick={handlePayment}
         className="bg-brown-dark w-[200px] text-white font-semibold py-2 px-4 rounded-md flex items-center justify-center"
       >
+         {isLoading && (
+              <div className="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
+            )}
         Confirm Plan
+        
       </button>
     </div>
   );

@@ -4,16 +4,28 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { logout } from '../../../redux/slices/adminSlice/adminSlice';
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
+import Swal from 'sweetalert2';
 
 
 const Sidebar: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const handleLogout = ()=>{
-    dispatch(logout());
-    navigate('/admin')
-    toast.success('Logout Successfull!')
+  const handleLogout = async()=>{
+    const result = await Swal.fire({
+      title: "Question",
+      text: "Are you sure you want to Logout?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Logout",
+      cancelButtonText: "Cancel",
+    })
+    if(result.isConfirmed){
+      dispatch(logout());
+      navigate('/admin')
+      toast.success('Logout Successfull!')
+    }
+   
   }
 
   return (

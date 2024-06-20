@@ -3,9 +3,7 @@ import Api from "./axiosConfig";
 
 
 export const verifyTenant = async (tenantId:string, domain:string|null) => {
-    try {
-        console.log('ttetet:',tenantId,domain);
-        
+    try { 
       const response = await Api.post(
         companyRoutes.verifyTenant,
         {},
@@ -16,9 +14,21 @@ export const verifyTenant = async (tenantId:string, domain:string|null) => {
           }
         }
       );
-      return response.data;
+      return response;
     } catch (error:any) {
-     console.log(error);
-     
+     return error.response;
     }
   };
+
+export const companyLogin = async(body:{email:string,password:string},headers:any)=>{
+  try {
+    const response = await Api.post(
+      companyRoutes.login,
+      body,
+      {withCredentials:true,headers}
+    )
+    return response;
+  } catch (error:any) {
+    return error.response;
+  }
+}   

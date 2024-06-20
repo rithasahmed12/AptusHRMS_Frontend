@@ -24,10 +24,16 @@ const ProtectedPortal = ({ children }: any) => {
         const hostname = url.hostname;
         const domain = hostname.includes('.') ? hostname.split('.')[0] : null;
         const response = await verifyTenant(portalId, domain);
-        console.log(response);
-        return
-        localStorage.setItem("portalId", response);
-        setIsModalOpen(false);
+        console.log('response:',response);
+    
+        if(response.status === 201){
+          localStorage.setItem("portalId", response.data);
+          toast.success("Portal Verified Successfully!");
+          setIsModalOpen(false);
+        }else if(response.status === 401){ 
+          toast.error(response?.data.message);
+        }
+    
       } catch (error) {
         toast.error('Verification failed. Please check your Portal ID and try again.');
       }

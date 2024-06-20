@@ -39,9 +39,9 @@ export const approveRequest = async (id: string) => {
     }
   };
 
-  export const declineRequest = async (id: string) => {
+  export const declineRequest = async (id: string,reason:string) => {
     try {
-      const response = await Api.patch(adminRoutes.declineRequest(id), {}, { withCredentials: true });
+      const response = await Api.patch(adminRoutes.declineRequest(id), {reason}, { withCredentials: true });
       return response;
     } catch (error) {
       return error;
