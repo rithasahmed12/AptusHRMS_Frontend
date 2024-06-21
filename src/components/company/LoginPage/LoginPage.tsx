@@ -3,13 +3,23 @@ import useWindowWidth from "../../../customHooks/useWindowWidth";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { companyLogin } from "../../../api/company";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { setCompanyInfo } from "../../../redux/slices/companySlice/companySlice";
 
 
 
 const LoginPages = () => {
 
+  const {companyInfo} = useSelector((state:any) => state.companyInfo);
+
+  if (companyInfo) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -40,11 +50,11 @@ const LoginPages = () => {
     }
 
     const response = await companyLogin(body,headers);
-
     console.log(response);
     if(response.status === 201){
       toast.success(response.data.message);
-      navigate('dashboard')
+      dispatch(setCompanyInfo({email:response.data.email}));
+      navigate('dashboard');
     }else {
       toast.error(response.data.message)
     }

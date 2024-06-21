@@ -1,11 +1,13 @@
-import React from 'react'
+import Sidebar from "../sidebar/Sidebar";
 
-type Props = {}
 
-const Dashboard = (props: Props) => {
+const Dashboard = () => {
   return (
-    <div>Dashboard</div>
-  )
-}
+    <div>
+      <Sidebar/>
+      <h1>Dashboard</h1>
+    </div>
+  );
+};
 
-export default Dashboard
+export default Dashboard;

@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { verifyTenant } from "../../../api/company";
 import { toast } from "react-toastify";
+import { Outlet } from "react-router-dom";
 
-const ProtectedPortal = ({ children }: any) => {
+const ProtectedPortal = () => {
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [portalId, setPortalId] = useState("");
 
@@ -24,16 +26,15 @@ const ProtectedPortal = ({ children }: any) => {
         const hostname = url.hostname;
         const domain = hostname.includes('.') ? hostname.split('.')[0] : null;
         const response = await verifyTenant(portalId, domain);
-        console.log('response:',response);
-    
-        if(response.status === 201){
+        console.log('response:', response);
+
+        if (response.status === 201) {
           localStorage.setItem("portalId", response.data);
           toast.success("Portal Verified Successfully!");
           setIsModalOpen(false);
-        }else if(response.status === 401){ 
+        } else if (response.status === 401) {
           toast.error(response?.data.message);
         }
-    
       } catch (error) {
         toast.error('Verification failed. Please check your Portal ID and try again.');
       }
@@ -42,7 +43,7 @@ const ProtectedPortal = ({ children }: any) => {
 
   if (isModalOpen) {
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start  justify-center z-50">
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50">
         <div className="bg-white text-black p-6 rounded-lg shadow-lg relative top-10 w-[270px] animate-slideDown">
           <h2 className="text-xl text-center font-bold mb-4">Enter Portal ID</h2>
           <input
@@ -65,7 +66,7 @@ const ProtectedPortal = ({ children }: any) => {
     );
   }
 
-  return children;
+  return <Outlet />;
 };
 
 export default ProtectedPortal;
