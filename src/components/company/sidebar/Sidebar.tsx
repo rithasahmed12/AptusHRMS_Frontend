@@ -1,198 +1,156 @@
-import * as React from 'react';
-import { styled, useTheme, Theme, CSSObject } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import MuiDrawer from '@mui/material/Drawer';
-import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import List from '@mui/material/List';
-import CssBaseline from '@mui/material/CssBaseline';
-import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
-import { red } from '@mui/material/colors';
+import {
+  ArrowLeftEndOnRectangleIcon,
+  BellAlertIcon,
+  DocumentMagnifyingGlassIcon,
+  InboxStackIcon,
+  UserCircleIcon,
+  ChevronRightIcon,
+  ChevronDownIcon,
+  Bars3Icon,
+} from "@heroicons/react/24/outline";
+import React, { useState } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { logout } from "../../../redux/slices/adminSlice/adminSlice";
+import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 
-const drawerWidth = 240;
-
-const openedMixin = (theme: Theme): CSSObject => ({
-  width: drawerWidth,
-  transition: theme.transitions.create('width', {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.enteringScreen,
-  }),
-  overflowX: 'hidden',
-});
-
-const closedMixin = (theme: Theme): CSSObject => ({
-  transition: theme.transitions.create('width', {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  overflowX: 'hidden',
-  width: `calc(${theme.spacing(7)} + 1px)`,
-  [theme.breakpoints.up('sm')]: {
-    width: `calc(${theme.spacing(8)} + 1px)`,
-  },
-});
-
-const DrawerHeader = styled('div')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'flex-end',
-  padding: theme.spacing(0, 1),
-  // necessary for content to be below app bar
-  ...theme.mixins.toolbar,
-}));
-
-interface AppBarProps extends MuiAppBarProps {
-  open?: boolean;
+interface SidebarProps {
+  isSidebarExpanded: boolean;
+  toggleSidebar: () => void;
 }
 
-const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== 'open',
-})<AppBarProps>(({ theme, open }) => ({
-  zIndex: theme.zIndex.drawer + 1,
-  transition: theme.transitions.create(['width', 'margin'], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
-}));
+const Sidebar: React.FC<SidebarProps> = ({ isSidebarExpanded, toggleSidebar }) => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [isOrgOpen, setIsOrgOpen] = useState(false);
 
-const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open }) => ({
-    width: drawerWidth,
-    flexShrink: 0,
-    whiteSpace: 'nowrap',
-    boxSizing: 'border-box',
-    ...(open && {
-      ...openedMixin(theme),
-      '& .MuiDrawer-paper': openedMixin(theme),
-    }),
-    ...(!open && {
-      ...closedMixin(theme),
-      '& .MuiDrawer-paper': closedMixin(theme),
-    }),
-  }),
-);
-
-export default function Sidebar() {
-  const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
-
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
-
-  const handleDrawerClose = () => {
-    setOpen(false);
+  const handleLogout = async () => {
+    const result = await Swal.fire({
+      title: "Question",
+      text: "Are you sure you want to Logout?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Logout",
+      cancelButtonText: "Cancel",
+    });
+    if (result.isConfirmed) {
+      dispatch(logout());
+      navigate("/admin");
+      toast.success("Logout Successful!");
+    }
   };
 
   return (
-    <Box sx={{ display: 'flex' }}>
-      <CssBaseline />
-      <AppBar position="fixed" open={open}>
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            sx={{  
-              marginRight: 5,
-              ...(open && { display: 'none' }
-              ),
-            }}
+    <div className={`flex flex-col ${isSidebarExpanded ? 'w-64' : 'w-20'} transition-width duration-300 py-7 px-2 absolute top-16 h-full left-0 bg-white shadow-lg`}>
+      <button
+        onClick={toggleSidebar}
+        className="mb-4 px-4 py-2 flex items-center justify-center bg-gray-200 rounded transition duration-300 cursor-pointer"
+      >
+        <Bars3Icon height={24} color="#3d3d3d" />
+      </button>
+      <nav className="space-y-1">
+        <NavLink
+          to="/c/dashboard"
+          className={({ isActive }) =>
+            `py-2.5 px-4 gap-3 flex items-center rounded transition duration-300 cursor-pointer ${
+              isActive
+                ? "bg-black font-semibold text-white"
+                : "hover:bg-gray-200"
+            }`
+          }
+        >
+          {({ isActive }) => (
+            <>
+              <InboxStackIcon
+                height={24}
+                color={isActive ? "white" : "#3d3d3d"}
+              />
+              {isSidebarExpanded && 'Dashboard'}
+            </>
+          )}
+        </NavLink>
+
+        <NavLink
+          to="/c/announcements"
+          className={({ isActive }) =>
+            `py-2.5 px-4 gap-3 flex items-center rounded transition duration-300 cursor-pointer ${
+              isActive
+                ? "bg-black font-semibold text-white"
+                : "hover:bg-gray-200"
+            }`
+          }
+        >
+          {({ isActive }) => (
+            <>
+              <InboxStackIcon
+                height={24}
+                color={isActive ? "white" : "#3d3d3d"}
+              />
+              {isSidebarExpanded && 'Announcements'}
+            </>
+          )}
+        </NavLink>
+
+        <div>
+          <button
+            onClick={() => setIsOrgOpen(!isOrgOpen)}
+            className={`py-2.5 px-4 gap-3 w-full flex justify-between items-center rounded transition duration-300 cursor-pointer ${
+              isOrgOpen ? "bg-gray-200" : "hover:bg-gray-200"
+            }`}
           >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            Mini variant drawer
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <Drawer variant="permanent" open={open}>
-        <DrawerHeader>
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-          </IconButton>
-        </DrawerHeader>
-        <Divider />
-        <List>
-          {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-            <ListItem key={text} disablePadding sx={{ display: 'block' }}>
-              <ListItemButton
-                sx={{
-                  minHeight: 48,
-                  justifyContent: open ? 'initial' : 'center',
-                  px: 2.5,
-                }}
+            <div className="flex items-center gap-3">
+              <UserCircleIcon height={24} color="#3d3d3d" />
+              {isSidebarExpanded && 'Organization'}
+            </div>
+            <div
+              className={`transition-transform ${
+                isOrgOpen ? "rotate-90" : "rotate-0"
+              }`}
+            >
+              <ChevronRightIcon height={24} color="#3d3d3d" />
+            </div>
+          </button>
+          {isOrgOpen && isSidebarExpanded && (
+            <div className="pl-8 space-y-1">
+              <NavLink
+                to="/c/organization/department"
+                className={({ isActive }) =>
+                  `py-2.5 px-4 gap-3 flex rounded transition duration-300 cursor-pointer ${
+                    isActive
+                      ? "bg-black font-semibold text-white"
+                      : "hover:bg-gray-200"
+                  }`
+                }
               >
-                <ListItemIcon
-                  sx={{
-                    minWidth: 0,
-                    mr: open ? 3 : 'auto',
-                    justifyContent: 'center',
-                  }}
-                >
-                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                </ListItemIcon>
-                <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
-        <Divider />
-        <List>
-          {['All mail', 'Trash', 'Spam'].map((text, index) => (
-            <ListItem key={text} disablePadding sx={{ display: 'block' }}>
-              <ListItemButton
-                sx={{
-                  minHeight: 48,
-                  justifyContent: open ? 'initial' : 'center',
-                  px: 2.5,
-                }}
+                • Department
+              </NavLink>
+              <NavLink
+                to="/c/organization/designation"
+                className={({ isActive }) =>
+                  `py-2.5 px-4 gap-3 flex rounded transition duration-300 cursor-pointer ${
+                    isActive
+                      ? "bg-black font-semibold text-white"
+                      : "hover:bg-gray-200"
+                  }`
+                }
               >
-                <ListItemIcon
-                  sx={{
-                    minWidth: 0,
-                    mr: open ? 3 : 'auto',
-                    justifyContent: 'center',
-                  }}
-                >
-                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                </ListItemIcon>
-                <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
-      </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-        <DrawerHeader />
-        <Typography paragraph>
-         
-        </Typography>
-        <Typography paragraph>
-          Consequat mauris nunc congue nisi vitae suscipit. Fringilla est ullamcorper
-        
-        </Typography>
-      </Box>
-    </Box>
+                • Designation
+              </NavLink>
+            </div>
+          )}
+        </div>
+
+        <button
+          onClick={handleLogout}
+          className={`py-2.5 px-4 gap-3 w-full flex items-center rounded transition duration-300 cursor-pointer hover:bg-gray-100`}
+        >
+          <ArrowLeftEndOnRectangleIcon height={24} color="#3d3d3d" />
+          {isSidebarExpanded && 'Logout'}
+        </button>
+      </nav>
+    </div>
   );
-}
+};
+
+export default Sidebar;

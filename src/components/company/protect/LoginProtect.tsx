@@ -6,12 +6,12 @@ const LoginProtect = () => {
   console.log('isAuthenticated', isAuthenticated);
 
   if (isAuthenticated && isAuthenticated.email) {
-    console.log('lilili');
+
     
     return <Outlet />;
   }
 
-  console.log('lalalal');
+
   
 
   return <Navigate to="/" replace />;

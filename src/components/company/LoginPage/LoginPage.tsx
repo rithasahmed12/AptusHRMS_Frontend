@@ -14,7 +14,7 @@ const LoginPages = () => {
   const {companyInfo} = useSelector((state:any) => state.companyInfo);
 
   if (companyInfo) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/c/dashboard" replace />;
   }
 
   const navigate = useNavigate();
@@ -34,27 +34,17 @@ const LoginPages = () => {
   const handleLogin = async(e:any)=>{
     e.preventDefault();
 
-    const tenantId = localStorage.getItem('portalId');
-
-    // Extract the subdomain from the current hostname
-    const hostname = window.location.hostname;
-    const subdomain = hostname.split('.')[0];
-
     const body = {
       email:email,
       password:password
     }
-    const headers = {
-      'x-tenant-id': tenantId,
-      'x-domain': subdomain
-    }
 
-    const response = await companyLogin(body,headers);
+    const response = await companyLogin(body);
     console.log(response);
     if(response.status === 201){
       toast.success(response.data.message);
-      dispatch(setCompanyInfo({email:response.data.email}));
-      navigate('dashboard');
+      dispatch(setCompanyInfo({email:response.data.email,token:response.data.accessToken}));
+      navigate('/c/dashboard');
     }else {
       toast.error(response.data.message)
     }

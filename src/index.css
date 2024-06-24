@@ -26,4 +26,9 @@
     scrollbar-width: thin;
     scrollbar-color: #734c4c #f1f1f1;
   }
-  
+
+
+.transition-width {
+  transition: width 0.3s ease;
+}
+

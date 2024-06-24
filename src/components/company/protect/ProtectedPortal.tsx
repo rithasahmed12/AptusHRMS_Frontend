@@ -22,10 +22,8 @@ const ProtectedPortal = () => {
   const handleSubmit = async () => {
     if (portalId.trim() !== "") {
       try {
-        const url = new URL(window.location.href);
-        const hostname = url.hostname;
-        const domain = hostname.includes('.') ? hostname.split('.')[0] : null;
-        const response = await verifyTenant(portalId, domain);
+     
+        const response = await verifyTenant(portalId);
         console.log('response:', response);
 
         if (response.status === 201) {
