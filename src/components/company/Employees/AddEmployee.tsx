@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import dayjs from 'dayjs';
 import {
   Tabs,
   Form,
@@ -12,8 +13,8 @@ import {
   Col,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
-import { useNavigate } from "react-router-dom"; // Assuming you use react-router-dom for routing
-import { getDepartment, getDesignations } from "../../../api/company";
+import { useNavigate } from "react-router-dom";
+import { createEmployee, getDepartment, getDesignations } from "../../../api/company";
 
 const { Option } = Select;
 const { TabPane } = Tabs;
@@ -29,6 +30,14 @@ interface Department {
   name: string;
   head: string;
 }
+
+function convertToDate(dayjsObject: any): Date | null {
+  if (dayjsObject && dayjs.isDayjs(dayjsObject)) {
+    return new Date(dayjsObject.year(), dayjsObject.month(), dayjsObject.date());
+  }
+  return null;
+}
+
 
 const AddEmployee: React.FC = () => {
   const [form] = Form.useForm();
@@ -66,7 +75,6 @@ const AddEmployee: React.FC = () => {
   const handleFileChange = (info: any) => {
     if (info.file.status === "done") {
       message.success(`${info.file.name} file uploaded successfully`);
-      // Get this url from response in real implementation
       setProfilePic(URL.createObjectURL(info.file.originFileObj));
     } else if (info.file.status === "error") {
       message.error(`${info.file.name} file upload failed.`);
@@ -76,16 +84,28 @@ const AddEmployee: React.FC = () => {
   const handleSubmit = async (values: any) => {
     setIsSubmitted(true);
     try {
-      const employeeData = { ...values, profilePic };
+      const employeeData = {
+        ...values,
+        dob: values.dob ? new Date(convertToDate(values.dob)!.toISOString()) : undefined,
+        hireDate: values.hireDate ? new Date(convertToDate(values.hireDate)!.toISOString()) : undefined,
+        joiningDate: values.joiningDate ? new Date(convertToDate(values.joiningDate)!.toISOString()) : undefined,
+        basicSalary: parseFloat(values.basicSalary),
+        profilePic,
+      };
+  
+      const response = await createEmployee(employeeData);
+      console.log(response);
       message.success("Employee added successfully");
       navigate("/c/employees");
     } catch (error) {
+      console.error("Error adding employee:", error);
       message.error("Failed to add employee");
     }
   };
+  
 
   const goBack = () => {
-    navigate(-1); // Navigate back to the previous page
+    navigate(-1);
   };
 
   const nextTab = () => {
@@ -339,11 +359,16 @@ const AddEmployee: React.FC = () => {
                     rules={[
                       {
                         required: true,
-                        message: "Please input employee type!",
+                        message: "Please select employee type!",
                       },
                     ]}
                   >
-                    <Input />
+                    <Select placeholder="Select Employee Type">
+                      <Option value="full-time">Full-time</Option>
+                      <Option value="part-time">Part-time</Option>
+                      <Option value="contract">Contract</Option>
+                      <Option value="intern">Intern</Option>
+                    </Select>
                   </Form.Item>
                 </Col>
               </Row>
@@ -406,10 +431,14 @@ const AddEmployee: React.FC = () => {
                     label="Status"
                     name="status"
                     rules={[
-                      { required: true, message: "Please input status!" },
+                      { required: true, message: "Please select status!" },
                     ]}
                   >
-                    <Input />
+                    <Select placeholder="Select Status">
+                      <Option value="active">Active</Option>
+                      <Option value="inactive">Inactive</Option>
+                      <Option value="terminated">Terminated</Option>
+                    </Select>
                   </Form.Item>
                 </Col>
               </Row>
@@ -422,7 +451,7 @@ const AddEmployee: React.FC = () => {
                       { required: true, message: "Please select a role!" },
                     ]}
                   >
-                    <Select>
+                    <Select placeholder="Select Role">
                       <Option value="admin">Admin</Option>
                       <Option value="hr">HR</Option>
                       <Option value="se">SE</Option>

@@ -1,20 +1,18 @@
-// EmployeeList.tsx
 import React, { useEffect, useState } from "react";
-import { Table, Button, Space, Modal,message } from "antd";
+import { Table, Button, Space, Modal, message } from "antd";
 import { EditOutlined, DeleteOutlined, EyeOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-// import { getEmployees, deleteEmployee } from "../../api/company"; // Adjust path as per your project structure
+import { getEmployees } from "../../../api/company";
 
-
+// Define the interface for employee data
 interface Employee {
   _id: string;
   name: string;
-  contacts: {
-    phone: string;
-    email: string;
-    profilePic: string;
-  };
-  dateOfJoining: string; // Assuming date is stored as string in ISO format
+  phone: string;
+  email: string;
+  employeeId:string;
+  profilePic: string | null;
+  joiningDate: string; // Assuming date is stored as string in ISO format
 }
 
 const EmployeeList: React.FC = () => {
@@ -30,8 +28,9 @@ const EmployeeList: React.FC = () => {
 
   const fetchEmployees = async () => {
     try {
-    //   const response = await getEmployees(); // Implement getEmployees function in your API
-    //   setEmployees(response.data); // Assuming response.data contains an array of employees
+      const response = await getEmployees();
+      console.log('response:', response);
+      setEmployees(response.data);
     } catch (error) {
       message.error("Failed to fetch employees");
     }
@@ -67,7 +66,7 @@ const EmployeeList: React.FC = () => {
   const columns = [
     {
       title: "Employee ID",
-      dataIndex: "_id",
+      dataIndex: "employeeId",
       key: "_id",
     },
     {
@@ -77,20 +76,19 @@ const EmployeeList: React.FC = () => {
     },
     {
       title: "Contacts",
-      dataIndex: "contacts",
       key: "contacts",
-      render: (contacts: { phone: string; email: string; profilePic: string }) => (
+      render: (text: any, record: Employee) => (
         <>
-          <p>Phone: {contacts.phone}</p>
-          <p>Email: {contacts.email}</p>
-          <img src={contacts.profilePic} alt="Profile Pic" style={{ width: 50, borderRadius: "50%" }} />
+          <p>Phone: {record.phone}</p>
+          <p>Email: {record.email}</p>
+          {record.profilePic && <img src={record.profilePic} alt="Profile Pic" style={{ width: 50, borderRadius: "50%" }} />}
         </>
       ),
     },
     {
       title: "Date of Joining",
-      dataIndex: "dateOfJoining",
-      key: "dateOfJoining",
+      dataIndex: "joiningDate",
+      key: "joiningDate",
     },
     {
       title: "Action",
@@ -112,7 +110,7 @@ const EmployeeList: React.FC = () => {
   ];
 
   const handleAddEmployee = () => {
-    navigate("/c/employees/add "); // Navigate to the route where you add employees
+    navigate("/c/employees/add"); // Navigate to the route where you add employees
   };
 
   const handleEdit = (employee: Employee) => {

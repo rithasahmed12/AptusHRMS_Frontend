@@ -200,3 +200,47 @@ export const getDesignations = async () => {
   }
 };
 
+interface Employee {
+  readonly name?: string;
+  readonly gender?: string;
+  readonly dob?: Date;
+  readonly streetAddress?: string;
+  readonly city?: string;
+  readonly country?: string;
+  readonly postalCode?: string;
+  readonly phone?: string;
+  readonly email: string;
+  readonly hireDate?: Date;
+  readonly joiningDate?: Date;
+  readonly basicSalary?: number;
+  readonly employeeType?: string;
+  readonly departmentId?: string;
+  readonly designationId?: string;
+  readonly employeeId?: string;
+  readonly status?: string;
+  readonly role: string;
+  readonly shift?: string;
+  readonly profilePic?: string;
+}
+
+export const createEmployee = async(body:Employee)=>{
+  try {
+    console.log('Employee:',body);
+    
+    const response = await CompanyApi.post(companyRoutes.employee,body);
+    return response 
+  } catch (error:any) {
+    return error.response;
+  }
+}
+
+export const getEmployees = async()=>{
+  try {
+    const response = await CompanyApi.get(companyRoutes.employee);
+    return response 
+  } catch (error:any) {
+    return error.response;
+  }
+}
+
+
