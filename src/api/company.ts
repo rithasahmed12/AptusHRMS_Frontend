@@ -117,3 +117,86 @@ export const deleteAnnouncement = async(id:string)=>{
     return error.response;
   }
 }
+
+export const getDepartment = async()=>{
+  try {
+    const response = await CompanyApi.get(companyRoutes.department);
+    return response;
+  } catch (error:any) {
+    return error.response;
+  }
+}
+
+interface Department{
+  name:string;
+  head:string
+}
+
+export const createDepartment = async (body:Department)=>{
+  try {
+    const response = await CompanyApi.post(companyRoutes.department,body);
+    return response;
+  } catch (error:any) {
+    return error.response;
+  }
+}
+
+export const editDepartment = async(id:string|undefined,body:Department)=>{
+  try {
+    const response = await CompanyApi.put(companyRoutes.Department(id),body);
+    return response;
+  } catch (error:any) {
+    return error.response;
+  }
+}
+
+export const deleteDepartment = async(id:string)=>{
+  try {
+    const response = await CompanyApi.delete(companyRoutes.Department(id));
+    return response;
+  } catch (error:any) {
+    return error.response;
+  }
+}
+
+interface Designation {
+  name: string;
+  departmentId: string;
+}
+
+export const createDesignation = async (designation:Designation) => {
+  try { 
+    const response = await CompanyApi.post(companyRoutes.designation, designation);
+    return response;
+  } catch (error:any) {
+    return error.response;
+  }
+};
+
+export const deleteDesignation = async (id:string) => {
+  try {
+    const response = await CompanyApi.delete(companyRoutes.Designation(id));
+    return response;
+  } catch (error:any) {
+    return error.response;
+  }
+};
+
+export const editDesignation = async (id:string|undefined, designation:Designation) => {
+  try {
+    const response = await CompanyApi.put(companyRoutes.Designation(id), designation);
+    return response;
+  } catch (error:any) {
+    return error.response;
+  }
+};
+
+export const getDesignations = async () => {
+  try {
+    const response = await CompanyApi.get(companyRoutes.designation);
+    return response;
+  } catch (error:any) {
+    return error.response;
+  }
+};
+

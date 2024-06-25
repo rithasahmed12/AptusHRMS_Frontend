@@ -5,6 +5,10 @@ import LoginProtect from "../components/company/protect/LoginProtect.tsx";
 import CompanyPages from "../components/company/CompanyPages.tsx";
 import Dashboard from "../components/company/Dashboard/Dashboard.tsx";
 import Announcements from "../components/company/Announcements/Announcements.tsx";
+import Department from "../components/company/Organization/Department.tsx";
+import DesignationPage from "../components/company/Organization/Designation.tsx";
+import EmployeeList from "../components/company/Employees/EmployeesList.tsx";
+import AddEmployee from "../components/company/Employees/AddEmployee.tsx";
 
 const CompanyRoutes = () => {
   return (
@@ -15,6 +19,10 @@ const CompanyRoutes = () => {
           <Route path="/c" element={<CompanyPages/>}>
           <Route path="dashboard" element={<Dashboard/>} />
           <Route path="announcements" element={<Announcements/>} />
+          <Route path="employees" element={<EmployeeList/>} />
+          <Route path="employees/add" element={<AddEmployee/>} />
+          <Route path="organization/department" element={<Department/>} />
+          <Route path="organization/designation" element={<DesignationPage/>} />
           </Route>
         </Route>
       </Route>

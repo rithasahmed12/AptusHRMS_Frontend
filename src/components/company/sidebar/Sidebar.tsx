@@ -92,6 +92,27 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarExpanded, toggleSidebar }) =
           )}
         </NavLink>
 
+        <NavLink
+          to="/c/employees"
+          className={({ isActive }) =>
+            `py-2.5 px-4 gap-3 flex items-center rounded transition duration-300 cursor-pointer ${
+              isActive
+                ? "bg-black font-semibold text-white"
+                : "hover:bg-gray-200"
+            }`
+          }
+        >
+          {({ isActive }) => (
+            <>
+              <UserCircleIcon
+                height={24}
+                color={isActive ? "white" : "#3d3d3d"}
+              />
+              {isSidebarExpanded && 'Employees'}
+            </>
+          )}
+        </NavLink>
+
         <div>
           <button
             onClick={() => setIsOrgOpen(!isOrgOpen)}
