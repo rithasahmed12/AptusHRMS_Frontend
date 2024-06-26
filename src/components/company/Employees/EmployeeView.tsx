@@ -1,17 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { 
-  Tabs, 
-  Button, 
-  Row, 
-  Col, 
-  Spin, 
-  message,
-  Card,
-  Typography 
-} from "antd";
+import { Tabs, Button, Row, Col, Spin, message, Card, Typography } from "antd";
 import { getEmployee } from "../../../api/company";
-import dayjs from 'dayjs';
+import dayjs from "dayjs";
 import { EditOutlined } from "@ant-design/icons";
 
 const { TabPane } = Tabs;
@@ -66,10 +57,14 @@ const EmployeeView: React.FC = () => {
     navigate(`/c/employees/edit/${id}`);
   };
 
+  const goBack = () => {
+    navigate(-1);
+  };
+
   const renderField = (label: string, value: any) => (
-    <div style={{ marginBottom: '10px' }}>
+    <div style={{ marginBottom: "10px" }}>
       <Text strong>{label}: </Text>
-      <Text>{value || 'N/A'}</Text>
+      <Text>{value || "N/A"}</Text>
     </div>
   );
 
@@ -85,11 +80,27 @@ const EmployeeView: React.FC = () => {
     <div className="container">
       <Card
         title={
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Title level={3}>Employee Details</Title>
-            <Button type="primary" icon={<EditOutlined />} onClick={handleEdit}>
-              Edit Employee
-            </Button>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <div>
+              <Title level={3}>Employee Details</Title>
+            </div>
+            <div>
+              <Button
+                style={{ marginRight: '8px' }}
+                type="primary"
+                icon={<EditOutlined />}
+                onClick={handleEdit}
+              >
+                Edit Employee
+              </Button>
+              <Button  onClick={goBack}>Go Back</Button>
+            </div>
           </div>
         }
       >
@@ -114,40 +125,62 @@ const EmployeeView: React.FC = () => {
           </Col>
         </Row>
 
-        <Tabs defaultActiveKey="1" style={{ marginTop: '20px' }}>
-          <TabPane tab="Personal Info" key="1">
-            <Row gutter={16}>
-              <Col span={12}>
-                {renderField("Gender", employee.gender)}
-                {renderField("Date of Birth", dayjs(employee.dob).format('YYYY-MM-DD'))}
-                {renderField("Phone Number", employee.phone)}
-                {renderField("Email", employee.email)}
-              </Col>
-              <Col span={12}>
-                {renderField("Street Address", employee.streetAddress)}
-                {renderField("City", employee.city)}
-                {renderField("Country", employee.country)}
-                {renderField("Postal Code", employee.postalCode)}
-              </Col>
-            </Row>
-          </TabPane>
-          
-          <TabPane tab="Employment Info" key="2">
-            <Row gutter={16}>
-              <Col span={12}>
-                {renderField("Hire Date", dayjs(employee.hireDate).format('YYYY-MM-DD'))}
-                {renderField("Joining Date", dayjs(employee.joiningDate).format('YYYY-MM-DD'))}
-                {renderField("Basic Salary", `$${employee.basicSalary?.toLocaleString()}`)}
-                {renderField("Employee Type", employee.employeeType)}
-              </Col>
-              <Col span={12}>
-                {renderField("Status", employee.status)}
-                {renderField("Role", employee.role)}
-                {renderField("Shift", employee.shift)}
-              </Col>
-            </Row>
-          </TabPane>
-        </Tabs>
+        <Tabs
+          defaultActiveKey="1"
+          style={{ marginTop: "20px" }}
+          items={[
+            {
+              key: "1",
+              label: "Personal Info",
+              children: (
+                <Row gutter={16}>
+                  <Col span={12}>
+                    {renderField("Gender", employee.gender)}
+                    {renderField(
+                      "Date of Birth",
+                      dayjs(employee.dob).format("YYYY-MM-DD")
+                    )}
+                    {renderField("Phone Number", employee.phone)}
+                    {renderField("Email", employee.email)}
+                  </Col>
+                  <Col span={12}>
+                    {renderField("Street Address", employee.streetAddress)}
+                    {renderField("City", employee.city)}
+                    {renderField("Country", employee.country)}
+                    {renderField("Postal Code", employee.postalCode)}
+                  </Col>
+                </Row>
+              ),
+            },
+            {
+              key: "2",
+              label: "Employment Info",
+              children: (
+                <Row gutter={16}>
+                  <Col span={12}>
+                    {renderField(
+                      "Hire Date",
+                      dayjs(employee.hireDate).format("YYYY-MM-DD")
+                    )}
+                    {renderField(
+                      "Joining Date",
+                      dayjs(employee.joiningDate).format("YYYY-MM-DD")
+                    )}
+                    {renderField(
+                      "Basic Salary",
+                      `${employee.basicSalary?.toLocaleString()}`
+                    )}
+                    {renderField("Employee Type", employee.employeeType)}
+                  </Col>
+                  <Col span={12}>
+                    {renderField("Status", employee.status)}
+                    {renderField("Shift", employee.shift)}
+                  </Col>
+                </Row>
+              ),
+            },
+          ]}
+        />
       </Card>
     </div>
   );

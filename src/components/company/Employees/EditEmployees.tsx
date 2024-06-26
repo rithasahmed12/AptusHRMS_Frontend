@@ -21,6 +21,7 @@ import {
   getDesignations,
   updateEmployee,
 } from "../../../api/company";
+import Title from "antd/es/typography/Title";
 
 const { Option } = Select;
 
@@ -521,10 +522,12 @@ const EditEmployee: React.FC = () => {
     <div>
       <Spin spinning={loading}>
         <div className="container">
-          <h2>Edit Employee</h2>
-          <Button onClick={goBack} style={{ marginBottom: "20px" }}>
+        <div style={{ display: "flex", marginBottom: "20px",justifyContent:'space-between', marginLeft:'1%', alignItems:'center' }}>
+          <Title level={3}>Edit Employee</Title>
+          <Button onClick={goBack}>
             Go Back
           </Button>
+          </div>
           <div style={{ display: "flex", marginBottom: "20px" }}>
             <div style={{ marginRight: "20px", textAlign: "center" }}>
               <img

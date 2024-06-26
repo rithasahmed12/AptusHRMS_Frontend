@@ -5,6 +5,18 @@ import { useNavigate } from "react-router-dom";
 import { deleteEmployee, getEmployees } from "../../../api/company";
 import { format } from "date-fns";
 
+interface Designation {
+  _id: string;
+  name: string;
+  departmentId: string;
+}
+
+interface Department {
+  _id: string;
+  name: string;
+  head: string;
+}
+
 // Define the interface for employee data
 interface Employee {
   readonly _id:string;
@@ -21,8 +33,8 @@ interface Employee {
   readonly joiningDate?: Date;
   readonly basicSalary?: number;
   readonly employeeType?: string;
-  readonly departmentId?: string;
-  readonly designationId?: string;
+  readonly departmentId?: Department;
+  readonly designationId?: Designation;
   readonly employeeId?: string;
   readonly status?: string;
   readonly role: string;
@@ -34,7 +46,7 @@ const EmployeeList: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [deletingEmployee, setDeletingEmployee] = useState<Employee | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-
+  
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -87,9 +99,33 @@ const EmployeeList: React.FC = () => {
       key: "_id",
     },
     {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
+      title: "Info",
+      key: "info",
+      render: (text: any, record: Employee) => (
+        <div className="flex items-center">
+          {record.profilePic && (
+            <img 
+              src={"https://via.placeholder.com/150"} 
+              alt="Profile Pic" 
+              style={{
+                width: "150px",
+                height: "150px",
+                borderRadius: "50%",
+                marginBottom: "10px",
+              }}
+              className="w-10 h-10 rounded-full mr-3"
+            />
+          )}
+          <div>
+            <div className="font-semibold">{record.name}</div>
+            <div className="text-xs text-gray-500">
+              {record.departmentId  && <span>{record.departmentId.name}</span>}
+              {record.departmentId && record.designationId && <span> | </span>}
+              {record.designationId && <span>{record.designationId.name}</span>}
+            </div>
+          </div>
+        </div>
+      ),
     },
     {
       title: "Contacts",
@@ -98,7 +134,6 @@ const EmployeeList: React.FC = () => {
         <>
           <p>Phone: {record.phone}</p>
           <p>Email: {record.email}</p>
-          {record.profilePic && <img src={record.profilePic} alt="Profile Pic" style={{ width: 50, borderRadius: "50%" }} />}
         </>
       ),
     },
@@ -106,8 +141,9 @@ const EmployeeList: React.FC = () => {
       title: "Date of Joining",
       dataIndex: "joiningDate",
       key: "joiningDate",
-      render: (joiningDate:Date) => format(new Date(joiningDate), 'dd/MM/yyy'),
+      render: (joiningDate: Date) => joiningDate ? format(new Date(joiningDate), 'dd/MM/yyyy') : '',
     },
+    // ... rest of the columns remain the same
     {
       title: "Action",
       key: "action",

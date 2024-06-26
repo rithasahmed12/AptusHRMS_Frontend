@@ -11,6 +11,7 @@ import EmployeeList from "../components/company/Employees/EmployeesList.tsx";
 import AddEmployee from "../components/company/Employees/AddEmployee.tsx";
 import EditEmployee from "../components/company/Employees/EditEmployees.tsx";
 import EmployeeView from "../components/company/Employees/EmployeeView.tsx";
+import ProjectList from "../components/company/Projects/Projects.tsx";
 
 
 const CompanyRoutes = () => {
@@ -28,6 +29,7 @@ const CompanyRoutes = () => {
             <Route path="/c/employees/view/:id" element={<EmployeeView />} />
             <Route path="organization/department" element={<Department/>} />
             <Route path="organization/designation" element={<DesignationPage/>} />
+            <Route path="projects" element={<ProjectList/>} />
           </Route>
         </Route>
       </Route>

@@ -16,6 +16,7 @@ import {
 import { UploadOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { createEmployee, getDepartment, getDesignations } from "../../../api/company";
+import Title from "antd/es/typography/Title";
 
 const { Option } = Select;
 
@@ -41,7 +42,8 @@ function convertToDate(dayjsObject: any): Date | null {
 const AddEmployee: React.FC = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
-  const [profilePic, setProfilePic] = useState<string | null>(null);
+  const [profilePic, setProfilePic] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState<string>("1");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -72,14 +74,30 @@ const AddEmployee: React.FC = () => {
     fetchDesignations();
   }, []);
 
-  const handleFileChange = (info: any) => {
-    if (info.file.status === "done") {
-      message.success(`${info.file.name} file uploaded successfully`);
-      setProfilePic(URL.createObjectURL(info.file.originFileObj));
-    } else if (info.file.status === "error") {
-      message.error(`${info.file.name} file upload failed.`);
-    }
-  };
+
+
+const handleFileChange = (info: any) => {
+  // const file = info.file.originFileObj;
+  
+  // if (file) {
+  //   setProfilePic(file);
+  //   console.log('profilePic:',profilePic);
+    
+  //   const reader = new FileReader();
+  //   reader.onload = (e) => {
+  //     const result = e.target?.result as string;
+  //     setPreviewUrl(result);
+  //     console.log('url:',previewUrl);
+  //   };
+  //   reader.readAsDataURL(file);
+
+  //   message.success(`${file.name} file uploaded successfully`);
+  // } else {
+  //   setProfilePic(null);
+  //   setPreviewUrl(null);
+  //   message.error(`File upload failed.`);
+  // }
+};
 
   const handleSubmit = async (values: any) => {
     setIsSubmitted(true);
@@ -475,34 +493,39 @@ const AddEmployee: React.FC = () => {
       
       <Spin spinning={loading}>
         <div className="container">
-          
-          <h2>Add Employee</h2>
-          <Button onClick={goBack} style={{ marginBottom: "20px" }}>
+          <div style={{ display: "flex", marginBottom: "20px",justifyContent:'space-between', marginLeft:'1%', alignItems:'center' }}>
+          <Title level={3}>Add Employee</Title>
+          <Button onClick={goBack}>
             Go Back
           </Button>
+          </div>
+          
           <div style={{ display: "flex", marginBottom: "20px" }}>
           <div style={{ marginRight: "20px", textAlign: "center" }}>
-                  <div style={{ marginRight: "20px", textAlign: "center" }}>
-                    <img
-                      src={profilePic || "https://via.placeholder.com/150"}
-                      alt="Profile Pic"
-                      style={{
-                        width: "150px",
-                        height: "150px",
-                        borderRadius: "50%",
-                        marginBottom: "10px",
-                      }}
-                    />
-                    <Upload
-                      name="profilePic"
-                      listType="picture"
-                      showUploadList={false}
-                      beforeUpload={() => false}
-                      onChange={handleFileChange}
-                    >
-                      <Button icon={<UploadOutlined />}>Choose File</Button>
-                    </Upload>
-                  </div>
+          <div style={{ marginRight: "20px", textAlign: "center" }}>
+  <img
+    src={previewUrl || "https://via.placeholder.com/150"}
+    alt="Profile Pic"
+    style={{
+      width: "150px",
+      height: "150px",
+      borderRadius: "50%",
+      marginBottom: "10px",
+      objectFit: "cover",
+    }}
+  />
+  <Upload
+    name="profilePic"
+    listType="picture"
+    showUploadList={false}
+    beforeUpload={(file) => {
+      handleFileChange({ file: { originFileObj: file } });
+      return false;
+    }}
+  >
+    <Button icon={<UploadOutlined />}>Choose File</Button>
+  </Upload>
+</div>
                 </div>
           <Form
             style={{ flex: 1 }}
