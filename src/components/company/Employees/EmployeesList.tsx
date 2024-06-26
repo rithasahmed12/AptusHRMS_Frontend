@@ -2,17 +2,32 @@ import React, { useEffect, useState } from "react";
 import { Table, Button, Space, Modal, message } from "antd";
 import { EditOutlined, DeleteOutlined, EyeOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import { getEmployees } from "../../../api/company";
+import { deleteEmployee, getEmployees } from "../../../api/company";
+import { format } from "date-fns";
 
 // Define the interface for employee data
 interface Employee {
-  _id: string;
-  name: string;
-  phone: string;
-  email: string;
-  employeeId:string;
-  profilePic: string | null;
-  joiningDate: string; // Assuming date is stored as string in ISO format
+  readonly _id:string;
+  readonly name?: string;
+  readonly gender?: string;
+  readonly dob?: Date;
+  readonly streetAddress?: string;
+  readonly city?: string;
+  readonly country?: string;
+  readonly postalCode?: string;
+  readonly phone?: string;
+  readonly email: string;
+  readonly hireDate?: Date;
+  readonly joiningDate?: Date;
+  readonly basicSalary?: number;
+  readonly employeeType?: string;
+  readonly departmentId?: string;
+  readonly designationId?: string;
+  readonly employeeId?: string;
+  readonly status?: string;
+  readonly role: string;
+  readonly shift?: string;
+  readonly profilePic?: string;
 }
 
 const EmployeeList: React.FC = () => {
@@ -29,8 +44,10 @@ const EmployeeList: React.FC = () => {
   const fetchEmployees = async () => {
     try {
       const response = await getEmployees();
-      console.log('response:', response);
-      setEmployees(response.data);
+      if(response.status ===  200){
+        console.log('response:', response);
+        setEmployees(response.data);
+      }
     } catch (error) {
       message.error("Failed to fetch employees");
     }
@@ -41,17 +58,17 @@ const EmployeeList: React.FC = () => {
     setIsDeleteModalOpen(true);
   };
 
+
+
   const handleDeleteOk = async () => {
     try {
-      if (deletingEmployee) {
-        // Implement deleteEmployee function in your API
-        // const response = await deleteEmployee(deletingEmployee._id);
-        // if (response.status === 200) {
-          setEmployees(employees.filter(e => e._id !== deletingEmployee._id));
-          setIsDeleteModalOpen(false);
-          setDeletingEmployee(null);
-          message.success("Employee deleted successfully");
-        // }
+      // Implement deleteEmployee function in your API
+      const response = await deleteEmployee(deletingEmployee?._id!);
+      if (response.status === 200) {
+        setEmployees(employees.filter(e => e._id !== deletingEmployee?._id));
+        setIsDeleteModalOpen(false);
+        setDeletingEmployee(null);
+        message.success("Employee deleted successfully");
       }
     } catch (error) {
       message.error("Failed to delete employee");
@@ -89,6 +106,7 @@ const EmployeeList: React.FC = () => {
       title: "Date of Joining",
       dataIndex: "joiningDate",
       key: "joiningDate",
+      render: (joiningDate:Date) => format(new Date(joiningDate), 'dd/MM/yyy'),
     },
     {
       title: "Action",
@@ -110,16 +128,15 @@ const EmployeeList: React.FC = () => {
   ];
 
   const handleAddEmployee = () => {
-    navigate("/c/employees/add"); // Navigate to the route where you add employees
+    navigate("/c/employees/add"); 
   };
 
   const handleEdit = (employee: Employee) => {
-    // Implementation for editing employee details
+    navigate(`/c/employees/edit/${employee._id}`);
   };
 
   const handleView = (employee: Employee) => {
-    // Implementation for viewing more details of employee
-    // This could open a modal or navigate to another page with detailed information
+    navigate(`/c/employees/view/${employee._id}`);
   };
 
   return (

@@ -123,7 +123,7 @@ export const getDepartment = async()=>{
     const response = await CompanyApi.get(companyRoutes.department);
     return response;
   } catch (error:any) {
-    return error.response;
+    throw Error;
   }
 }
 
@@ -226,7 +226,6 @@ interface Employee {
 export const createEmployee = async(body:Employee)=>{
   try {
     console.log('Employee:',body);
-    
     const response = await CompanyApi.post(companyRoutes.employee,body);
     return response 
   } catch (error:any) {
@@ -238,9 +237,41 @@ export const getEmployees = async()=>{
   try {
     const response = await CompanyApi.get(companyRoutes.employee);
     return response 
-  } catch (error:any) {
-    return error.response;
+  } catch (error) {
+    console.log(error);
+    throw Error;
   }
+}
+
+export const getEmployee = async(id:string)=>{
+  try {
+    const response = await CompanyApi.get(companyRoutes.Employee(id));
+    return response;
+  } catch (error) {
+    throw Error;
+  } 
+}
+
+export const updateEmployee = async(id:string,body:Employee)=>{
+  try {
+    console.log('Employee:',body);
+    const response = await CompanyApi.put(companyRoutes.Employee(id),body);
+    return response;
+  } catch (error) {
+    console.log(error);
+    
+    throw Error;
+  } 
+}
+
+export const deleteEmployee = async(id:string)=>{
+  try {
+    const response = await CompanyApi.delete(companyRoutes.Employee(id));
+    return response;
+  } catch (error) {
+    throw Error;
+  }
+  
 }
 
 

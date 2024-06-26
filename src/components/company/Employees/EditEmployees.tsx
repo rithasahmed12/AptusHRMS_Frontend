@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import dayjs from 'dayjs';
+import dayjs from "dayjs";
 import {
   Tabs,
   Form,
@@ -14,10 +14,39 @@ import {
   Spin,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
-import { createEmployee, getDepartment, getDesignations } from "../../../api/company";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  getEmployee,
+  getDepartment,
+  getDesignations,
+  updateEmployee,
+} from "../../../api/company";
 
 const { Option } = Select;
+
+interface Employee {
+  _id: string;
+  name?: string;
+  gender?: string;
+  dob?: Date;
+  streetAddress?: string;
+  city?: string;
+  country?: string;
+  postalCode?: string;
+  phone?: string;
+  email: string;
+  hireDate?: Date;
+  joiningDate?: Date;
+  basicSalary?: number;
+  employeeType?: string;
+  departmentId?: string;
+  designationId?: string;
+  employeeId?: string;
+  status?: string;
+  role: string;
+  shift?: string;
+  profilePic?: string;
+}
 
 interface Designation {
   _id: string;
@@ -33,28 +62,60 @@ interface Department {
 
 function convertToDate(dayjsObject: any): Date | null {
   if (dayjsObject && dayjs.isDayjs(dayjsObject)) {
-    return new Date(dayjsObject.year(), dayjsObject.month(), dayjsObject.date());
+    return new Date(
+      dayjsObject.year(),
+      dayjsObject.month(),
+      dayjsObject.date()
+    );
   }
   return null;
 }
 
-const AddEmployee: React.FC = () => {
+const EditEmployee: React.FC = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+  const [employee, setEmployee] = useState<Employee | null>(null);
   const [profilePic, setProfilePic] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState<string>("1");
-  const [isSubmitted, setIsSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const [departments, setDepartments] = useState<Department[]>([]);
   const [designations, setDesignations] = useState<Designation[]>([]);
+
+  useEffect(() => {
+    fetchEmployee();
+    fetchDepartments();
+    fetchDesignations();
+  }, [id]);
+
+  const fetchEmployee = async () => {
+    setLoading(true);
+    try {
+      const response = await getEmployee(id!);
+      setEmployee(response.data);
+      setProfilePic(response.data.profilePic);
+      form.setFieldsValue({
+        ...response.data,
+        dob: response.data.dob ? dayjs(response.data.dob) : null,
+        hireDate: response.data.hireDate ? dayjs(response.data.hireDate) : null,
+        joiningDate: response.data.joiningDate
+          ? dayjs(response.data.joiningDate)
+          : null,
+      });
+    } catch (error) {
+      message.error("Failed to fetch employee data");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchDepartments = async () => {
     try {
       const response = await getDepartment();
       setDepartments(response.data);
     } catch (error) {
-      message.error("Data not fetched");
+      message.error("Failed to fetch departments");
     }
   };
 
@@ -63,14 +124,9 @@ const AddEmployee: React.FC = () => {
       const response = await getDesignations();
       setDesignations(response.data);
     } catch (error) {
-      message.error("Data not fetched");
+      message.error("Failed to fetch designations");
     }
   };
-
-  useEffect(() => {
-    fetchDepartments();
-    fetchDesignations();
-  }, []);
 
   const handleFileChange = (info: any) => {
     if (info.file.status === "done") {
@@ -82,25 +138,31 @@ const AddEmployee: React.FC = () => {
   };
 
   const handleSubmit = async (values: any) => {
-    setIsSubmitted(true);
     setLoading(true);
     try {
       const employeeData = {
         ...values,
-        dob: values.dob ? new Date(convertToDate(values.dob)!.toISOString()) : undefined,
-        hireDate: values.hireDate ? new Date(convertToDate(values.hireDate)!.toISOString()) : undefined,
-        joiningDate: values.joiningDate ? new Date(convertToDate(values.joiningDate)!.toISOString()) : undefined,
+        dob: values.dob
+          ? new Date(convertToDate(values.dob)!.toISOString())
+          : undefined,
+        hireDate: values.hireDate
+          ? new Date(convertToDate(values.hireDate)!.toISOString())
+          : undefined,
+        joiningDate: values.joiningDate
+          ? new Date(convertToDate(values.joiningDate)!.toISOString())
+          : undefined,
         basicSalary: parseFloat(values.basicSalary),
+        departmentId: values.departmentId?._id || values.departmentId,
+        designationId: values.designationId?._id || values.designationId,
         profilePic,
       };
 
-      const response = await createEmployee(employeeData);
-      console.log(response);
-      message.success("Employee added successfully");
+      const response = await updateEmployee(id!, employeeData);
+      message.success("Employee updated successfully");
       navigate("/c/employees");
     } catch (error) {
-      console.error("Error adding employee:", error);
-      message.error("Failed to add employee");
+      console.error("Error updating employee:", error);
+      message.error("Failed to update employee");
     } finally {
       setLoading(false);
     }
@@ -177,9 +239,7 @@ const AddEmployee: React.FC = () => {
               <Form.Item
                 label="Gender"
                 name="gender"
-                rules={[
-                  { required: true, message: "Please select gender!" },
-                ]}
+                rules={[{ required: true, message: "Please select gender!" }]}
               >
                 <Select placeholder="Select Gender">
                   <Option value="male">Male</Option>
@@ -233,9 +293,7 @@ const AddEmployee: React.FC = () => {
               <Form.Item
                 label="Country"
                 name="country"
-                rules={[
-                  { required: true, message: "Please input country!" },
-                ]}
+                rules={[{ required: true, message: "Please input country!" }]}
               >
                 <Input />
               </Form.Item>
@@ -254,9 +312,7 @@ const AddEmployee: React.FC = () => {
               </Form.Item>
             </Col>
           </Row>
-          <Form.Item style={{ marginTop: "20px" }}>
-            {renderButton()}
-          </Form.Item>
+          <Form.Item style={{ marginTop: "20px" }}>{renderButton()}</Form.Item>
         </>
       ),
     },
@@ -281,16 +337,13 @@ const AddEmployee: React.FC = () => {
               <Form.Item
                 label="Email"
                 name="email"
-                rules={[
-                  { required: true, message: "Please input email!" }]}
+                rules={[{ required: true, message: "Please input email!" }]}
               >
                 <Input />
               </Form.Item>
             </Col>
           </Row>
-          <Form.Item style={{ marginTop: "20px" }}>
-            {renderButton()}
-          </Form.Item>
+          <Form.Item style={{ marginTop: "20px" }}>{renderButton()}</Form.Item>
         </>
       ),
     },
@@ -416,9 +469,7 @@ const AddEmployee: React.FC = () => {
               <Form.Item
                 label="Status"
                 name="status"
-                rules={[
-                  { required: true, message: "Please select status!" },
-                ]}
+                rules={[{ required: true, message: "Please select status!" }]}
               >
                 <Select placeholder="Select Status">
                   <Option value="active">Active</Option>
@@ -433,9 +484,7 @@ const AddEmployee: React.FC = () => {
               <Form.Item
                 label="Role"
                 name="role"
-                rules={[
-                  { required: true, message: "Please select a role!" },
-                ]}
+                rules={[{ required: true, message: "Please select a role!" }]}
               >
                 <Select placeholder="Select Role">
                   <Option value="admin">Admin</Option>
@@ -450,9 +499,7 @@ const AddEmployee: React.FC = () => {
               <Form.Item
                 label="Shift"
                 name="shift"
-                rules={[
-                  { required: true, message: "Please select a shift!" },
-                ]}
+                rules={[{ required: true, message: "Please select a shift!" }]}
               >
                 <Select>
                   <Option value="morning">Morning</Option>
@@ -462,77 +509,56 @@ const AddEmployee: React.FC = () => {
               </Form.Item>
             </Col>
           </Row>
-          <Form.Item style={{ marginTop: "20px" }}>
-            {renderButton()}
-          </Form.Item>
+          <Form.Item style={{ marginTop: "20px" }}>{renderButton()}</Form.Item>
         </>
       ),
     },
   ];
 
+  // ... (rest of the component code, including tabItems, renderButton, etc., similar to AddEmployee)
+
   return (
     <div>
-      
       <Spin spinning={loading}>
         <div className="container">
-          
-          <h2>Add Employee</h2>
+          <h2>Edit Employee</h2>
           <Button onClick={goBack} style={{ marginBottom: "20px" }}>
             Go Back
           </Button>
           <div style={{ display: "flex", marginBottom: "20px" }}>
-          <div style={{ marginRight: "20px", textAlign: "center" }}>
-                  <div style={{ marginRight: "20px", textAlign: "center" }}>
-                    <img
-                      src={profilePic || "https://via.placeholder.com/150"}
-                      alt="Profile Pic"
-                      style={{
-                        width: "150px",
-                        height: "150px",
-                        borderRadius: "50%",
-                        marginBottom: "10px",
-                      }}
-                    />
-                    <Upload
-                      name="profilePic"
-                      listType="picture"
-                      showUploadList={false}
-                      beforeUpload={() => false}
-                      onChange={handleFileChange}
-                    >
-                      <Button icon={<UploadOutlined />}>Choose File</Button>
-                    </Upload>
-                  </div>
-                </div>
-          <Form
-            style={{ flex: 1 }}
-            form={form}
-            layout="vertical"
-            onFinish={handleSubmit}
-            initialValues={{
-              name: "",
-              gender: "",
-              dob: null,
-              streetAddress: "",
-              city: "",
-              country: "",
-              postalCode: "",
-              phone: "",
-              email: "",
-              hireDate: null,
-              joiningDate: null,
-              basicSalary: "",
-              employeeType: "",
-              departmentId: "",
-              designationId: "",
-              employeeId: "",
-              status: "",
-              role: "",
-              shift: "",
-            }}
-          >
-            <Tabs activeKey={currentTab} onChange={handleTabChange} items={tabItems} />
-          </Form>
+            <div style={{ marginRight: "20px", textAlign: "center" }}>
+              <img
+                src={profilePic || "https://via.placeholder.com/150"}
+                alt="Profile Pic"
+                style={{
+                  width: "150px",
+                  height: "150px",
+                  borderRadius: "50%",
+                  marginBottom: "10px",
+                }}
+              />
+              <Upload
+                name="profilePic"
+                listType="picture"
+                showUploadList={false}
+                beforeUpload={() => false}
+                onChange={handleFileChange}
+              >
+                <Button icon={<UploadOutlined />}>Choose File</Button>
+              </Upload>
+            </div>
+            <Form
+              style={{ flex: 1 }}
+              form={form}
+              layout="vertical"
+              onFinish={handleSubmit}
+            >
+              <Tabs
+                activeKey={currentTab}
+                onChange={handleTabChange}
+                items={tabItems}
+              />
+            </Form>
           </div>
         </div>
       </Spin>
@@ -540,4 +566,4 @@ const AddEmployee: React.FC = () => {
   );
 };
 
-export default AddEmployee;
+export default EditEmployee;

@@ -10,6 +10,7 @@ const companyRoutes={
     designation:'designation',
     Designation:(id:string|undefined)=>`designation/${id}`,
     employee:'employee',
+    Employee:(id:string|undefined)=>`employee/${id}`,
 
 }
 
