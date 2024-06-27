@@ -258,8 +258,7 @@ export const updateEmployee = async(id:string,body:Employee)=>{
     const response = await CompanyApi.put(companyRoutes.Employee(id),body);
     return response;
   } catch (error) {
-    console.log(error);
-    
+    console.log(error); 
     throw Error;
   } 
 }
@@ -270,8 +269,90 @@ export const deleteEmployee = async(id:string)=>{
     return response;
   } catch (error) {
     throw Error;
+  } 
+}
+
+interface Project {
+  name: string;
+  description: string;
+  status: "Not Started" | "In Progress" | "Completed";
+  progress: number;
+  priority: "Low" | "Medium" | "High";
+  startDate: Date;
+  endDate: Date;
+  assignedPerson:{_id:string};
+}
+
+export const createProject = async(body:Project)=>{
+  try {
+    console.log("Body:",body);
+    
+    const response = await CompanyApi.post(companyRoutes.project,body);
+    return response;
+  } catch (error) {
+    console.log(error);
+    throw Error;
+  } 
+}
+
+export const getProjects = async()=>{
+  try {
+    const response = await CompanyApi.get(companyRoutes.project);
+    return response;
+  } catch (error) {
+    console.log(error);
+    throw Error;
   }
-  
+}
+
+export const editProject = async(id:string|null,body:Project)=>{
+  try {
+    const response = await CompanyApi.put(companyRoutes.Project(id),body);
+    return response;
+  } catch (error) {
+    console.log(error);
+    throw Error;
+  }
+}
+
+export const deleteProject = async(id:string)=>{
+  try {
+    const response = await CompanyApi.delete(companyRoutes.Project(id));
+    return response;
+  } catch (error) {
+    console.log(error);
+    throw Error;
+  }
+}
+
+export const sentOTP = async(email:string) => {
+  try{
+    console.log('API:',email);
+    
+      const response = await CompanyApi.post(companyRoutes.sentOtp,{email});
+      return response;
+  } catch (error) {
+      console.log(error);
+      throw Error;
+  }
+}
+
+export const verifyOTP = async(body:{email:string,otpString:string})=>{
+  try {
+      const response = await CompanyApi.post(companyRoutes.verifyOtp,body);
+      return response;
+  } catch (error) {
+      console.log(error);
+  }
+}
+
+export const changePassword = async(body:{email:string,newPassword:string})=>{
+  try {
+    const response = await CompanyApi.post(companyRoutes.changePassword,body);
+    return response;
+} catch (error) {
+    console.log(error);
+}
 }
 
 

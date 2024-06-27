@@ -12,6 +12,7 @@ import AddEmployee from "../components/company/Employees/AddEmployee.tsx";
 import EditEmployee from "../components/company/Employees/EditEmployees.tsx";
 import EmployeeView from "../components/company/Employees/EmployeeView.tsx";
 import ProjectList from "../components/company/Projects/Projects.tsx";
+import ChangePasswordPage from "../components/company/LoginPage/ChangePassword.tsx";
 
 
 const CompanyRoutes = () => {
@@ -19,6 +20,7 @@ const CompanyRoutes = () => {
     <Routes>
       <Route element={<ProtectedPortal />}>
         <Route index element={<LoginPages />} />
+        <Route path="change-password" element={<ChangePasswordPage/>} />
         <Route path="/" element={<LoginProtect/>}>
           <Route path="/c" element={<CompanyPages/>}>
             <Route path="dashboard" element={<Dashboard/>} />

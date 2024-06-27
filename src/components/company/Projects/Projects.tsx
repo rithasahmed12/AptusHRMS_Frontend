@@ -1,27 +1,50 @@
-import React, { useState, useEffect } from 'react';
-import { Table, Button, Tag, Space, Typography, Tooltip, Modal, Form, Input, DatePicker, Select, message, Row, Col, InputNumber } from 'antd';
-import { EditOutlined, EyeOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
-import { format } from 'date-fns'; // Import date-fns format function
-import { getEmployees } from '../../../api/company';
+import React, { useState, useEffect } from "react";
+import {
+  Table,
+  Button,
+  Tag,
+  Space,
+  Typography,
+  Tooltip,
+  Modal,
+  Form,
+  Input,
+  DatePicker,
+  Select,
+  message,
+  Row,
+  Col,
+  Slider,
+  Progress,
+} from "antd";
+import {
+  EditOutlined,
+  EyeOutlined,
+  DeleteOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
+import moment from "moment";
+import { format } from "date-fns";
+import { createProject, deleteProject, editProject, getEmployees, getProjects } from "../../../api/company";
 
 const { Title } = Typography;
 const { Option } = Select;
 const { TextArea } = Input;
 
 interface Project {
-  id: string;
+  _id: string;
   name: string;
   description: string;
-  status: 'Not Started' | 'In Progress' | 'Completed';
+  status: "Not Started" | "In Progress" | "Completed";
   progress: number;
-  priority: 'Low' | 'Medium' | 'High';
-  startDate: string;
-  endDate: string;
-  assignedPerson: string;
+  priority: "Low" | "Medium" | "High";
+  startDate: Date;
+  endDate: Date;
+  assignedPerson: Employee;
 }
 
 interface Employee {
-  id: string;
+  _id: string;
   name: string;
 }
 
@@ -39,7 +62,6 @@ const ProjectList: React.FC = () => {
     try {
       const response = await getEmployees();
       if (response.status === 200) {
-        console.log('response:', response);
         setEmployees(response.data);
       }
     } catch (error) {
@@ -47,128 +69,137 @@ const ProjectList: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    const dummyProjects: Project[] = [
-      {
-        id: '1',
-        name: 'Project Alpha',
-        description: 'A cutting-edge software development project',
-        status: 'In Progress',
-        progress: 60,
-        priority: 'High',
-        startDate: '2023-01-01',
-        endDate: '2023-12-31',
-        assignedPerson: 'John Doe',
-      },
-      {
-        id: '2',
-        name: 'Project Beta',
-        description: 'A cutting-edge software development project',
-        status: 'In Progress',
-        progress: 60,
-        priority: 'High',
-        startDate: '2023-01-01',
-        endDate: '2023-12-31',
-        assignedPerson: 'John Doe',
-      },
-    ];
-    setProjects(dummyProjects);
+  const fetchProjects = async () => {
+    try {
+      const response = await getProjects();
+      console.log("response:", response);
+      setProjects(response.data);
+    } catch (error) {
+      message.error("Failed to fetch projects");
+    }
+  };
 
+  useEffect(() => {
+    fetchProjects();
     fetchEmployees();
   }, []);
 
   const columns = [
     {
-      title: 'Project Name',
-      dataIndex: 'name',
-      key: 'name',
-      width: '15%',
+      title: "Project Name",
+      dataIndex: "name",
+      key: "name",
+      width: "15%",
     },
     {
-      title: 'Description',
-      dataIndex: 'description',
-      key: 'description',
-      width: '20%',
+      title: "Description",
+      dataIndex: "description",
+      key: "description",
+      width: "20%",
       render: (text: string) => (
         <Tooltip title={text}>
-          <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          <div
+            style={{
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
             {text}
           </div>
         </Tooltip>
       ),
     },
     {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      width: '10%',
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      width: "10%",
       render: (status: string) => (
-        <Tag color={status === 'Completed' ? 'green' : status === 'In Progress' ? 'blue' : 'orange'}>
+        <Tag
+          color={
+            status === "Completed"
+              ? "green"
+              : status === "In Progress"
+              ? "blue"
+              : "orange"
+          }
+        >
           {status}
         </Tag>
       ),
     },
     {
-      title: 'Progress',
-      dataIndex: 'progress',
-      key: 'progress',
-      width: '10%',
+      title: "Progress",
+      dataIndex: "progress",
+      key: "progress",
+      width: "10%",
       render: (progress: number) => `${progress}%`,
     },
     {
-      title: 'Priority',
-      dataIndex: 'priority',
-      key: 'priority',
-      width: '10%',
+      title: "Priority",
+      dataIndex: "priority",
+      key: "priority",
+      width: "10%",
       render: (priority: string) => (
-        <Tag color={priority === 'High' ? 'red' : priority === 'Medium' ? 'yellow' : 'green'}>
+        <Tag
+          color={
+            priority === "High"
+              ? "red"
+              : priority === "Medium"
+              ? "yellow"
+              : "green"
+          }
+        >
           {priority}
         </Tag>
       ),
     },
     {
-      title: 'Dates',
-      key: 'dates',
-      width: '15%',
+      title: "Dates",
+      key: "dates",
+      width: "15%",
       render: (_: any, record: Project) => (
         <div>
-          <div>Start: {record.startDate}</div>
-          <div>End: {record.endDate}</div>
+          <div>Start: {format(new Date(record.startDate), "PP")}</div>
+          <div>End: {format(new Date(record.endDate), "PP")}</div>
         </div>
       ),
     },
     {
-      title: 'Assigned',
-      dataIndex: 'assignedPerson',
-      key: 'assignedPerson',
-      width: '10%',
+      title: "Assigned",
+      dataIndex: "assignedPerson",
+      key: "assignedPerson",
+      width: "10%",
+      render: (assignedPerson: any) =>
+        assignedPerson?.name || "Not Assigned",
     },
     {
-      title: 'Actions',
-      key: 'actions',
-      width: '10%',
+      title: "Actions",
+      key: "actions",
+      width: "10%",
       render: (_: any, record: Project) => (
         <Space size="small">
           <Tooltip title="Edit">
-            <Button 
-              icon={<EditOutlined />} 
+            <Button
+              icon={<EditOutlined />}
               onClick={() => handleEdit(record)}
               size="small"
             />
           </Tooltip>
           <Tooltip title="View More">
-            <Button 
-              type="primary" 
-              icon={<EyeOutlined />} 
+            <Button
+              type="primary"
+              icon={<EyeOutlined />}
               onClick={() => handleViewMore(record)}
               size="small"
             />
           </Tooltip>
           <Tooltip title="Delete">
-            <Button 
-              type="primary" 
+            <Button
+              type="primary"
               danger
-              icon={<DeleteOutlined />} 
+              icon={<DeleteOutlined />}
               onClick={() => handleDelete(record)}
               size="small"
             />
@@ -186,13 +217,12 @@ const ProjectList: React.FC = () => {
       priority: project.priority,
       status: project.status,
       progress: project.progress,
-      startDate: project.startDate, // Ensure proper moment formatting if using Ant Design's DatePicker
-      endDate: project.endDate,     // Ensure proper moment formatting if using Ant Design's DatePicker
-      assignedPerson: project.assignedPerson,
+      startDate: moment(project.startDate), // Ensure proper moment formatting
+      endDate: moment(project.endDate), // Ensure proper moment formatting
+      assignedPerson: project.assignedPerson._id, // Use _id for Select component
     });
     setIsEditModalVisible(true);
   };
-  
 
   const handleViewMore = (project: Project) => {
     setSelectedProject(project);
@@ -208,81 +238,126 @@ const ProjectList: React.FC = () => {
     setIsAddModalVisible(true);
   };
 
-  const handleAddOk = (values: Project) => {
-    setProjects([...projects, { ...values, id: `${projects.length + 1}` }]);
-    setIsAddModalVisible(false);
-  };
-
-  const handleEditOk = (values: Project) => {
-    const updatedProjects = projects.map(project => 
-      project.id === values.id ? { ...values } : project
-    );
-    setProjects(updatedProjects);
-    setIsEditModalVisible(false);
-  };
-
-  const handleViewModalOk = () => {
-    setIsViewModalVisible(false);
-  };
-
-  const handleDeleteOk = () => {
-    if (selectedProject) {
-      setProjects(projects.filter(project => project.id !== selectedProject.id));
-      setIsDeleteModalVisible(false);
-      setSelectedProject(null);
+  const handleAddOk = async (values: any) => {
+    const newProject: Project = {
+      ...values,
+      id: `${projects.length + 1}`,
+      startDate: new Date(values.startDate.format("YYYY-MM-DD")), // Convert to string
+      endDate: new Date(values.endDate.format("YYYY-MM-DD")), // Convert to string
+    };
+    try {
+      const response = await createProject(newProject);
+      setProjects([response.data, ...projects]);
+      setIsAddModalVisible(false);
+      message.success("Project created successfully!");
+    } catch (error) {
+      message.error("Failed to create project!");
     }
   };
 
-  const handleModalCancel = () => {
+  const handleEditOk = async (values: any) => {
+    if (!selectedProject?._id) {
+      message.error("Punable to edit project.");
+      return;
+    }
+    const updatedProject: Project = {
+      ...values,
+      _id: selectedProject._id,
+      startDate: new Date(values.startDate.format("YYYY-MM-DD")), // Convert to string
+      endDate: new Date(values.endDate.format("YYYY-MM-DD")), // Convert to string
+    }
+    try {
+      await editProject(selectedProject._id, updatedProject);
+      const updatedProjects = projects.map((project) =>
+        project._id === selectedProject._id ? updatedProject : project
+      );
+      setProjects(updatedProjects);
+      setIsEditModalVisible(false);
+      message.success("Project edited successfully!");
+    } catch (error) {
+      message.error("Failed to edit project!");
+    }
+  };
+
+  const handleCancel = () => {
     setIsAddModalVisible(false);
     setIsEditModalVisible(false);
     setIsViewModalVisible(false);
     setIsDeleteModalVisible(false);
-    setSelectedProject(null);
+  };
+
+  const handleDeleteOk = async() => {
+    if (!selectedProject?._id) {
+      message.error("unable to delete project.");
+      return;
+    }
+    try {
+      await deleteProject(selectedProject._id)
+      setProjects(
+        projects.filter((project) => project._id !== selectedProject?._id)
+      );
+      setIsDeleteModalVisible(false);
+    } catch (error) {
+      message.error("Failed to delete project!");
+    }
+    
   };
 
   return (
-    <div style={{ padding: '24px' }}>
-      <Title level={2}>Current Projects</Title>
-      <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
-        Add Project
-      </Button>
-      <Table 
-        columns={columns} 
-        dataSource={projects} 
-        rowKey="id"
-        pagination={{ pageSize: 10 }}
-        scroll={{ x: 1200 }} 
-      />
+    <div>
+      <Row justify="space-between">
+        <Col>
+          <Title level={2}>Project List</Title>
+        </Col>
+        <Col>
+          <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
+            Add Project
+          </Button>
+        </Col>
+      </Row>
+      <Table columns={columns} dataSource={projects} rowKey="id" />
 
       <Modal
-        title="Add New Project"
+        title="Add Project"
         open={isAddModalVisible}
-        onCancel={handleModalCancel}
-        footer={null}
+        onCancel={handleCancel}
+        onOk={() => {
+          form
+            .validateFields()
+            .then((values) => {
+              form.resetFields();
+              handleAddOk(values);
+            })
+            .catch((info) => {
+              console.log("Validate Failed:", info);
+            });
+        }}
       >
-        <Form form={form}
-          layout="vertical"
-          onFinish={handleAddOk}
-        >
+        <Form form={form} layout="vertical">
           <Form.Item
             name="name"
             label="Project Name"
-            rules={[{ required: true, message: 'Please enter the project name' }]}
+            rules={[
+              { required: true, message: "Please input the project name!" },
+            ]}
           >
             <Input />
           </Form.Item>
           <Form.Item
             name="description"
             label="Description"
-            rules={[{ required: true, message: 'Please enter the project description' }]}
+            rules={[
+              { required: true, message: "Please input the description!" },
+            ]}
           >
             <TextArea />
           </Form.Item>
           <Form.Item
             name="priority"
             label="Priority"
-            rules={[{ required: true, message: 'Please select the project priority' }]}
+            rules={[
+              { required: true, message: "Please select the priority!" },
+            ]}
           >
             <Select placeholder="Select project priority">
               <Option value="Low">Low</Option>
@@ -290,43 +365,46 @@ const ProjectList: React.FC = () => {
               <Option value="High">High</Option>
             </Select>
           </Form.Item>
+
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
                 name="startDate"
                 label="Start Date"
-                rules={[{ required: true, message: 'Please select the start date' }]}
+                rules={[
+                  { required: true, message: "Please select the start date!" },
+                ]}
               >
-                <DatePicker style={{ width: '100%' }} />
+                <DatePicker style={{ width: "100%" }} />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
                 name="endDate"
                 label="End Date"
-                rules={[{ required: true, message: 'Please select the end date' }]}
+                rules={[
+                  { required: true, message: "Please select the end date!" },
+                ]}
               >
-                <DatePicker style={{ width: '100%' }} />
+                <DatePicker style={{ width: "100%" }} />
               </Form.Item>
             </Col>
           </Row>
+
           <Form.Item
             name="assignedPerson"
-            label="Assign Employee"
-            rules={[{ required: true, message: 'Please select the assigned employee' }]}
+            label="Assigned Person"
+            rules={[
+              { required: true, message: "Please select the assigned person!" },
+            ]}
           >
-            <Select placeholder="Select an Employee">
-              {employees.map(employee => (
-                <Option key={employee.id} value={employee.id}>
+            <Select placeholder="Select an employee">
+              {employees.map((employee) => (
+                <Option key={employee._id} value={employee._id}>
                   {employee.name}
                 </Option>
               ))}
             </Select>
-          </Form.Item>
-          <Form.Item>
-            <Button type="primary" htmlType="submit">
-              Add Project
-            </Button>
           </Form.Item>
         </Form>
       </Modal>
@@ -334,34 +412,46 @@ const ProjectList: React.FC = () => {
       <Modal
         title="Edit Project"
         open={isEditModalVisible}
-        onCancel={handleModalCancel}
-        footer={null}
+        onCancel={handleCancel}
+        onOk={() => {
+          form
+            .validateFields()
+            .then((values) => {
+              form.resetFields();
+              handleEditOk(values);
+            })
+            .catch((info) => {
+              console.log("Validate Failed:", info);
+            });
+        }}
       >
-        <Form form={form}
-          layout="vertical"
-          onFinish={handleEditOk}
-          initialValues={selectedProject ? selectedProject : undefined}
-        >
+        <Form form={form} layout="vertical">
           <Form.Item
             name="name"
             label="Project Name"
-            rules={[{ required: true, message: 'Please enter the project name' }]}
+            rules={[
+              { required: true, message: "Please input the project name!" },
+            ]}
           >
             <Input />
           </Form.Item>
           <Form.Item
             name="description"
             label="Description"
-            rules={[{ required: true, message: 'Please enter the project description' }]}
+            rules={[
+              { required: true, message: "Please input the description!" },
+            ]}
           >
             <TextArea />
           </Form.Item>
           <Form.Item
             name="priority"
             label="Priority"
-            rules={[{ required: true, message: 'Please select the project priority' }]}
+            rules={[
+              { required: true, message: "Please select the priority!" },
+            ]}
           >
-            <Select placeholder="Select project priority">
+            <Select>
               <Option value="Low">Low</Option>
               <Option value="Medium">Medium</Option>
               <Option value="High">High</Option>
@@ -370,9 +460,11 @@ const ProjectList: React.FC = () => {
           <Form.Item
             name="status"
             label="Status"
-            rules={[{ required: true, message: 'Please select the project status' }]}
+            rules={[
+              { required: true, message: "Please select the status!" },
+            ]}
           >
-            <Select placeholder="Select project status">
+            <Select>
               <Option value="Not Started">Not Started</Option>
               <Option value="In Progress">In Progress</Option>
               <Option value="Completed">Completed</Option>
@@ -381,87 +473,102 @@ const ProjectList: React.FC = () => {
           <Form.Item
             name="progress"
             label="Progress"
-            rules={[{ required: true, message: 'Please enter the project progress' }]}
+            rules={[
+              { required: true, message: "Please input the progress!" },
+            ]}
           >
-            <InputNumber min={0} max={100} style={{ width: '100%' }} />
+            <Slider min={0} max={100} />
           </Form.Item>
+
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
                 name="startDate"
                 label="Start Date"
-                rules={[{ required: true, message: 'Please select the start date' }]}
+                rules={[
+                  { required: true, message: "Please select the start date!" },
+                ]}
               >
-                <DatePicker style={{ width: '100%' }} />
+                <DatePicker style={{ width: "100%" }} />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
                 name="endDate"
                 label="End Date"
-                rules={[{ required: true, message: 'Please select the end date' }]}
+                rules={[
+                  { required: true, message: "Please select the end date!" },
+                ]}
               >
-                <DatePicker style={{ width: '100%' }} />
+                <DatePicker style={{ width: "100%" }} />
               </Form.Item>
             </Col>
           </Row>
+
           <Form.Item
             name="assignedPerson"
-            label="Assign Employee"
-            rules={[{ required: true, message: 'Please select the assigned employee' }]}
+            label="Assigned Person"
+            rules={[
+              { required: true, message: "Please select the assigned person!" },
+            ]}
           >
-            <Select placeholder="Select an Employee">
-              {employees.map(employee => (
-                <Option key={employee.id} value={employee.id}>
+            <Select>
+              {employees.map((employee) => (
+                <Option key={employee._id} value={employee._id}>
                   {employee.name}
                 </Option>
               ))}
             </Select>
           </Form.Item>
-          <Form.Item>
-            <Button type="primary" htmlType="submit">
-              Save Changes
-            </Button>
-          </Form.Item>
         </Form>
       </Modal>
 
       <Modal
-        title="Project Details"
+        title="View Project"
         open={isViewModalVisible}
-        onCancel={handleModalCancel}
-        footer={[
-          <Button key="close" onClick={handleViewModalOk}>
-            Close
-          </Button>,
-        ]}
+        onCancel={handleCancel}
+        footer={null}
       >
         {selectedProject && (
           <div>
-            <p><strong>Project Name:</strong> {selectedProject.name}</p>
-            <p><strong>Description:</strong> {selectedProject.description}</p>
-            <p><strong>Status:</strong> {selectedProject.status}</p>
-            <p><strong>Progress:</strong> {selectedProject.progress}%</p>
-            <p><strong>Priority:</strong> {selectedProject.priority}</p>
-            <p><strong>Start Date:</strong> {selectedProject.startDate}</p>
-            <p><strong>End Date:</strong> {selectedProject.endDate}</p>
-            <p><strong>Assigned Person:</strong> {selectedProject.assignedPerson}</p>
+            <p>
+              <strong>Project Name:</strong> {selectedProject.name}
+            </p>
+            <p>
+              <strong>Description:</strong> {selectedProject.description}
+            </p>
+            <p>
+              <strong>Priority:</strong> {selectedProject.priority}
+            </p>
+            <p>
+              <strong>Status:</strong> {selectedProject.status}
+            </p>
+            <p>
+              <strong>Progress:</strong> {selectedProject.progress}%
+            </p>
+            <p>
+              <strong>Start Date:</strong>{" "}
+              {format(new Date(selectedProject.startDate), "PP")}
+            </p>
+            <p>
+              <strong>End Date:</strong>{" "}
+              {format(new Date(selectedProject.endDate), "PP")}
+            </p>
+            <p>
+              <strong>Assigned Person:</strong>{" "}
+              {selectedProject.assignedPerson.name}
+            </p>
           </div>
         )}
       </Modal>
 
       <Modal
-        title="Confirm Delete"
-        visible={isDeleteModalVisible}
+        title="Delete Project"
+        open={isDeleteModalVisible}
+        onCancel={handleCancel}
         onOk={handleDeleteOk}
-        onCancel={handleModalCancel}
-        okText="Delete"
-        okType="danger"
       >
         <p>Are you sure you want to delete this project?</p>
-        {selectedProject && (
-          <p><strong>{selectedProject.name}</strong></p>
-        )}
       </Modal>
     </div>
   );

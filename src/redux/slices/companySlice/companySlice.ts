@@ -17,7 +17,7 @@ const companySlice = createSlice({
         logout:(state) => {
             state.companyInfo = null;
             localStorage.removeItem('companyInfo')
-        }
+        },
     }
 });
 
