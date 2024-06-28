@@ -1,30 +1,31 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import Swal from 'sweetalert2';
-import { logout } from '../../../redux/slices/adminSlice/adminSlice';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import { companyLogout } from '../../../redux/slices/companySlice/companySlice';
+import { Modal, message } from 'antd';
 
 const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [isModalVisible, setIsModalVisible] = useState(false); 
 
-  const handleLogout = async()=>{
-    const result = await Swal.fire({
-      title: "Question",
-      text: "Are you sure you want to Logout?",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Logout",
-      cancelButtonText: "Cancel",
-    });
-    if(result.isConfirmed){
-      dispatch(logout());
-      navigate('/admin');
-      toast.success('Logout Successfull!');
-    }
+  const showModal = () => {
+    setIsModalVisible(true);
   };
+
+  const handleOk = () => {
+    dispatch(companyLogout());
+    navigate("/");
+    message.success("Logout Successful!");
+    setIsModalVisible(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
+
+ 
 
   return (
     <nav className="bg-white shadow-md w-full">
@@ -47,9 +48,9 @@ const Navbar = () => {
                 </svg>
               </button>
               {dropdownOpen && (
-                <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5">
+                <div className="origin-top-right z-10 absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5">
                   <button
-                    onClick={handleLogout}
+                    onClick={showModal}
                     className="block px-4 py-2 text-sm text-gray-700 w-full text-left">
                     Logout
                   </button>
@@ -59,6 +60,16 @@ const Navbar = () => {
           </div>
         </div>
       </div>
+      <Modal
+        title="Confirm Logout"
+        open={isModalVisible}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        okText="Logout"
+        cancelText="Cancel"
+      >
+        <p>Are you sure you want to logout?</p>
+      </Modal>
     </nav>
   );
 };

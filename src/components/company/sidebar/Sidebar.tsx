@@ -1,19 +1,15 @@
 import {
   ArrowLeftEndOnRectangleIcon,
-  BellAlertIcon,
-  DocumentMagnifyingGlassIcon,
   InboxStackIcon,
   UserCircleIcon,
   ChevronRightIcon,
-  ChevronDownIcon,
   Bars3Icon,
 } from "@heroicons/react/24/outline";
 import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { logout } from "../../../redux/slices/adminSlice/adminSlice";
 import { useDispatch } from "react-redux";
-import { toast } from "react-toastify";
-import Swal from "sweetalert2";
+import { Modal,message } from "antd"; 
+import { companyLogout } from "../../../redux/slices/companySlice/companySlice";
 
 interface SidebarProps {
   isSidebarExpanded: boolean;
@@ -24,21 +20,21 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarExpanded, toggleSidebar }) =
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [isOrgOpen, setIsOrgOpen] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false); 
 
-  const handleLogout = async () => {
-    const result = await Swal.fire({
-      title: "Question",
-      text: "Are you sure you want to Logout?",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Logout",
-      cancelButtonText: "Cancel",
-    });
-    if (result.isConfirmed) {
-      dispatch(logout());
-      navigate("/admin");
-      toast.success("Logout Successful!");
-    }
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleOk = () => {
+    dispatch(companyLogout());
+    navigate("/");
+    message.success("Logout Successful!");
+    setIsModalVisible(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
   };
 
   return (
@@ -113,7 +109,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarExpanded, toggleSidebar }) =
           )}
         </NavLink>
 
-
         <NavLink
           to="/c/projects"
           className={({ isActive }) =>
@@ -185,13 +180,24 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarExpanded, toggleSidebar }) =
         </div>
 
         <button
-          onClick={handleLogout}
+          onClick={showModal}
           className={`py-2.5 px-4 gap-3 w-full flex items-center rounded transition duration-300 cursor-pointer hover:bg-gray-100`}
         >
           <ArrowLeftEndOnRectangleIcon height={24} color="#3d3d3d" />
           {isSidebarExpanded && 'Logout'}
         </button>
       </nav>
+
+      <Modal
+        title="Confirm Logout"
+        open={isModalVisible}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        okText="Logout"
+        cancelText="Cancel"
+      >
+        <p>Are you sure you want to logout?</p>
+      </Modal>
     </div>
   );
 };

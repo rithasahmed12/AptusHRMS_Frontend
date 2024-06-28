@@ -76,28 +76,23 @@ const AddEmployee: React.FC = () => {
 
 
 
-const handleFileChange = (info: any) => {
-  // const file = info.file.originFileObj;
+  // const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [fileToUpload, setFileToUpload] = useState<File | null>(null);
   
-  // if (file) {
-  //   setProfilePic(file);
-  //   console.log('profilePic:',profilePic);
-    
-  //   const reader = new FileReader();
-  //   reader.onload = (e) => {
-  //     const result = e.target?.result as string;
-  //     setPreviewUrl(result);
-  //     console.log('url:',previewUrl);
-  //   };
-  //   reader.readAsDataURL(file);
-
-  //   message.success(`${file.name} file uploaded successfully`);
-  // } else {
-  //   setProfilePic(null);
-  //   setPreviewUrl(null);
-  //   message.error(`File upload failed.`);
-  // }
-};
+  const handleFileChange = (info: any) => {
+    const file = info.file.originFileObj;
+    if (file) {
+      // Create a preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+  
+      // Store the file for later upload
+      setFileToUpload(file);
+    }
+  };
 
   const handleSubmit = async (values: any) => {
     setIsSubmitted(true);
@@ -109,7 +104,7 @@ const handleFileChange = (info: any) => {
         hireDate: values.hireDate ? new Date(convertToDate(values.hireDate)!.toISOString()) : undefined,
         joiningDate: values.joiningDate ? new Date(convertToDate(values.joiningDate)!.toISOString()) : undefined,
         basicSalary: parseFloat(values.basicSalary),
-        profilePic,
+        profilePic:fileToUpload,
       };
 
       const response = await createEmployee(employeeData);
@@ -183,7 +178,7 @@ const handleFileChange = (info: any) => {
                 name="name"
                 rules={[
                   {
-                    required: true,
+                    required: false,
                     message: "Please input the employee's name!",
                   },
                 ]}
@@ -196,7 +191,7 @@ const handleFileChange = (info: any) => {
                 label="Gender"
                 name="gender"
                 rules={[
-                  { required: true, message: "Please select gender!" },
+                  { required: false, message: "Please select gender!" },
                 ]}
               >
                 <Select placeholder="Select Gender">
@@ -214,7 +209,7 @@ const handleFileChange = (info: any) => {
                 name="dob"
                 rules={[
                   {
-                    required: true,
+                    required: false,
                     message: "Please select date of birth!",
                   },
                 ]}
@@ -228,7 +223,7 @@ const handleFileChange = (info: any) => {
                 name="streetAddress"
                 rules={[
                   {
-                    required: true,
+                    required: false,
                     message: "Please input street address!",
                   },
                 ]}
@@ -242,7 +237,7 @@ const handleFileChange = (info: any) => {
               <Form.Item
                 label="City"
                 name="city"
-                rules={[{ required: true, message: "Please input city!" }]}
+                rules={[{ required: false, message: "Please input city!" }]}
               >
                 <Input />
               </Form.Item>
@@ -252,7 +247,7 @@ const handleFileChange = (info: any) => {
                 label="Country"
                 name="country"
                 rules={[
-                  { required: true, message: "Please input country!" },
+                  { required: false, message: "Please input country!" },
                 ]}
               >
                 <Input />
@@ -265,7 +260,7 @@ const handleFileChange = (info: any) => {
                 label="Postal Code"
                 name="postalCode"
                 rules={[
-                  { required: true, message: "Please input postal code!" },
+                  { required: false, message: "Please input postal code!" },
                 ]}
               >
                 <Input />
@@ -289,7 +284,7 @@ const handleFileChange = (info: any) => {
                 label="Phone Number"
                 name="phone"
                 rules={[
-                  { required: true, message: "Please input phone number!" },
+                  { required: false, message: "Please input phone number!" },
                 ]}
               >
                 <Input />
@@ -323,7 +318,7 @@ const handleFileChange = (info: any) => {
                 label="Hire Date"
                 name="hireDate"
                 rules={[
-                  { required: true, message: "Please select hire date!" },
+                  { required: false, message: "Please select hire date!" },
                 ]}
               >
                 <DatePicker style={{ width: "100%" }} />
@@ -335,7 +330,7 @@ const handleFileChange = (info: any) => {
                 name="joiningDate"
                 rules={[
                   {
-                    required: true,
+                    required: false,
                     message: "Please select joining date!",
                   },
                 ]}
@@ -350,7 +345,7 @@ const handleFileChange = (info: any) => {
                 label="Basic Salary"
                 name="basicSalary"
                 rules={[
-                  { required: true, message: "Please input basic salary!" },
+                  { required: false, message: "Please input basic salary!" },
                 ]}
               >
                 <Input prefix="₹" suffix="per month" />
@@ -362,7 +357,7 @@ const handleFileChange = (info: any) => {
                 name="employeeType"
                 rules={[
                   {
-                    required: true,
+                    required: false,
                     message: "Please select employee type!",
                   },
                 ]}
@@ -383,7 +378,7 @@ const handleFileChange = (info: any) => {
                 name="departmentId"
                 rules={[
                   {
-                    required: true,
+                    required: false,
                     message: "Please select a department!",
                   },
                 ]}
@@ -403,7 +398,7 @@ const handleFileChange = (info: any) => {
                 name="designationId"
                 rules={[
                   {
-                    required: true,
+                    required: false,
                     message: "Please select a designation!",
                   },
                 ]}
@@ -424,7 +419,7 @@ const handleFileChange = (info: any) => {
                 label="Employee ID"
                 name="employeeId"
                 rules={[
-                  { required: true, message: "Please input employee ID!" },
+                  { required: false, message: "Please input employee ID!" },
                 ]}
               >
                 <Input />
@@ -435,7 +430,7 @@ const handleFileChange = (info: any) => {
                 label="Status"
                 name="status"
                 rules={[
-                  { required: true, message: "Please select status!" },
+                  { required: false, message: "Please select status!" },
                 ]}
               >
                 <Select placeholder="Select Status">
@@ -469,7 +464,7 @@ const handleFileChange = (info: any) => {
                 label="Shift"
                 name="shift"
                 rules={[
-                  { required: true, message: "Please select a shift!" },
+                  { required: false, message: "Please select a shift!" },
                 ]}
               >
                 <Select>
@@ -514,17 +509,17 @@ const handleFileChange = (info: any) => {
       objectFit: "cover",
     }}
   />
-  <Upload
-    name="profilePic"
-    listType="picture"
-    showUploadList={false}
-    beforeUpload={(file) => {
-      handleFileChange({ file: { originFileObj: file } });
-      return false;
-    }}
-  >
-    <Button icon={<UploadOutlined />}>Choose File</Button>
-  </Upload>
+ <Upload
+  name="profilePic"
+  listType="picture"
+  showUploadList={false}
+  beforeUpload={(file) => {
+    handleFileChange({ file: { originFileObj: file } });
+    return false;
+  }}
+>
+  <Button icon={<UploadOutlined />}>Choose File</Button>
+</Upload>
 </div>
                 </div>
           <Form

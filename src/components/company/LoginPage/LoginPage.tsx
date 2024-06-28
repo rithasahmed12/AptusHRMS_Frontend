@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { companyLogin } from "../../../api/company";
-import { toast } from "react-toastify";
 import { Navigate, useNavigate, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setCompanyInfo } from "../../../redux/slices/companySlice/companySlice";
 import useWindowWidth from "../../../customHooks/useWindowWidth";
+import { message } from "antd";
 
 const LoginPages = () => {
   const { companyInfo } = useSelector((state: any) => state.companyInfo);
@@ -38,11 +38,11 @@ const LoginPages = () => {
     const response = await companyLogin(body);
     console.log(response);
     if (response.status === 201) {
-      toast.success(response.data.message);
+      message.success(response.data.message);
       dispatch(setCompanyInfo({ email: response.data.email, token: response.data.accessToken }));
       navigate('/c/dashboard');
     } else {
-      toast.error(response.data.message);
+      message.error(response.data.message);
     }
   };
 

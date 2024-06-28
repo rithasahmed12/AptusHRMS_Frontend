@@ -1,15 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { toast } from "react-toastify";
 import { EyeIcon, EyeSlashIcon  } from "@heroicons/react/24/outline";
 import { ChevronLeftIcon } from "@heroicons/react/24/outline";
-// import { requestOtp, verifyOtp, changePassword } from "../../../api/company";
-import { setCompanyInfo } from "../../../redux/slices/companySlice/companySlice";
 import { changePassword, sentOTP, verifyOTP } from "../../../api/company";
 import { message } from "antd";
 import { setVerifyEmail } from "../../../redux/slices/companySlice/emailSlice";
-import { RootState } from "@reduxjs/toolkit/query";
 
 
 
@@ -19,14 +15,15 @@ interface EmailInputProps {
 
 const EmailInput: React.FC<EmailInputProps> = ({ onNext }) => {
   const [email, setEmail] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(false);
     const dispatch = useDispatch()
   const handleNext = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-    console.log('email:',email);
-    
+      setIsLoading(true);
       const res = await sentOTP(email);
       dispatch(setVerifyEmail(email));
+      setIsLoading(false);
       message.success(res.data.message);
       onNext(email);
     } catch (error) {
@@ -51,7 +48,13 @@ const EmailInput: React.FC<EmailInputProps> = ({ onNext }) => {
           />
         </div>
         <div className="mb-2">
-          <button type="submit" className="w-full py-2 bg-black text-white rounded-full hover:bg-gray-700 transform duration-500">
+          <button 
+          disabled={isLoading}
+          style={isLoading ? { backgroundColor: "#525252",cursor:'no-drop' } : {}}
+          type="submit" className="w-full py-2 bg-black text-white rounded-full hover:bg-gray-700 transform duration-500">
+             {isLoading && (
+              <div className="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
+            )}
             Next
           </button>
         </div>
@@ -69,6 +72,7 @@ const EmailInput: React.FC<EmailInputProps> = ({ onNext }) => {
   
   const OtpVerification: React.FC<OtpVerificationProps> = ({ onNext, onBack }) => {
     const email = useSelector((state: any) => state.email.email);
+    const [isLoading, setIsLoading] = useState(false);
     const [timer, setTimer] = useState(60);
     const [otp, setOtp] = useState<string[]>(['', '', '', '']);
     const [otpSent, setOtpSent] = useState(false);
@@ -98,6 +102,7 @@ const EmailInput: React.FC<EmailInputProps> = ({ onNext }) => {
     const handleNext = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
+          setIsLoading(true);
           const otpString = otp.join('');
           const res:any = await verifyOTP({email, otpString});
           console.log('res:',res);
@@ -107,19 +112,24 @@ const EmailInput: React.FC<EmailInputProps> = ({ onNext }) => {
           } else {
             message.error(res.data.message);
           }
+          setIsLoading(false);
         } catch (error) {
+          setIsLoading(false);
           message.error("Failed to verify OTP");
         }
       };
 
       const handleResendOTP = async() => {
         try {
+          setIsLoading(true)
           const res = await sentOTP(email);
           if (res.data.success) {
             setTimer(60); 
             setOtpSent(true);
             message.success(res.data.message);
+            setIsLoading(false);
           } else {
+            setIsLoading(false);
             message.error(res.data.message);
           }
         } catch (error) {
@@ -158,8 +168,15 @@ const EmailInput: React.FC<EmailInputProps> = ({ onNext }) => {
             <span>{`Resend OTP in ${timer} seconds`}</span>
           )}
         </div>
-          <div className="mb-2">
-            <button type="submit" className="w-full py-2 bg-black text-white rounded-full hover:bg-gray-700 transform duration-500">
+          <div          
+          className="mb-2">
+            <button 
+             disabled={isLoading}
+             style={isLoading ? { backgroundColor: "#525252",cursor:'no-drop' } : {}}
+            type="submit" className="w-full py-2 bg-black text-white rounded-full hover:bg-gray-700 transform duration-500">
+            {isLoading && (
+              <div className="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
+            )}
               Verify OTP
             </button>
           </div>
@@ -176,10 +193,10 @@ const EmailInput: React.FC<EmailInputProps> = ({ onNext }) => {
   
   const ChangePassword: React.FC<ChangePasswordProps> = ({ email, onBack }) => {
     const [password, setPassword] = useState<string>('');
+    const [isLoading,setIsLoading] = useState(false)
     const [confirmPassword, setConfirmPassword] = useState<string>('');
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const navigate = useNavigate();
-    const dispatch = useDispatch();
   
     const togglePasswordVisibility = () => {
       setShowPassword(!showPassword);
@@ -192,9 +209,11 @@ const EmailInput: React.FC<EmailInputProps> = ({ onNext }) => {
         return;
       }
       try {
+        setIsLoading(true)
         const response = await changePassword({email,newPassword:password});
         console.log('response:',response);
         // return;
+        setIsLoading(false);
         message.success('Password successfully changed!');
         navigate('/c/dashboard');
       } catch (error) {
@@ -249,7 +268,13 @@ const EmailInput: React.FC<EmailInputProps> = ({ onNext }) => {
             />
           </div>
           <div className="mb-2">
-            <button type="submit" className="w-full py-2 bg-black text-white rounded-full hover:bg-gray-700 transform duration-500">
+            <button 
+              disabled={isLoading}
+              style={isLoading ? { backgroundColor: "#525252",cursor:'no-drop' } : {}}
+            type="submit" className="w-full py-2 bg-black text-white rounded-full hover:bg-gray-700 transform duration-500">
+               {isLoading && (
+              <div className="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
+            )}
               Change Password
             </button>
           </div>

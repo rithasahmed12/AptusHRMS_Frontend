@@ -14,13 +14,13 @@ const companySlice = createSlice({
             state.companyInfo = action.payload;
             localStorage.setItem('companyInfo', JSON.stringify(action.payload));
         },
-        logout:(state) => {
+        companyLogout:(state) => {
             state.companyInfo = null;
             localStorage.removeItem('companyInfo')
         },
     }
 });
 
-export const { setCompanyInfo,logout } = companySlice.actions;
+export const { setCompanyInfo,companyLogout } = companySlice.actions;
 
 export default companySlice.reducer;
