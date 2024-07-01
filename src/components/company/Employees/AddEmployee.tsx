@@ -80,6 +80,8 @@ const AddEmployee: React.FC = () => {
   const [fileToUpload, setFileToUpload] = useState<File | null>(null);
   
   const handleFileChange = (info: any) => {
+    console.log('info:',info);
+    
     const file = info.file.originFileObj;
     if (file) {
       // Create a preview URL
@@ -94,20 +96,34 @@ const AddEmployee: React.FC = () => {
     }
   };
 
+  
   const handleSubmit = async (values: any) => {
     setIsSubmitted(true);
     setLoading(true);
     try {
-      const employeeData = {
-        ...values,
-        dob: values.dob ? new Date(convertToDate(values.dob)!.toISOString()) : undefined,
-        hireDate: values.hireDate ? new Date(convertToDate(values.hireDate)!.toISOString()) : undefined,
-        joiningDate: values.joiningDate ? new Date(convertToDate(values.joiningDate)!.toISOString()) : undefined,
-        basicSalary: parseFloat(values.basicSalary),
-        profilePic:fileToUpload,
-      };
-
-      const response = await createEmployee(employeeData);
+      const formData = new FormData();
+  
+      // Append all form fields to formData
+      Object.keys(values).forEach(key => {
+        if (key === 'dob' || key === 'hireDate' || key === 'joiningDate') {
+          const date = convertToDate(values[key]);
+          formData.append(key, date ? date.toISOString() : '');
+        } else {
+          formData.append(key, values[key]);
+        }
+      });
+  
+      // Append the file
+      if (fileToUpload) {
+        formData.append('file', fileToUpload); // Change 'profilePic' to 'file'
+      }
+  
+      console.log('FormData content:');
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+  
+      const response = await createEmployee(formData);
       console.log(response);
       message.success("Employee added successfully");
       navigate("/c/employees");
@@ -500,6 +516,7 @@ const AddEmployee: React.FC = () => {
           <div style={{ marginRight: "20px", textAlign: "center" }}>
   <img
     src={previewUrl || "https://via.placeholder.com/150"}
+    
     alt="Profile Pic"
     style={{
       width: "150px",

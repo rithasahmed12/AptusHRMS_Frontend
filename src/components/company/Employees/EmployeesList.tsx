@@ -105,11 +105,11 @@ const EmployeeList: React.FC = () => {
         <div className="flex items-center">
           {record.profilePic && (
             <img 
-              src={"https://via.placeholder.com/150"} 
+              src={record.profilePic||"https://via.placeholder.com/150"} 
               alt="Profile Pic" 
               style={{
-                width: "150px",
-                height: "150px",
+                width: "80px",
+                height: "80px",
                 borderRadius: "50%",
                 marginBottom: "10px",
               }}

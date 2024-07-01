@@ -2,9 +2,9 @@ import companyRoutes from "../endpoints/companyEndpoints";
 import axios from "axios";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
-const CompanyApi = axios.create({ baseURL: BASE_URL });
+const CompanyApi = axios.create({ baseURL: BASE_URL , withCredentials:true});
 
-CompanyApi.defaults.withCredentials = true;
+
 
 
 const getDomainFromSubdomain = () => {
@@ -223,15 +223,21 @@ interface Employee {
   readonly profilePic?: string;
 }
 
-export const createEmployee = async(body:Employee)=>{
+export const createEmployee = async (formData: FormData) => {
   try {
-    console.log('Employee:',body);
-    const response = await CompanyApi.post(companyRoutes.employee,body);
-    return response 
-  } catch (error:any) {
-    return error.response;
+    console.log('formData:',formData);
+    
+    const response = await CompanyApi.post(companyRoutes.employee, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response;
+  } catch (error: any) {
+    console.error('Error in createEmployee:', error.response?.data || error.message);
+    throw error;
   }
-}
+};
 
 export const getEmployees = async()=>{
   try {
@@ -287,10 +293,12 @@ export const createProject = async(body:Project)=>{
   try {
     console.log("Body:",body);
     
-    const response = await CompanyApi.post(companyRoutes.project,body);
+    const response = await CompanyApi.post(companyRoutes.project,body, {headers: {
+      'Content-Type': 'multipart/form-data',
+    }});
     return response;
   } catch (error) {
-    console.log(error);
+    console.log('ERROR:',error);
     throw Error;
   } 
 }
@@ -348,7 +356,7 @@ export const verifyOTP = async(body:{email:string,otpString:string})=>{
 
 export const changePassword = async(body:{email:string,newPassword:string})=>{
   try {
-    const response = await CompanyApi.post(companyRoutes.changePassword,body);
+    const response = await CompanyApi.post(companyRoutes.changePassword,body)
     return response;
 } catch (error) {
     console.log(error);
