@@ -1,14 +1,19 @@
-import { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { companyLogout } from '../../../redux/slices/companySlice/companySlice';
-import { Modal, message } from 'antd';
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { companyLogout } from "../../../redux/slices/companySlice/companySlice";
+import { Modal, message, Dropdown, MenuProps } from "antd";
+import {
+  UserOutlined,
+  SettingOutlined,
+  LogoutOutlined,
+} from "@ant-design/icons";
 
 const Navbar = () => {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const userInfo = useSelector((store: any) => store.companyInfo.companyInfo);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [isModalVisible, setIsModalVisible] = useState(false); 
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const showModal = () => {
     setIsModalVisible(true);
@@ -25,7 +30,34 @@ const Navbar = () => {
     setIsModalVisible(false);
   };
 
- 
+  const handleMenuClick: MenuProps["onClick"] = (e) => {
+    if (e.key === "logout") {
+      showModal();
+    } else if (e.key === "profile") {
+      navigate(`/c/profile/${userInfo.id}`);
+    } else if (e.key === "settings") {
+      navigate("/c/settings");
+    }
+  };
+
+  const menuItems: MenuProps["items"] = [
+    {
+      key: "profile",
+      icon: <UserOutlined />,
+      label: "Profile",
+      className: "w-[130px]",
+    },
+    {
+      key: "settings",
+      icon: <SettingOutlined />,
+      label: "Settings",
+    },
+    {
+      key: "logout",
+      icon: <LogoutOutlined />,
+      label: "Logout",
+    },
+  ];
 
   return (
     <nav className="bg-white shadow-md w-full">
@@ -36,27 +68,40 @@ const Navbar = () => {
               <span className="font-bold text-xl text-black">YOUR COMPANY</span>
             </div>
           </div>
-          <div className='flex items-center'>
+          <div className="flex items-center">
             <span className="text-gray-700 mr-4">Welcome Back, Admin</span>
-            <div className="relative">
-              <button 
-                onClick={() => setDropdownOpen(!dropdownOpen)} 
-                className="bg-gray-200 p-2 rounded-full focus:outline-none">
-                <span className="sr-only">Open user menu</span>
-                <svg className="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+            <Dropdown
+              menu={{ items: menuItems, onClick: handleMenuClick }}
+              trigger={["click"]}
+              placement="bottomRight"
+            >
+              <button className="bg-gray-200 p-2 rounded-full focus:outline-none flex items-center">
+                <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center mr-1">
+                  {userInfo && userInfo.profilePic ? (
+                    <img
+                      src={userInfo.profilePic}
+                      alt="User profile"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <UserOutlined style={{ fontSize: "20px" }} />
+                  )}
+                </div>
+                <svg
+                  className="h-4 w-4 text-gray-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M19 9l-7 7-7-7"
+                  />
                 </svg>
               </button>
-              {dropdownOpen && (
-                <div className="origin-top-right z-10 absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5">
-                  <button
-                    onClick={showModal}
-                    className="block px-4 py-2 text-sm text-gray-700 w-full text-left">
-                    Logout
-                  </button>
-                </div>
-              )}
-            </div>
+            </Dropdown> 
           </div>
         </div>
       </div>

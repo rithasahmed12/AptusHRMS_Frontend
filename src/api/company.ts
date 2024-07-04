@@ -258,10 +258,14 @@ export const getEmployee = async(id:string)=>{
   } 
 }
 
-export const updateEmployee = async(id:string,body:Employee)=>{
+export const updateEmployee = async(id:string,formData:FormData)=>{
   try {
-    console.log('Employee:',body);
-    const response = await CompanyApi.put(companyRoutes.Employee(id),body);
+    console.log('Employee:',formData);
+    const response = await CompanyApi.put(companyRoutes.Employee(id),formData,{
+      headers:{
+        'Content-Type': 'multipart/form-data',
+      }
+    });
     return response;
   } catch (error) {
     console.log(error); 

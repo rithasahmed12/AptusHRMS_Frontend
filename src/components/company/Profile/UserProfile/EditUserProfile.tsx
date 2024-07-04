@@ -12,6 +12,8 @@ import {
   Row,
   Col,
   Spin,
+  Typography,
+  Card
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { useNavigate, useParams } from "react-router-dom";
@@ -20,10 +22,11 @@ import {
   getDepartment,
   getDesignations,
   updateEmployee,
-} from "../../../api/company";
-import Title from "antd/es/typography/Title";
+} from "../../../../api/company";
+
 
 const { Option } = Select;
+const {Text,Title} = Typography
 
 interface Employee {
   _id: string;
@@ -72,7 +75,7 @@ function convertToDate(dayjsObject: any): Date | null {
   return null;
 }
 
-const EditEmployee: React.FC = () => {
+const EditUserProfile: React.FC = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
@@ -176,11 +179,11 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   
       const response = await updateEmployee(id!, formData);
       console.log(response);
-      message.success("Employee updated successfully");
-      navigate("/c/employees");
+      message.success("Profile updated successfully");
+      navigate(`/c/profile/${id}/user`);
     } catch (error) {
       console.error("Error updating employee:", error);
-      message.error("Failed to update employee");
+      message.error("Failed to update profile");
     } finally {
       setLoading(false);
     }
@@ -205,7 +208,7 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   };
 
   const renderButton = () => {
-    if (currentTab === "3") {
+    if (currentTab === "2") {
       return (
         <Button
           type="primary"
@@ -357,194 +360,31 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
                 name="email"
                 rules={[{ required: true, message: "Please input email!" }]}
               >
-                <Input />
+                <Input readOnly/>
               </Form.Item>
             </Col>
           </Row>
           <Form.Item style={{ marginTop: "20px" }}>{renderButton()}</Form.Item>
         </>
       ),
-    },
-    {
-      key: "3",
-      label: "Employment Info",
-      children: (
-        <>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                label="Hire Date"
-                name="hireDate"
-                rules={[
-                  { required: true, message: "Please select hire date!" },
-                ]}
-              >
-                <DatePicker style={{ width: "100%" }} />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                label="Joining Date"
-                name="joiningDate"
-                rules={[
-                  {
-                    required: true,
-                    message: "Please select joining date!",
-                  },
-                ]}
-              >
-                <DatePicker style={{ width: "100%" }} />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                label="Basic Salary"
-                name="basicSalary"
-                rules={[
-                  { required: true, message: "Please input basic salary!" },
-                ]}
-              >
-                <Input prefix="₹" suffix="per month" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                label="Employee Type"
-                name="employeeType"
-                rules={[
-                  {
-                    required: true,
-                    message: "Please select employee type!",
-                  },
-                ]}
-              >
-                <Select placeholder="Select Employee Type">
-                  <Option value="full-time">Full-time</Option>
-                  <Option value="part-time">Part-time</Option>
-                  <Option value="contract">Contract</Option>
-                  <Option value="intern">Intern</Option>
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                label="Department"
-                name="departmentId"
-                rules={[
-                  {
-                    required: true,
-                    message: "Please select a department!",
-                  },
-                ]}
-              >
-                <Select>
-                  {departments.map((department) => (
-                    <Option key={department._id} value={department._id}>
-                      {department.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                label="Designation"
-                name="designationId"
-                rules={[
-                  {
-                    required: true,
-                    message: "Please select a designation!",
-                  },
-                ]}
-              >
-                <Select>
-                  {designations.map((designation) => (
-                    <Option key={designation._id} value={designation._id}>
-                      {designation.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                label="Employee ID"
-                name="employeeId"
-                rules={[
-                  { required: true, message: "Please input employee ID!" },
-                ]}
-              >
-                <Input />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                label="Status"
-                name="status"
-                rules={[{ required: true, message: "Please select status!" }]}
-              >
-                <Select placeholder="Select Status">
-                  <Option value="active">Active</Option>
-                  <Option value="inactive">Inactive</Option>
-                  <Option value="terminated">Terminated</Option>
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                label="Role"
-                name="role"
-                rules={[{ required: true, message: "Please select a role!" }]}
-              >
-                <Select placeholder="Select Role">
-                  <Option value="admin">Admin</Option>
-                  <Option value="hr">HR</Option>
-                  <Option value="se">SE</Option>
-                  <Option value="me">ME</Option>
-                  <Option value="je">JE</Option>
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                label="Shift"
-                name="shift"
-                rules={[{ required: true, message: "Please select a shift!" }]}
-              >
-                <Select>
-                  <Option value="morning">Morning</Option>
-                  <Option value="afternoon">Afternoon</Option>
-                  <Option value="night">Night</Option>
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-          <Form.Item style={{ marginTop: "20px" }}>{renderButton()}</Form.Item>
-        </>
-      ),
-    },
+    }
   ];
 
   // ... (rest of the component code, including tabItems, renderButton, etc., similar to AddEmployee)
 
   return (
-    <div>
-      <Spin spinning={loading}>
-        <div className="container">
-        <div style={{ display: "flex", marginBottom: "20px",justifyContent:'space-between', marginLeft:'1%', alignItems:'center' }}>
+    <div className="container">
+        <Spin spinning={loading}>
+        <Card
+        title={
+        <div style={{ display: "flex",justifyContent:'space-between', alignItems:'center' }}>
           <Title level={3}>Edit Employee</Title>
           <Button onClick={goBack}>
             Go Back
           </Button>
           </div>
+        }
+        >
           <div style={{ display: "flex", marginBottom: "20px" }}>
             <div style={{ marginRight: "20px", textAlign: "center" }}>
               <img
@@ -557,6 +397,7 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
                   marginBottom: "10px",
                 }}
               />
+
               <Upload
                 name="profilePic"
                 listType="picture"
@@ -582,10 +423,10 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
               />
             </Form>
           </div>
-        </div>
+      </Card>
       </Spin>
     </div>
   );
 };
 
-export default EditEmployee;
+export default EditUserProfile;

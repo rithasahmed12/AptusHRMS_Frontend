@@ -103,7 +103,6 @@ const EmployeeList: React.FC = () => {
       key: "info",
       render: (text: any, record: Employee) => (
         <div className="flex items-center">
-          {record.profilePic && (
             <img 
               src={record.profilePic||"https://via.placeholder.com/150"} 
               alt="Profile Pic" 
@@ -115,7 +114,6 @@ const EmployeeList: React.FC = () => {
               }}
               className="w-10 h-10 rounded-full mr-3"
             />
-          )}
           <div>
             <div className="font-semibold">{record.name}</div>
             <div className="text-xs text-gray-500">

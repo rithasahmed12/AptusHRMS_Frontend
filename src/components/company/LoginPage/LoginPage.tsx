@@ -39,7 +39,7 @@ const LoginPages = () => {
     console.log(response);
     if (response.status === 201) {
       message.success(response.data.message);
-      dispatch(setCompanyInfo({ email: response.data.email, token: response.data.accessToken }));
+      dispatch(setCompanyInfo({id:response.data.id,email: response.data.email, token: response.data.accessToken, profilePic:response.data.profilePic }));
       navigate('/c/dashboard');
     } else {
       message.error(response.data.message);

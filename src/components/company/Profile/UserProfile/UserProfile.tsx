@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useOutletContext } from "react-router-dom";
 import { Tabs, Button, Row, Col, Spin, message, Card, Typography } from "antd";
-import { getEmployee } from "../../../api/company";
+import { getEmployee } from "../../../../api/company";
 import dayjs from "dayjs";
 import { EditOutlined } from "@ant-design/icons";
 
-const { TabPane } = Tabs;
 const { Text, Title } = Typography;
 
 interface Employee {
@@ -32,10 +31,14 @@ interface Employee {
   profilePic?: string;
 }
 
-const EmployeeView: React.FC = () => {
+interface ProfileContextType {
+  id: string;
+}
+
+const UserProfile: React.FC = () => {
   const [employee, setEmployee] = useState<Employee | null>(null);
   const [loading, setLoading] = useState(true);
-  const { id } = useParams<{ id: string }>();
+  const { id }:ProfileContextType = useOutletContext();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -54,7 +57,7 @@ const EmployeeView: React.FC = () => {
   };
 
   const handleEdit = () => {
-    navigate(`/c/employees/edit/${id}`);
+    navigate(`/c/profile/${id}/user/edit`)
   };
 
   const goBack = () => {
@@ -196,4 +199,4 @@ const EmployeeView: React.FC = () => {
   );
 };
 
-export default EmployeeView;
+export default UserProfile;

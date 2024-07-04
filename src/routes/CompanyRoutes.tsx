@@ -13,6 +13,11 @@ import EditEmployee from "../components/company/Employees/EditEmployees.tsx";
 import EmployeeView from "../components/company/Employees/EmployeeView.tsx";
 import ProjectList from "../components/company/Projects/Projects.tsx";
 import ChangePasswordPage from "../components/company/LoginPage/ChangePassword.tsx";
+import ProfilePage from "../components/company/Profile/Profile.tsx";
+import UserProfile from "../components/company/Profile/UserProfile/UserProfile.tsx";
+import EditUserProfile from "../components/company/Profile/UserProfile/EditUserProfile.tsx";
+import CompanyProfile from "../components/company/Profile/CompanyProfile/CompanyProfile.tsx";
+import EditCompanyProfile from "../components/company/Profile/CompanyProfile/EditCompanyProfil.tsx";
 
 
 const CompanyRoutes = () => {
@@ -32,6 +37,12 @@ const CompanyRoutes = () => {
             <Route path="organization/department" element={<Department/>} />
             <Route path="organization/designation" element={<DesignationPage/>} />
             <Route path="projects" element={<ProjectList/>} />
+            <Route path="profile/:id" element={<ProfilePage/>} >
+              <Route index path="user" element={<UserProfile/>} />
+              <Route path="user/edit" element={<EditUserProfile/>} />
+              <Route path="company" element={<CompanyProfile/>} />
+              <Route path="company/edit" element={<EditCompanyProfile/>} />
+            </Route>
           </Route>
         </Route>
       </Route>
