@@ -1,27 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Tabs, Button, Row, Col, Spin, message, Card, Typography } from "antd";
-import { EditOutlined } from "@ant-design/icons";
+import { EditOutlined, LinkedinOutlined, WhatsAppOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
+import { getCompanyInfo } from "../../../../api/company";
 
 const { Text, Title } = Typography;
 
 interface Company {
-  _id: string;
-  name: string;
+  name?:string;
+  description?:string;
+  foundedDate?:Date
+  industry?:string;
   logo?: string;
-  industry?: string;
-  foundedDate?: Date;
-  description?: string;
-  address?: string;
-  city?: string;
-  country?: string;
-  postalCode?: string;
-  phone?: string;
   email: string;
+  phone?: string;
   website?: string;
-  employeeCount?: number;
-  status?: string;
+  linkedinHandle?: string;
+  whatsappNumber?: string;
 }
 
 const CompanyProfile: React.FC = () => {
@@ -30,49 +26,6 @@ const CompanyProfile: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const dummyCompanyData = {
-    _id: "comp123456",
-    name: "TechInnovate Solutions",
-    logo: "https://via.placeholder.com/150",
-    industry: "Information Technology",
-    foundedDate: "2010-03-15",
-    description: "TechInnovate Solutions is a leading provider of cutting-edge software solutions, specializing in artificial intelligence, cloud computing, and cybersecurity. Our mission is to empower businesses with innovative technology to drive growth and efficiency in the digital age.",
-    address: "123 Tech Avenue",
-    city: "San Francisco",
-    country: "United States",
-    postalCode: "94105",
-    phone: "+1 (555) 123-4567",
-    email: "info@techinnovate.com",
-    website: "https://www.techinnovate.com",
-    employeeCount: 250,
-    status: "Active",
-    socialMedia: {
-      linkedin: "https://www.linkedin.com/company/techinnovate-solutions",
-      twitter: "https://twitter.com/TechInnovateSol",
-      facebook: "https://www.facebook.com/TechInnovateSolutions",
-    },
-    keyProducts: [
-      "AI-Driven Analytics Platform",
-      "CloudSecure Suite",
-      "InnovateCRM",
-    ],
-    annualRevenue: "$50 million",
-    ceo: "Jane Smith",
-    headquartersLocation: {
-      latitude: 37.7749,
-      longitude: -122.4194,
-    },
-    subsidiaries: [
-      "TechInnovate Cloud Services",
-      "InnovateSec Cybersecurity",
-    ],
-    stockSymbol: "TECH",
-    fundingRounds: [
-      { date: "2010-06-01", amount: "$5 million", type: "Seed" },
-      { date: "2012-08-15", amount: "$20 million", type: "Series A" },
-      { date: "2015-11-30", amount: "$50 million", type: "Series B" },
-    ],
-  };
 
   useEffect(() => {
     fetchCompany();
@@ -81,11 +34,8 @@ const CompanyProfile: React.FC = () => {
   const fetchCompany = async () => {
     setLoading(true);
     try {
-      // Replace this with your actual API call
-    //   const response = await fetch(`/api/company/${id}`);
-    //   const data = await response.json();
-    await new Promise(resolve => setTimeout(resolve, 1000));
-      setCompany(dummyCompanyData);
+      const response = await getCompanyInfo();
+      setCompany(response.data);
     } catch (error) {
       message.error("Failed to fetch company data");
     } finally {
@@ -153,7 +103,7 @@ const CompanyProfile: React.FC = () => {
               alt="Company Logo"
               style={{
                 width: "100%",
-                maxWidth: "200px",
+                maxWidth: "140px",
                 marginBottom: "10px",
               }}
             />
@@ -162,10 +112,27 @@ const CompanyProfile: React.FC = () => {
             <Title level={4}>{company.name}</Title>
             {renderField("Industry", company.industry)}
             {renderField("Founded", dayjs(company.foundedDate).format("YYYY-MM-DD"))}
-            {renderField("Employee Count", company.employeeCount)}
+            <div style={{ marginTop: "10px" }}>
+              <a 
+                href={`https://www.linkedin.com/company/${company.linkedinHandle}`} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{ marginRight: '15px', fontSize: '24px', color: '#0077B5' }}
+              >
+                <LinkedinOutlined />
+              </a>
+              <a 
+                href={`https://wa.me/${company.whatsappNumber}`} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{ fontSize: '24px', color: '#25D366' }}
+              >
+                <WhatsAppOutlined />
+              </a>
+            </div>
           </Col>
         </Row>
-
+  
         <Tabs
           defaultActiveKey="1"
           style={{ marginTop: "20px" }}
@@ -177,27 +144,11 @@ const CompanyProfile: React.FC = () => {
                 <Row gutter={16}>
                   <Col span={12}>
                     {renderField("Description", company.description)}
+                  </Col>
+                  <Col span={12}>
                     {renderField("Website", company.website)}
                     {renderField("Email", company.email)}
                     {renderField("Phone", company.phone)}
-                  </Col>
-                  <Col span={12}>
-                    {renderField("Address", company.address)}
-                    {renderField("City", company.city)}
-                    {renderField("Country", company.country)}
-                    {renderField("Postal Code", company.postalCode)}
-                  </Col>
-                </Row>
-              ),
-            },
-            {
-              key: "2",
-              label: "Additional Info",
-              children: (
-                <Row gutter={16}>
-                  <Col span={24}>
-                    {renderField("Status", company.status)}
-                    {/* Add more fields as needed */}
                   </Col>
                 </Row>
               ),
@@ -206,7 +157,7 @@ const CompanyProfile: React.FC = () => {
         />
       </Card>
     </div>
-  );
+  );  
 };
 
 export default CompanyProfile;

@@ -293,19 +293,21 @@ interface Project {
   assignedPerson:{_id:string};
 }
 
-export const createProject = async(body:Project)=>{
+
+export const createProject = async (body: Omit<Project, '_id'>) => {
   try {
-    console.log("Body:",body);
-    
-    const response = await CompanyApi.post(companyRoutes.project,body, {headers: {
-      'Content-Type': 'multipart/form-data',
-    }});
+    const response = await CompanyApi.post(companyRoutes.project, body, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
     return response;
   } catch (error) {
-    console.log('ERROR:',error);
-    throw Error;
-  } 
-}
+    console.log('ERROR:', error);
+    throw new Error("Failed to create project");
+  }
+};
+
 
 export const getProjects = async()=>{
   try {
@@ -317,15 +319,16 @@ export const getProjects = async()=>{
   }
 }
 
-export const editProject = async(id:string|null,body:Project)=>{
+export const editProject = async (id: string, body: Project) => {
   try {
-    const response = await CompanyApi.put(companyRoutes.Project(id),body);
+    console.log('body:',body);
+    const response = await CompanyApi.put(companyRoutes.Project(id), body);
     return response;
   } catch (error) {
     console.log(error);
-    throw Error;
+    throw new Error("Failed to edit project");
   }
-}
+};
 
 export const deleteProject = async(id:string)=>{
   try {
@@ -355,6 +358,7 @@ export const verifyOTP = async(body:{email:string,otpString:string})=>{
       return response;
   } catch (error) {
       console.log(error);
+      throw Error;
   }
 }
 
@@ -364,7 +368,30 @@ export const changePassword = async(body:{email:string,newPassword:string})=>{
     return response;
 } catch (error) {
     console.log(error);
+    throw Error;
 }
+}
+
+export const getCompanyInfo = async()=>{
+  try {
+    const response = await CompanyApi.get(companyRoutes.company);
+    return response;
+  } catch (error) {
+    console.log(error);
+    throw Error;
+  }
+}
+
+export const companyDataUpsert = async(formData:FormData)=>{
+  try {
+    const response = await CompanyApi.post(companyRoutes.upsert,formData,{
+      headers:{'Content-Type': 'multipart/form-data'},
+    });
+    return response;
+  } catch (error) {
+    console.log(error);
+    throw Error;
+  }
 }
 
 

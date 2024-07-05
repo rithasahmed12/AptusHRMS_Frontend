@@ -15,7 +15,6 @@ import {
   Row,
   Col,
   Slider,
-  Progress,
 } from "antd";
 import {
   EditOutlined,
@@ -25,7 +24,13 @@ import {
 } from "@ant-design/icons";
 import moment from "moment";
 import { format } from "date-fns";
-import { createProject, deleteProject, editProject, getEmployees, getProjects } from "../../../api/company";
+import {
+  createProject,
+  deleteProject,
+  editProject,
+  getEmployees,
+  getProjects,
+} from "../../../api/company";
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -40,7 +45,7 @@ interface Project {
   priority: "Low" | "Medium" | "High";
   startDate: Date;
   endDate: Date;
-  assignedPerson: Employee;
+  assignedPerson?: Employee;
 }
 
 interface Employee {
@@ -72,7 +77,6 @@ const ProjectList: React.FC = () => {
   const fetchProjects = async () => {
     try {
       const response = await getProjects();
-      console.log("response:", response);
       setProjects(response.data);
     } catch (error) {
       message.error("Failed to fetch projects");
@@ -171,7 +175,7 @@ const ProjectList: React.FC = () => {
       dataIndex: "assignedPerson",
       key: "assignedPerson",
       width: "10%",
-      render: (assignedPerson: any) =>
+      render: (assignedPerson: Employee | undefined) =>
         assignedPerson?.name || "Not Assigned",
     },
     {
@@ -215,11 +219,11 @@ const ProjectList: React.FC = () => {
       name: project.name,
       description: project.description,
       priority: project.priority,
-      status: project.status,
-      progress: project.progress,
-      startDate: moment(project.startDate), // Ensure proper moment formatting
-      endDate: moment(project.endDate), // Ensure proper moment formatting
-      assignedPerson: project.assignedPerson._id, // Use _id for Select component
+      status: project.status || "Not Started",
+      progress: project.progress || 0,
+      startDate: moment(project.startDate),
+      endDate: moment(project.endDate),
+      assignedPerson: project.assignedPerson?._id || null,
     });
     setIsEditModalVisible(true);
   };
@@ -235,17 +239,18 @@ const ProjectList: React.FC = () => {
   };
 
   const handleAdd = () => {
+    form.resetFields();
     setIsAddModalVisible(true);
   };
 
   const handleAddOk = async (values: any) => {
-    const newProject: Project = {
-      ...values,
-      id: `${projects.length + 1}`,
-      startDate: new Date(values.startDate.format("YYYY-MM-DD")), // Convert to string
-      endDate: new Date(values.endDate.format("YYYY-MM-DD")), // Convert to string
-    };
     try {
+      const newProject: Omit<Project, "_id"> = {
+        ...values,
+        startDate: values.startDate.toDate(),
+        endDate: values.endDate.toDate(),
+        assignedPerson: values.assignedPerson || null,
+      };
       const response = await createProject(newProject);
       setProjects([response.data, ...projects]);
       setIsAddModalVisible(false);
@@ -257,16 +262,17 @@ const ProjectList: React.FC = () => {
 
   const handleEditOk = async (values: any) => {
     if (!selectedProject?._id) {
-      message.error("Punable to edit project.");
+      message.error("Unable to edit project.");
       return;
     }
-    const updatedProject: Project = {
-      ...values,
-      _id: selectedProject._id,
-      startDate: new Date(values.startDate.format("YYYY-MM-DD")), // Convert to string
-      endDate: new Date(values.endDate.format("YYYY-MM-DD")), // Convert to string
-    }
     try {
+      const updatedProject: Project = {
+        ...values,
+        _id: selectedProject._id,
+        startDate: values.startDate.toDate(),
+        endDate: values.endDate.toDate(),
+        assignedPerson: values.assignedPerson || null,
+      };
       await editProject(selectedProject._id, updatedProject);
       const updatedProjects = projects.map((project) =>
         project._id === selectedProject._id ? updatedProject : project
@@ -286,21 +292,21 @@ const ProjectList: React.FC = () => {
     setIsDeleteModalVisible(false);
   };
 
-  const handleDeleteOk = async() => {
+  const handleDeleteOk = async () => {
     if (!selectedProject?._id) {
-      message.error("unable to delete project.");
+      message.error("Unable to delete project.");
       return;
     }
     try {
-      await deleteProject(selectedProject._id)
+      await deleteProject(selectedProject._id);
       setProjects(
-        projects.filter((project) => project._id !== selectedProject?._id)
+        projects.filter((project) => project._id !== selectedProject._id)
       );
       setIsDeleteModalVisible(false);
+      message.success("Project deleted successfully!");
     } catch (error) {
       message.error("Failed to delete project!");
     }
-    
   };
 
   return (
@@ -315,7 +321,7 @@ const ProjectList: React.FC = () => {
           </Button>
         </Col>
       </Row>
-      <Table columns={columns} dataSource={projects} rowKey="id" />
+      <Table columns={columns} dataSource={projects} rowKey="_id" />
 
       <Modal
         title="Add Project"
@@ -325,7 +331,6 @@ const ProjectList: React.FC = () => {
           form
             .validateFields()
             .then((values) => {
-              form.resetFields();
               handleAddOk(values);
             })
             .catch((info) => {
@@ -394,9 +399,6 @@ const ProjectList: React.FC = () => {
           <Form.Item
             name="assignedPerson"
             label="Assigned Person"
-            rules={[
-              { required: true, message: "Please select the assigned person!" },
-            ]}
           >
             <Select placeholder="Select an employee">
               {employees.map((employee) => (
@@ -417,7 +419,6 @@ const ProjectList: React.FC = () => {
           form
             .validateFields()
             .then((values) => {
-              form.resetFields();
               handleEditOk(values);
             })
             .catch((info) => {
@@ -460,9 +461,6 @@ const ProjectList: React.FC = () => {
           <Form.Item
             name="status"
             label="Status"
-            rules={[
-              { required: true, message: "Please select the status!" },
-            ]}
           >
             <Select>
               <Option value="Not Started">Not Started</Option>
@@ -473,9 +471,6 @@ const ProjectList: React.FC = () => {
           <Form.Item
             name="progress"
             label="Progress"
-            rules={[
-              { required: true, message: "Please input the progress!" },
-            ]}
           >
             <Slider min={0} max={100} />
           </Form.Item>
@@ -508,9 +503,6 @@ const ProjectList: React.FC = () => {
           <Form.Item
             name="assignedPerson"
             label="Assigned Person"
-            rules={[
-              { required: true, message: "Please select the assigned person!" },
-            ]}
           >
             <Select>
               {employees.map((employee) => (
@@ -556,7 +548,7 @@ const ProjectList: React.FC = () => {
             </p>
             <p>
               <strong>Assigned Person:</strong>{" "}
-              {selectedProject.assignedPerson.name}
+              {selectedProject.assignedPerson?.name || "Not Assigned"}
             </p>
           </div>
         )}

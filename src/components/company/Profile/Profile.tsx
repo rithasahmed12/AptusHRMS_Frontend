@@ -18,9 +18,8 @@ const ProfilePage = () => {
         <div className="container mx-auto px-4">
           <ul className="flex space-x-4">
             <NavLink to={`/c/profile/${id}/user`} className={({ isActive }) =>`py-4 px-2 border-b-2 ${isActive?'border-blue-500 text-blue-500':''} `}>My Profile</NavLink>
-            <li className="py-4 px-2">Payroll History</li>
-            <li className="py-4 px-2">Leaves</li>
             <NavLink to={`/c/profile/${id}/company`}  className={({ isActive }) =>`py-4 px-2 border-b-2 ${isActive?'border-blue-500 text-blue-500':''} `}>Company Profile</NavLink>
+            <NavLink to={`/c/profile/${id}/settings`}  className={({ isActive }) =>`py-4 px-2 border-b-2 ${isActive?'border-blue-500 text-blue-500':''} `}>Settings</NavLink>
           </ul>
         </div>
       </nav>

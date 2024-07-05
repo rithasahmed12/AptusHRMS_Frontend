@@ -18,6 +18,7 @@ import UserProfile from "../components/company/Profile/UserProfile/UserProfile.t
 import EditUserProfile from "../components/company/Profile/UserProfile/EditUserProfile.tsx";
 import CompanyProfile from "../components/company/Profile/CompanyProfile/CompanyProfile.tsx";
 import EditCompanyProfile from "../components/company/Profile/CompanyProfile/EditCompanyProfil.tsx";
+import ListWorkshift from "../components/company/Leave/Workshift/ListWorkshift.tsx";
 
 
 const CompanyRoutes = () => {
@@ -43,6 +44,7 @@ const CompanyRoutes = () => {
               <Route path="company" element={<CompanyProfile/>} />
               <Route path="company/edit" element={<EditCompanyProfile/>} />
             </Route>
+            <Route path="workshift" element={<ListWorkshift/>} />
           </Route>
         </Route>
       </Route>

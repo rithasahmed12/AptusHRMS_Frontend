@@ -4,6 +4,7 @@ import { Tabs, Button, Row, Col, Spin, message, Card, Typography } from "antd";
 import { getEmployee } from "../../../../api/company";
 import dayjs from "dayjs";
 import { EditOutlined } from "@ant-design/icons";
+import { useDispatch, useSelector } from "react-redux";
 
 const { Text, Title } = Typography;
 
@@ -36,6 +37,8 @@ interface ProfileContextType {
 }
 
 const UserProfile: React.FC = () => {
+
+
   const [employee, setEmployee] = useState<Employee | null>(null);
   const [loading, setLoading] = useState(true);
   const { id }:ProfileContextType = useOutletContext();
@@ -60,9 +63,6 @@ const UserProfile: React.FC = () => {
     navigate(`/c/profile/${id}/user/edit`)
   };
 
-  const goBack = () => {
-    navigate(-1);
-  };
 
   const renderField = (label: string, value: any) => (
     <div style={{ marginBottom: "10px" }}>
@@ -112,7 +112,6 @@ const UserProfile: React.FC = () => {
               >
                 Edit Employee
               </Button>
-              <Button  onClick={goBack}>Go Back</Button>
             </div>
           </div>
         }

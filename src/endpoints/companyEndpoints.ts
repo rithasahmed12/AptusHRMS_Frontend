@@ -1,7 +1,9 @@
 
 const companyRoutes={
+    company:'company',
     verifyTenant:'company/verify-tenant',
     login:'company/login',
+    upsert:'company/upsert',
     sentOtp:'company/sent-otp',
     verifyOtp:'company/verify-otp',
     changePassword:'company/change-password',
@@ -15,8 +17,7 @@ const companyRoutes={
     employee:'employee',
     Employee:(id:string|undefined)=>`employee/${id}`,
     project:'project',
-    Project:(id:string|null)=>`project/${id}`,
-
+    Project:(id:string|undefined)=>`project/${id}`,
 }
 
 export default companyRoutes;

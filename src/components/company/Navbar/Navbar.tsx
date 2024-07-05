@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { companyLogout } from "../../../redux/slices/companySlice/companySlice";
 import { Modal, message, Dropdown, MenuProps } from "antd";
 import {
@@ -34,9 +34,7 @@ const Navbar = () => {
     if (e.key === "logout") {
       showModal();
     } else if (e.key === "profile") {
-      navigate(`/c/profile/${userInfo.id}`);
-    } else if (e.key === "settings") {
-      navigate("/c/settings");
+      navigate(`/c/profile/${userInfo.id}/user`);
     }
   };
 
@@ -46,11 +44,6 @@ const Navbar = () => {
       icon: <UserOutlined />,
       label: "Profile",
       className: "w-[130px]",
-    },
-    {
-      key: "settings",
-      icon: <SettingOutlined />,
-      label: "Settings",
     },
     {
       key: "logout",
@@ -65,11 +58,11 @@ const Navbar = () => {
         <div className="relative flex items-center justify-between h-16">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <span className="font-bold text-xl text-black">YOUR COMPANY</span>
+              <Link to='/' className="font-bold text-xl text-black">{userInfo.companyName}</Link>
             </div>
           </div>
           <div className="flex items-center">
-            <span className="text-gray-700 mr-4">Welcome Back, Admin</span>
+            {/* <span className="text-gray-700 mr-4">Welcome Back, Admin</span> */}
             <Dropdown
               menu={{ items: menuItems, onClick: handleMenuClick }}
               trigger={["click"]}

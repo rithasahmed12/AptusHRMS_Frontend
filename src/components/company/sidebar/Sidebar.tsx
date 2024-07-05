@@ -14,9 +14,10 @@ import { companyLogout } from "../../../redux/slices/companySlice/companySlice";
 interface SidebarProps {
   isSidebarExpanded: boolean;
   toggleSidebar: () => void;
+  companyLogo?: string; 
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ isSidebarExpanded, toggleSidebar }) => {
+const Sidebar: React.FC<SidebarProps> = ({ isSidebarExpanded, toggleSidebar,companyLogo }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [isOrgOpen, setIsOrgOpen] = useState(false);
@@ -38,7 +39,22 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarExpanded, toggleSidebar }) =
   };
 
   return (
-    <div className={`flex flex-col ${isSidebarExpanded ? 'w-64' : 'w-20'} transition-width duration-300 py-7 px-2 absolute top-16 h-full left-0 bg-white shadow-lg`}>
+<div className={`flex flex-col ${isSidebarExpanded ? 'w-64' : 'w-20'} transition-width duration-300 py-7 px-2 absolute top-1 h-full left-0 bg-white shadow-lg`}>
+      {/* Logo placeholder */}
+      <div className={`mb-6 ${isSidebarExpanded ? 'px-4' : 'px-2'} flex justify-center items-center`}>
+        {companyLogo ? (
+          <img 
+            src={companyLogo} 
+            alt="Company Logo" 
+            className={`${isSidebarExpanded ? 'w-20 h-20' : 'w-16 h-16'} object-contain`}
+          />
+        ) : (
+          <div className={`${isSidebarExpanded ? 'w-20 h-20' : 'w-16 h-16'} bg-gray-200 flex items-center justify-center rounded-full`}>
+            <UserCircleIcon className="w-3/4 h-3/4 text-gray-400" />
+          </div>
+        )}
+      </div>
+
       <button
         onClick={toggleSidebar}
         className="mb-4 px-4 py-2 flex items-center justify-center bg-gray-200 rounded transition duration-300 cursor-pointer"
@@ -175,6 +191,44 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarExpanded, toggleSidebar }) =
               >
                 • Designation
               </NavLink>
+            </div>
+          )}
+        </div>
+
+        <div>
+          <button
+            onClick={() => setIsOrgOpen(!isOrgOpen)}
+            className={`py-2.5 px-4 gap-3 w-full flex justify-between items-center rounded transition duration-300 cursor-pointer ${
+              isOrgOpen ? "bg-gray-200" : "hover:bg-gray-200"
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <UserCircleIcon height={24} color="#3d3d3d" />
+              {isSidebarExpanded && 'Leave'}
+            </div>
+            <div
+              className={`transition-transform ${
+                isOrgOpen ? "rotate-90" : "rotate-0"
+              }`}
+            >
+              <ChevronRightIcon height={24} color="#3d3d3d" />
+            </div>
+          </button>
+          {isOrgOpen && isSidebarExpanded && (
+            <div className="pl-8 space-y-1">
+              <NavLink
+                to="/c/workshift"
+                className={({ isActive }) =>
+                  `py-2.5 px-4 gap-3 flex rounded transition duration-300 cursor-pointer ${
+                    isActive
+                      ? "bg-black font-semibold text-white"
+                      : "hover:bg-gray-200"
+                  }`
+                }
+              >
+                • Workshift
+              </NavLink>
+           
             </div>
           )}
         </div>

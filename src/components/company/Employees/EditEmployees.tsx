@@ -130,9 +130,14 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     }
   };
 
+  const isImageFile = (file: File) => {
+    const acceptedImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml'];
+    return file && acceptedImageTypes.includes(file.type);
+  };
+
   const handleFileChange = (info: any) => {
     const file = info.file.originFileObj;
-    if (file) {
+    if (file && isImageFile(file)) {
       // Create a preview URL
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -142,6 +147,8 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   
       // Store the file for later upload
       setFileToUpload(file);
+    }else{
+      message.error('please upload image files only')
     }
   };
 

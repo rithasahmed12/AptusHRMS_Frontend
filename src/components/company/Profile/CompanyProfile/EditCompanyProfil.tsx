@@ -10,11 +10,15 @@ import {
   Col,
   Spin,
   Typography,
-  Card
+  Card,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
+import { companyDataUpsert, getCompanyInfo } from "../../../../api/company";
+import { useDispatch, useSelector } from "react-redux";
+import { setCompanyInfo } from "../../../../redux/slices/companySlice/companySlice";
+
 
 const { TextArea } = Input;
 const { Title } = Typography;
@@ -24,7 +28,7 @@ interface Company {
   name: string;
   logo?: string;
   industry?: string;
-  foundedDate?: Date|string;
+  foundedDate?: Date | string;
   description?: string;
   address?: string;
   city?: string;
@@ -37,7 +41,21 @@ interface Company {
   status?: string;
 }
 
+function convertToDate(dayjsObject: any): Date | null {
+  if (dayjsObject && dayjs.isDayjs(dayjsObject)) {
+    return new Date(
+      dayjsObject.year(),
+      dayjsObject.month(),
+      dayjsObject.date()
+    );
+  }
+  return null;
+}
+
 const EditCompanyProfile: React.FC = () => {
+  const {companyInfo} = useSelector((state:any) => state.companyInfo);
+  const dispatch = useDispatch();
+
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
@@ -46,50 +64,6 @@ const EditCompanyProfile: React.FC = () => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const dummyCompanyData = {
-    _id: "comp123456",
-    name: "TechInnovate Solutions",
-    logo: "https://via.placeholder.com/150",
-    industry: "Information Technology",
-    foundedDate: "2010-03-15",
-    description: "TechInnovate Solutions is a leading provider of cutting-edge software solutions, specializing in artificial intelligence, cloud computing, and cybersecurity. Our mission is to empower businesses with innovative technology to drive growth and efficiency in the digital age.",
-    address: "123 Tech Avenue",
-    city: "San Francisco",
-    country: "United States",
-    postalCode: "94105",
-    phone: "+1 (555) 123-4567",
-    email: "info@techinnovate.com",
-    website: "https://www.techinnovate.com",
-    employeeCount: 250,
-    status: "Active",
-    socialMedia: {
-      linkedin: "https://www.linkedin.com/company/techinnovate-solutions",
-      twitter: "https://twitter.com/TechInnovateSol",
-      facebook: "https://www.facebook.com/TechInnovateSolutions",
-    },
-    keyProducts: [
-      "AI-Driven Analytics Platform",
-      "CloudSecure Suite",
-      "InnovateCRM",
-    ],
-    annualRevenue: "$50 million",
-    ceo: "Jane Smith",
-    headquartersLocation: {
-      latitude: 37.7749,
-      longitude: -122.4194,
-    },
-    subsidiaries: [
-      "TechInnovate Cloud Services",
-      "InnovateSec Cybersecurity",
-    ],
-    stockSymbol: "TECH",
-    fundingRounds: [
-      { date: "2010-06-01", amount: "$5 million", type: "Seed" },
-      { date: "2012-08-15", amount: "$20 million", type: "Series A" },
-      { date: "2015-11-30", amount: "$50 million", type: "Series B" },
-    ],
-  };
-
   useEffect(() => {
     fetchCompany();
   }, [id]);
@@ -97,15 +71,17 @@ const EditCompanyProfile: React.FC = () => {
   const fetchCompany = async () => {
     setLoading(true);
     try {
-      // Replace this with your actual API call
-    //   const response = await fetch(`/api/company/${id}`);
-    //   const data = await response.json();
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setCompany(dummyCompanyData);
-      setPreviewUrl(dummyCompanyData.logo);
+      const response: any = await getCompanyInfo();
+      console.log("response:", response);
+
+      setCompany(response.data);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setPreviewUrl(response.data.logo);
       form.setFieldsValue({
-        ...dummyCompanyData,
-        foundedDate: dummyCompanyData.foundedDate ? dayjs(dummyCompanyData.foundedDate) : null,
+        ...response.data,
+        foundedDate: response.data.foundedDate
+          ? dayjs(response.data.foundedDate)
+          : null,
       });
     } catch (error) {
       message.error("Failed to fetch company data");
@@ -116,14 +92,31 @@ const EditCompanyProfile: React.FC = () => {
 
   const handleFileChange = (info: any) => {
     const file = info.file.originFileObj;
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewUrl(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-      setFileToUpload(file);
+    
+    if (file.size > 5 * 1024 * 1024) {
+      message.error('File size must be less than 5MB');
+      return;
     }
+  
+    const isImage = file.type.startsWith('image/');
+    const isPngOrSvg = ['image/png', 'image/svg+xml'].includes(file.type);
+  
+    if (!isImage) {
+      message.error('You can only upload image files');
+      return;
+    }
+  
+    if (!isPngOrSvg) {
+      message.error('You can only upload PNG or SVG files');
+      return;
+    }
+  
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreviewUrl(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+    setFileToUpload(file);
   };
 
   const handleSubmit = async (values: any) => {
@@ -131,11 +124,15 @@ const EditCompanyProfile: React.FC = () => {
     try {
       const formData = new FormData();
 
-      Object.keys(values).forEach(key => {
-        if (key === 'foundedDate') {
-          const date = values[key] ? new Date(values[key]) : null;
-          formData.append(key, date ? date.toISOString() : '');
-        } else if (key === 'employeeCount') {
+      if (company && company._id) {
+        formData.append("_id", company._id);
+      }
+
+      Object.keys(values).forEach((key) => {
+        if (key === "foundedDate") {
+          const date = convertToDate(values[key]);
+          formData.append(key, date ? date.toISOString() : "");
+        } else if (key === "employeeCount") {
           formData.append(key, values[key].toString());
         } else {
           formData.append(key, values[key]);
@@ -143,18 +140,21 @@ const EditCompanyProfile: React.FC = () => {
       });
 
       if (fileToUpload) {
-        formData.append('logo', fileToUpload);
+        formData.append("logo", fileToUpload);
       }
 
-      // Replace this with your actual API call
-      const response = await fetch(`/api/company/${id}`, {
-        method: 'PUT',
-        body: formData
-      });
+      const response = await companyDataUpsert(formData);
 
-      if (response.ok) {
+      console.log("reponse:", response);
+
+      if (response.status === 201) {
+        dispatch(setCompanyInfo({
+          ...companyInfo,
+          companyName:response.data.name,
+          logo: response.data.logo
+        }));
         message.success("Company profile updated successfully");
-        navigate(`/company/${id}`);
+        navigate(`/c/profile/${id}/company`);
       } else {
         throw new Error("Failed to update company profile");
       }
@@ -172,13 +172,15 @@ const EditCompanyProfile: React.FC = () => {
 
   if (loading) {
     return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '70vh',
-        width: '90%'
-      }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "70vh",
+          width: "90%",
+        }}
+      >
         <Spin size="large" />
       </div>
     );
@@ -189,17 +191,19 @@ const EditCompanyProfile: React.FC = () => {
       <Spin spinning={loading}>
         <Card
           title={
-            <div style={{ display: "flex", justifyContent: 'space-between', alignItems: 'center' }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
               <Title level={3}>Edit Company Profile</Title>
               <Button onClick={goBack}>Go Back</Button>
             </div>
           }
         >
-          <Form
-            form={form}
-            layout="vertical"
-            onFinish={handleSubmit}
-          >
+          <Form form={form} layout="vertical" onFinish={handleSubmit}>
             <Row gutter={16}>
               <Col span={8}>
                 <img
@@ -207,7 +211,7 @@ const EditCompanyProfile: React.FC = () => {
                   alt="Company Logo"
                   style={{
                     width: "100%",
-                    maxWidth: "200px",
+                    maxWidth: "140px",
                     marginBottom: "10px",
                   }}
                 />
@@ -217,8 +221,9 @@ const EditCompanyProfile: React.FC = () => {
                   showUploadList={false}
                   beforeUpload={(file) => {
                     handleFileChange({ file: { originFileObj: file } });
-                    return false;
+                    return false; // Prevent automatic upload
                   }}
+                  accept=".png,.svg" // This limits the file picker to PNG and SVG files
                 >
                   <Button icon={<UploadOutlined />}>Change Logo</Button>
                 </Upload>
@@ -227,34 +232,24 @@ const EditCompanyProfile: React.FC = () => {
                 <Form.Item
                   name="name"
                   label="Company Name"
-                  rules={[{ required: true, message: 'Please input the company name!' }]}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please input the company name!",
+                    },
+                  ]}
                 >
                   <Input />
                 </Form.Item>
-                <Form.Item
-                  name="industry"
-                  label="Industry"
-                >
+                <Form.Item name="industry" label="Industry">
                   <Input />
                 </Form.Item>
-                <Form.Item
-                  name="foundedDate"
-                  label="Founded Date"
-                >
+                <Form.Item name="foundedDate" label="Founded Date">
                   <DatePicker />
-                </Form.Item>
-                <Form.Item
-                  name="employeeCount"
-                  label="Number of Employees"
-                >
-                  <Input type="number" />
                 </Form.Item>
               </Col>
             </Row>
-            <Form.Item
-              name="description"
-              label="Description"
-            >
+            <Form.Item name="description" label="Description">
               <TextArea rows={4} />
             </Form.Item>
             <Row gutter={16}>
@@ -262,64 +257,39 @@ const EditCompanyProfile: React.FC = () => {
                 <Form.Item
                   name="email"
                   label="Email"
-                  rules={[{ required: true, type: 'email', message: 'Please input a valid email!' }]}
+                  rules={[
+                    {
+                      required: true,
+                      type: "email",
+                      message: "Please input a valid email!",
+                    },
+                  ]}
                 >
                   <Input />
                 </Form.Item>
               </Col>
               <Col span={12}>
-                <Form.Item
-                  name="phone"
-                  label="Phone"
-                >
+                <Form.Item name="phone" label="Phone">
                   <Input />
                 </Form.Item>
               </Col>
             </Row>
-            <Form.Item
-              name="website"
-              label="Website"
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item
-              name="address"
-              label="Address"
-            >
+            <Form.Item name="website" label="Website">
               <Input />
             </Form.Item>
             <Row gutter={16}>
-              <Col span={8}>
-                <Form.Item
-                  name="city"
-                  label="City"
-                >
-                  <Input />
+              <Col span={12}>
+                <Form.Item name="linkedinHandle" label="LinkedIn Handle">
+                  <Input addonBefore="linkedin.com/company/" />
                 </Form.Item>
               </Col>
-              <Col span={8}>
-                <Form.Item
-                  name="country"
-                  label="Country"
-                >
-                  <Input />
-                </Form.Item>
-              </Col>
-              <Col span={8}>
-                <Form.Item
-                  name="postalCode"
-                  label="Postal Code"
-                >
-                  <Input />
+              <Col span={12}>
+                <Form.Item name="whatsappNumber" label="WhatsApp Number">
+                  <Input addonBefore="+" />
                 </Form.Item>
               </Col>
             </Row>
-            <Form.Item
-              name="status"
-              label="Status"
-            >
-              <Input />
-            </Form.Item>
+
             <Form.Item>
               <Button type="primary" htmlType="submit">
                 Update Company Profile
