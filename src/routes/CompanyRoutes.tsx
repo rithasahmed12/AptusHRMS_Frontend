@@ -18,7 +18,16 @@ import UserProfile from "../components/company/Profile/UserProfile/UserProfile.t
 import EditUserProfile from "../components/company/Profile/UserProfile/EditUserProfile.tsx";
 import CompanyProfile from "../components/company/Profile/CompanyProfile/CompanyProfile.tsx";
 import EditCompanyProfile from "../components/company/Profile/CompanyProfile/EditCompanyProfil.tsx";
-import ListWorkshift from "../components/company/Leave/Workshift/ListWorkshift.tsx";
+import ListWorkshift from "../components/company/Attendance/Workshift/ListWorkshift.tsx";
+import EditWorkShift from "../components/company/Attendance/Workshift/EditWorkShift.tsx";
+import AddWorkShift from "../components/company/Attendance/Workshift/AddWorkShift.tsx";
+import HolidayList from "../components/company/Leave/Holidays.tsx";
+import LeaveTypeList from "../components/company/Leave/Leaves.tsx";
+import LeaveApplicationList from "../components/company/Leave/LeaveApplication.tsx";
+import AssetList from "../components/company/Assets/AssetsList.tsx";
+import AddAsset from "../components/company/Assets/AddAsset.tsx";
+import EditAsset from "../components/company/Assets/EditAsset.tsx";
+import AssetsApplication from "../components/company/Assets/AssetsApplications.tsx";
 
 
 const CompanyRoutes = () => {
@@ -45,6 +54,15 @@ const CompanyRoutes = () => {
               <Route path="company/edit" element={<EditCompanyProfile/>} />
             </Route>
             <Route path="workshift" element={<ListWorkshift/>} />
+            <Route path="workshift/add" element={<AddWorkShift/>} />
+            <Route path="workshift/edit/:id" element={<EditWorkShift/>} />
+            <Route path="holidays" element={<HolidayList/>} />
+            <Route path="leaves" element={<LeaveTypeList/>} />
+            <Route path="leaveApplication" element={<LeaveApplicationList/>} />
+            <Route path="assets" element={<AssetList/>} />
+            <Route path="assets/add" element={<AddAsset/>} />
+            <Route path="assets/edit/:id" element={<EditAsset/>} />
+            <Route path="assetsApplication" element={<AssetsApplication/>} />
           </Route>
         </Route>
       </Route>
