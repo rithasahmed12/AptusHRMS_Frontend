@@ -200,28 +200,6 @@ export const getDesignations = async () => {
   }
 };
 
-interface Employee {
-  readonly name?: string;
-  readonly gender?: string;
-  readonly dob?: Date;
-  readonly streetAddress?: string;
-  readonly city?: string;
-  readonly country?: string;
-  readonly postalCode?: string;
-  readonly phone?: string;
-  readonly email: string;
-  readonly hireDate?: Date;
-  readonly joiningDate?: Date;
-  readonly basicSalary?: number;
-  readonly employeeType?: string;
-  readonly departmentId?: string;
-  readonly designationId?: string;
-  readonly employeeId?: string;
-  readonly status?: string;
-  readonly role: string;
-  readonly shift?: string;
-  readonly profilePic?: string;
-}
 
 export const createEmployee = async (formData: FormData) => {
   try {
@@ -393,5 +371,226 @@ export const companyDataUpsert = async(formData:FormData)=>{
     throw Error;
   }
 }
+
+
+interface WorkShift {
+  shiftName: string;
+  workingDays: string[];
+  shiftIn: string;
+  shiftOut: string;
+  lateThreshold?: number;
+  halfdayThreshold?: number;
+  shiftOutNextDay?: boolean;
+}
+
+export const getAllWorkShifts = async () => {
+  try {
+    const response = await CompanyApi.get(companyRoutes.workShift);
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+};
+
+export const getWorkShift = async (id: string|undefined) => {
+  try {
+    const response = await CompanyApi.get(companyRoutes.WorkShift(id));
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+};
+
+export const createWorkShift = async (workShift: WorkShift) => {
+  try {
+    const response = await CompanyApi.post(companyRoutes.workShift, workShift);
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+};
+
+export const editWorkShift = async (id: string|undefined, workShift: Partial<WorkShift>) => {
+  try {
+    const response = await CompanyApi.put(companyRoutes.WorkShift(id), workShift);
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+};
+
+export const deleteWorkShift = async (id: string) => {
+  try {
+    const response = await CompanyApi.delete(companyRoutes.WorkShift(id));
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+};
+
+export interface Holiday {
+  _id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+}
+
+export const getAllHolidays = async () => {
+  try {
+    const response = await CompanyApi.get(companyRoutes.holiday);
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+};
+
+export const createHoliday = async (holiday: Omit<Holiday, '_id'>) => {
+  try {
+    const response = await CompanyApi.post(companyRoutes.holiday, holiday);
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+};
+
+export const updateHoliday = async (id: string|undefined, holiday: Partial<Omit<Holiday, '_id'>>) => {
+  try {
+    const response = await CompanyApi.put(companyRoutes.Holiday(id), holiday);
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+};
+
+export const deleteHoliday = async (id: string) => {
+  try {
+    const response = await CompanyApi.delete(companyRoutes.Holiday(id));
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+};
+
+export interface LeaveType {
+  _id: string;
+  name: string;
+  numberOfDays: number;
+  status: 'Active' | 'Inactive';
+}
+
+export const getAllLeaveTypes = async () => {
+  try {
+    const response = await CompanyApi.get(companyRoutes.leaveType);
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+};
+
+export const createLeaveType = async (leaveType: Omit<LeaveType, '_id'>) => {
+  try {
+    const response = await CompanyApi.post(companyRoutes.leaveType, leaveType);
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+};
+
+export const updateLeaveType = async (id: string|undefined, leaveType: Partial<Omit<LeaveType, '_id'>>) => {
+  try {
+    const response = await CompanyApi.put(companyRoutes.LeaveType(id), leaveType);
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+};
+
+export const deleteLeaveType = async (id: string) => {
+  try {
+    const response = await CompanyApi.delete(companyRoutes.LeaveType(id));
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+};
+
+export interface Asset {
+  _id: string;
+  name: string;
+  type: string;
+  status: 'In Use' | 'Available' | 'Maintenance';
+  assignedTo?: { name: string; _id: string };
+  image: string | null;
+}
+
+export const getAllAssets = async () => {
+  try {
+    const response = await CompanyApi.get(companyRoutes.asset);
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+};
+
+export const createAsset = async (asset: FormData) => {
+  try {
+    const response = await CompanyApi.post(companyRoutes.asset, asset, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+};
+
+export const updateAsset = async (id: string|undefined, asset: FormData) => {
+  try {
+    
+    const response = await CompanyApi.put(companyRoutes.Asset(id), asset, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response;
+  } catch (error: any) {
+    console.log(error);
+    return error.response;
+  }
+};
+
+export const deleteAsset = async (id: string) => {
+  try {
+    const response = await CompanyApi.delete(companyRoutes.Asset(id));
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+};
+
+export const assignAsset = async (id: string, assignedTo: string) => {
+  try {
+    const response = await CompanyApi.put(companyRoutes.AssetAssign(id), { assignedTo });
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+};
+
+export const requestAsset = async (id: string) => {
+  try {
+    const response = await CompanyApi.put(companyRoutes.AssetRequest(id));
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+};
+
+export const getAssetById = async (id: string|undefined) => {
+  try {
+    const response = await CompanyApi.get(companyRoutes.Asset(id));
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+};
+
 
 

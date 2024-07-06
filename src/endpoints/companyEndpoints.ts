@@ -18,6 +18,17 @@ const companyRoutes={
     Employee:(id:string|undefined)=>`employee/${id}`,
     project:'project',
     Project:(id:string|undefined)=>`project/${id}`,
+    workShift:'workshift',
+    WorkShift:(id:string|undefined)=>`workshift/${id}`,
+    holiday:'holiday',
+    Holiday:(id:string|undefined)=>`holiday/${id}`,
+    leaveType:'leave',
+    LeaveType:(id:string|undefined)=>`leave/${id}`,
+    asset:'asset',
+    Asset:(id:string|undefined)=>`asset/${id}`,
+    AssetAssign:(id:string|undefined)=>`asset/${id}/assign`,
+    AssetRequest:(id:string|undefined)=>`asset/${id}/request`,
+
 }
 
 export default companyRoutes;

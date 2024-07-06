@@ -1,21 +1,46 @@
 import React from 'react';
-import { Form, Input, Button, Checkbox, TimePicker, InputNumber } from 'antd';
-import { Link } from 'react-router-dom';
+import { Form, Input, Button, Checkbox, TimePicker, InputNumber, message } from 'antd';
+import { Link, useNavigate } from 'react-router-dom';
+import { createWorkShift } from '../../../../api/company';
 
 const AddWorkShift: React.FC = () => {
   const [form] = Form.useForm();
+  const navigate = useNavigate();
 
-  const onFinish = (values: any) => {
-    console.log('Success:', values);
+  const onFinish = async (values: any) => {
+    try {
+      // Convert TimePicker values to string
+      const formattedValues = {
+        ...values,
+        shiftIn: values.shiftIn.format('HH:mm'),
+        shiftOut: values.shiftOut.format('HH:mm'),
+      };
+
+      const response = await createWorkShift(formattedValues);
+      
+      if (response.status === 201 || response.status === 200) {
+        message.success('Work shift added successfully');
+        navigate('/c/workshift'); 
+      } else {
+        message.error('Failed to add work shift');
+      }
+    } catch (error) {
+      console.error('Error adding work shift:', error);
+      message.error('An error occurred while adding the work shift');
+    }
   };
+
+  const handleGoBack = ()=>{
+    navigate(-1);
+  }
 
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Work Shift</h1>
-        <Link to="/">
-          <Button type="primary">Go Back</Button>
-        </Link>
+       
+          <Button onClick={handleGoBack} type="primary">Go Back</Button>
+      
       </div>
       <Form
         form={form}

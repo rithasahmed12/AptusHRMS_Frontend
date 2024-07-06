@@ -1,24 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Input, DatePicker, message } from 'antd';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import moment from 'moment';
-
-interface Holiday {
-  id: number;
-  name: string;
-  startDate: string;
-  endDate: string;
-}
+import { Holiday, getAllHolidays, createHoliday, updateHoliday, deleteHoliday } from '../../../api/company';
 
 const HolidayList: React.FC = () => {
-  const [holidays, setHolidays] = useState<Holiday[]>([
-    { id: 1, name: 'Christmas', startDate: '2024-12-23', endDate: '2024-12-25' },
-  ]);
+  const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [editingHoliday, setEditingHoliday] = useState<Holiday | null>(null);
   const [form] = Form.useForm();
+
+  useEffect(() => {
+    fetchHolidays();
+  }, []);
+
+  const fetchHolidays = async () => {
+    const response = await getAllHolidays();
+    if (response.status === 200) {
+      setHolidays(response.data);
+    } else {
+      message.error('Failed to fetch holidays');
+    }
+  };
 
   const columns = [
     { title: 'Name', dataIndex: 'name', key: 'name' },
@@ -69,45 +74,54 @@ const HolidayList: React.FC = () => {
     setIsDeleteModalVisible(true);
   };
 
-  const handleAdd = (values: any) => {
-    const newHoliday: Holiday = {
-      id: holidays.length + 1,
+  const handleAdd = async (values: any) => {
+    const newHoliday = {
       name: values.name,
       startDate: values.startDate.format('YYYY-MM-DD'),
       endDate: values.endDate.format('YYYY-MM-DD'),
     };
-    setHolidays([...holidays, newHoliday]);
-    setIsAddModalVisible(false);
-    message.success('Holiday added successfully');
-  };
-
-  const handleEdit = (values: any) => {
-    if (editingHoliday) {
-      const updatedHolidays = holidays.map(holiday =>
-        holiday.id === editingHoliday.id
-          ? {
-              ...holiday,
-              name: values.name,
-              startDate: values.startDate.format('YYYY-MM-DD'),
-              endDate: values.endDate.format('YYYY-MM-DD'),
-            }
-          : holiday
-      );
-      setHolidays(updatedHolidays);
-      setIsEditModalVisible(false);
-      message.success('Holiday updated successfully');
+    const response = await createHoliday(newHoliday);
+    if (response.status === 201) {
+      setIsAddModalVisible(false);
+      message.success('Holiday added successfully');
+      fetchHolidays();
+    } else {
+      message.error('Failed to add holiday');
     }
   };
 
-  const handleDelete = () => {
+  const handleEdit = async (values: any) => {
     if (editingHoliday) {
-      const updatedHolidays = holidays.filter(holiday => holiday.id !== editingHoliday.id);
-      setHolidays(updatedHolidays);
-      setIsDeleteModalVisible(false);
-      message.success('Holiday deleted successfully');
+      const updatedHoliday = {
+        name: values.name,
+        startDate: values.startDate.format('YYYY-MM-DD'),
+        endDate: values.endDate.format('YYYY-MM-DD'),
+      };
+      const response = await updateHoliday(editingHoliday._id, updatedHoliday);
+      if (response.status === 200) {
+        setIsEditModalVisible(false);
+        message.success('Holiday updated successfully');
+        fetchHolidays();
+      } else {
+        message.error('Failed to update holiday');
+      }
     }
   };
 
+  const handleDelete = async () => {
+    if (editingHoliday) {
+      const response = await deleteHoliday(editingHoliday._id);
+      if (response.status === 200) {
+        setIsDeleteModalVisible(false);
+        message.success('Holiday deleted successfully');
+        fetchHolidays();
+      } else {
+        message.error('Failed to delete holiday');
+      }
+    }
+  };
+
+  
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Holiday List</h1>

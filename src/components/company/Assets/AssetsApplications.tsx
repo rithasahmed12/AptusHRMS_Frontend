@@ -129,7 +129,7 @@ const AssetsApplication: React.FC = () => {
 
       <Modal
         title="Application Details"
-        visible={isModalVisible}
+        open={isModalVisible}
         onCancel={handleCancel}
         footer={null}
       >

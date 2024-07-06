@@ -1,26 +1,39 @@
-import React, { useState } from 'react';
-import { Table, Button, Modal, Form, Input, InputNumber, Select, message } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Table, Button, Modal, Form, Input, InputNumber, Select, message, DatePicker } from 'antd';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { LeaveType, getAllLeaveTypes, createLeaveType, updateLeaveType, deleteLeaveType, } from '../../../api/company';
 
-interface LeaveType {
-  id: number;
-  name: string;
-  numberOfDays: number;
-  status: 'Active' | 'Inactive';
-}
+const { RangePicker } = DatePicker;
 
 const LeaveTypeList: React.FC = () => {
-  const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>([
-    { id: 1, name: 'Casual Leave', numberOfDays: 21, status: 'Active' },
-  ]);
+  const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>([]);
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  const [isApplyModalVisible, setIsApplyModalVisible] = useState(false);
   const [editingLeaveType, setEditingLeaveType] = useState<LeaveType | null>(null);
+  const [applyingLeaveType, setApplyingLeaveType] = useState<LeaveType | null>(null);
   const [form] = Form.useForm();
+  const [applyForm] = Form.useForm();
+
+  useEffect(() => {
+    fetchLeaveTypes();
+  }, []);
+
+  const fetchLeaveTypes = async () => {
+    try {
+      const response = await getAllLeaveTypes();
+      if (response.status === 200) {
+        setLeaveTypes(response.data);
+      } else {
+        message.error('Failed to fetch leave types');
+      }
+    } catch (error) {
+      message.error('Failed to fetch leave types');
+    }
+  };
 
   const columns = [
-    { title: 'No', dataIndex: 'id', key: 'id' },
     { title: 'Leave Type', dataIndex: 'name', key: 'name' },
     { title: 'Number of Days', dataIndex: 'numberOfDays', key: 'numberOfDays' },
     { title: 'Status', dataIndex: 'status', key: 'status' },
@@ -34,6 +47,9 @@ const LeaveTypeList: React.FC = () => {
           </Button>
           <Button icon={<DeleteOutlined />} onClick={() => showDeleteModal(record)} danger>
             Delete
+          </Button>
+          <Button onClick={() => showApplyModal(record)}>
+            Apply
           </Button>
         </span>
       ),
@@ -56,45 +72,86 @@ const LeaveTypeList: React.FC = () => {
     setIsDeleteModalVisible(true);
   };
 
-  const handleAdd = (values: any) => {
-    const newLeaveType: LeaveType = {
-      id: leaveTypes.length + 1,
-      name: values.name,
-      numberOfDays: values.numberOfDays,
-      status: values.status,
-    };
-    setLeaveTypes([...leaveTypes, newLeaveType]);
-    setIsAddModalVisible(false);
-    message.success('Leave type added successfully');
+  const showApplyModal = (leaveType: LeaveType | null = null) => {
+    setApplyingLeaveType(leaveType);
+    applyForm.resetFields();
+    setIsApplyModalVisible(true);
   };
 
-  const handleEdit = (values: any) => {
-    if (editingLeaveType) {
-      const updatedLeaveTypes = leaveTypes.map(leaveType =>
-        leaveType.id === editingLeaveType.id
-          ? { ...leaveType, ...values }
-          : leaveType
-      );
-      setLeaveTypes(updatedLeaveTypes);
-      setIsEditModalVisible(false);
-      message.success('Leave type updated successfully');
+  const handleAdd = async (values: any) => {
+    try {
+      const response = await createLeaveType(values);
+      if (response.status === 201) {
+        setIsAddModalVisible(false);
+        message.success('Leave type added successfully');
+        fetchLeaveTypes();
+      } else {
+        message.error('Failed to add leave type');
+      }
+    } catch (error) {
+      message.error('Failed to add leave type');
     }
   };
 
-  const handleDelete = () => {
+  const handleEdit = async (values: any) => {
     if (editingLeaveType) {
-      const updatedLeaveTypes = leaveTypes.filter(leaveType => leaveType.id !== editingLeaveType.id);
-      setLeaveTypes(updatedLeaveTypes);
-      setIsDeleteModalVisible(false);
-      message.success('Leave type deleted successfully');
+      try {
+        const response = await updateLeaveType(editingLeaveType._id, values);
+        if (response.status === 200) {
+          setIsEditModalVisible(false);
+          message.success('Leave type updated successfully');
+          fetchLeaveTypes();
+        } else {
+          message.error('Failed to update leave type');
+        }
+      } catch (error) {
+        message.error('Failed to update leave type');
+      }
+    }
+  };
+
+  const handleDelete = async () => {
+    if (editingLeaveType) {
+      try {
+        const response = await deleteLeaveType(editingLeaveType._id);
+        if (response.status === 200) {
+          setIsDeleteModalVisible(false);
+          message.success('Leave type deleted successfully');
+          fetchLeaveTypes();
+        } else {
+          message.error('Failed to delete leave type');
+        }
+      } catch (error) {
+        message.error('Failed to delete leave type');
+      }
+    }
+  };
+
+  const handleApply = async (values: any) => {
+    try {
+      // const response = await applyForLeave({
+      //   ...values,
+      //   leaveTypeId: applyingLeaveType?._id || values.leaveTypeId,
+      // });
+      // if (response.status === 200) {
+      //   setIsApplyModalVisible(false);
+      //   message.success('Leave application submitted successfully');
+      // } else {
+      //   message.error('Failed to submit leave application');
+      // }
+    } catch (error) {
+      message.error('Failed to submit leave application');
     }
   };
 
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Leave Type</h1>
-      <Button icon={<PlusOutlined />} onClick={showAddModal} className="mb-4">
-        Add Leave
+      <Button icon={<PlusOutlined />} onClick={showAddModal} className="mb-4 mr-2">
+        Add Leave Type
+      </Button>
+      <Button onClick={() => showApplyModal()} className="mb-4">
+        Apply for Leave
       </Button>
       <Table columns={columns} dataSource={leaveTypes} rowKey="id" />
 
@@ -159,6 +216,37 @@ const LeaveTypeList: React.FC = () => {
         onCancel={() => setIsDeleteModalVisible(false)}
       >
         <p>Are you sure you want to delete this leave type?</p>
+      </Modal>
+
+      <Modal
+        title="Apply for Leave"
+        visible={isApplyModalVisible}
+        onCancel={() => setIsApplyModalVisible(false)}
+        footer={null}
+      >
+        <Form form={applyForm} onFinish={handleApply} layout="vertical">
+          {!applyingLeaveType && (
+            <Form.Item name="leaveTypeId" label="Leave Type" rules={[{ required: true }]}>
+              <Select>
+                {leaveTypes.map(type => (
+                  <Select.Option key={type._id} value={type._id}>{type.name}</Select.Option>
+                ))}
+                <Select.Option key='other' value='other'>Other</Select.Option>
+              </Select>
+            </Form.Item>
+          )}
+          <Form.Item name="dateRange" label="Leave Date Range" rules={[{ required: true }]}>
+            <RangePicker className="w-full" />
+          </Form.Item>
+          <Form.Item name="reason" label="Reason" rules={[{ required: true }]}>
+            <Input.TextArea rows={4} />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              Submit Application
+            </Button>
+          </Form.Item>
+        </Form>
       </Modal>
     </div>
   );

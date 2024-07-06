@@ -191,7 +191,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         <div>
           <button
             onClick={() => setIsOrgOpen(!isOrgOpen)}
-            className={`py-2.5 px-4 gap-3 w-full flex justify-between items-center rounded transition duration-300 cursor-pointer ${
+            className={`py-2.5 px-4 gap-3 w-full flex justify-between mb-1 items-center rounded transition duration-300 cursor-pointer ${
               isOrgOpen ? "bg-gray-200" : "hover:bg-gray-200"
             }`}
           >
@@ -242,7 +242,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         <div>
           <button
             onClick={() => setIsLeaveOpen(!isLeaveOpen)}
-            className={`py-2.5 px-4 gap-3 w-full flex justify-between items-center rounded transition duration-300 cursor-pointer ${
+            className={`py-2.5 px-4 gap-3 w-full flex justify-between mb-1 items-center rounded transition duration-300 cursor-pointer ${
               isLeaveOpen ? "bg-gray-200" : "hover:bg-gray-200"
             }`}
           >
@@ -283,7 +283,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         <div>
           <button
             onClick={() => setIsAttendanceOpen(!isAttendanceOpen)}
-            className={`py-2.5 px-4 gap-3 w-full flex justify-between items-center rounded transition duration-300 cursor-pointer ${
+            className={`py-2.5 px-4 gap-3 w-full flex justify-between mb-1 items-center rounded transition duration-300 cursor-pointer ${
               isAttendanceOpen ? "bg-gray-200" : "hover:bg-gray-200"
             }`}
           >
@@ -349,7 +349,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         <div>
           <button
             onClick={() => setIsAssetsOpen(!isAssetsOpen)}
-            className={`py-2.5 px-4 gap-3 w-full flex justify-between items-center rounded transition duration-300 cursor-pointer ${
+            className={`py-2.5 px-4 gap-3 w-full flex justify-between mb-1 items-center rounded transition duration-300 cursor-pointer ${
               isAssetsOpen ? "bg-gray-200" : "hover:bg-gray-200"
             }`}
           >
