@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Input, InputNumber, Select, message, DatePicker } from 'antd';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { LeaveType, getAllLeaveTypes, createLeaveType, updateLeaveType, deleteLeaveType, } from '../../../api/company';
+import { LeaveType, getAllLeaveTypes, createLeaveType, updateLeaveType, deleteLeaveType, submitLeaveRequest, } from '../../../api/company';
+import { useSelector } from 'react-redux';
 
 const { RangePicker } = DatePicker;
 
 const LeaveTypeList: React.FC = () => {
+  const {companyInfo} = useSelector((state:any)=>state.companyInfo);
   const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>([]);
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
@@ -41,7 +43,7 @@ const LeaveTypeList: React.FC = () => {
       title: 'Action',
       key: 'action',
       render: (_: any, record: LeaveType) => (
-        <span>
+        <span className='flex gap-3 '>
           <Button icon={<EditOutlined />} onClick={() => showEditModal(record)}>
             Edit
           </Button>
@@ -124,22 +126,28 @@ const LeaveTypeList: React.FC = () => {
       } catch (error) {
         message.error('Failed to delete leave type');
       }
-    }
+    } 
   };
 
   const handleApply = async (values: any) => {
     try {
-      // const response = await applyForLeave({
-      //   ...values,
-      //   leaveTypeId: applyingLeaveType?._id || values.leaveTypeId,
-      // });
-      // if (response.status === 200) {
-      //   setIsApplyModalVisible(false);
-      //   message.success('Leave application submitted successfully');
-      // } else {
-      //   message.error('Failed to submit leave application');
-      // }
+      console.log("values:",values);
+
+      const body = {
+        reason:values.reason,
+        startDate:values.dateRange[0],
+        endDate:values.dateRange[1],
+        leaveTypeId: applyingLeaveType?._id || values.leaveTypeId,
+        userId:companyInfo.id
+      }
+      
+      await submitLeaveRequest(body);
+     
+      setIsApplyModalVisible(false);
+      message.success('Leave application submitted successfully');
+      
     } catch (error) {
+      console.log("ERROR:",error);
       message.error('Failed to submit leave application');
     }
   };

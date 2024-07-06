@@ -574,18 +574,81 @@ export const assignAsset = async (id: string, assignedTo: string) => {
   }
 };
 
-export const requestAsset = async (id: string) => {
+
+  export const requestAsset = async (assetId: string, userId: string) => {
+    try {
+      const response = await CompanyApi.put(companyRoutes.AssetRequest(assetId, userId));
+      return response;
+    } catch (error: any) {
+      return error.response;
+    }
+  };
+
+export const getAssetById = async (id: string|undefined) => {
   try {
-    const response = await CompanyApi.put(companyRoutes.AssetRequest(id));
+    const response = await CompanyApi.get(companyRoutes.Asset(id));
     return response;
   } catch (error: any) {
     return error.response;
   }
 };
 
-export const getAssetById = async (id: string|undefined) => {
+export const getAllAssetApplications = async()=>{
   try {
-    const response = await CompanyApi.get(companyRoutes.Asset(id));
+    const response = await CompanyApi.get(companyRoutes.assetRequest);
+    return response;
+  } catch (error) {
+    console.log(error);
+    throw Error;
+    
+  }
+}
+
+// api/company.ts
+
+export const getAllLeaveRequests = async () => {
+  try {
+    const response = await CompanyApi.get(companyRoutes.leaveRequest);
+    return response;
+  } catch (error) {
+    console.log(error);
+    throw Error;
+  }
+};
+
+interface LeaveRequestData {
+  leaveTypeId: string;
+  startDate: string;
+  endDate: string;
+  reason: string;
+  userId: string;
+}
+
+export const submitLeaveRequest = async (leaveData: LeaveRequestData) => {
+  try {
+    console.log('leaveData:',leaveData);
+    
+    const response = await CompanyApi.post(companyRoutes.leaveRequest, leaveData);
+    return response;
+  } catch (error: any) {
+    console.log('ERROR:',error);
+    
+    throw Error;
+  }
+};
+
+export const updateLeaveRequestStatus = async (requestId: string, status: string) => {
+  try {
+    const response = await CompanyApi.put(companyRoutes.updateLeaveRequestStatus(requestId), { status });
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+};
+
+export const getEmployeeLeaveDays = async (employeeId: string) => {
+  try {
+    const response = await CompanyApi.get(companyRoutes.employeeLeaveDays(employeeId));
     return response;
   } catch (error: any) {
     return error.response;

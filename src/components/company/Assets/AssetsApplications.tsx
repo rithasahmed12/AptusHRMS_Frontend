@@ -1,60 +1,85 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, Select, message, Tag, Space } from 'antd';
+import { Table, Button, Modal, Form, Input, Select, message, Tag, Space, Image } from 'antd';
 import { CheckOutlined, CloseOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import { getAllAssetApplications } from '../../../api/company'; // Update the import path as needed
 
 const { Option } = Select;
 const { confirm } = Modal;
 
 interface AssetApplication {
-  id: number;
-  employeeName: string;
-  employeeId: string;
-  assetType: string;
-  assetName: string;
+  _id: string;
+  userId: {
+    _id: string;
+    name: string;
+    employeeId: string;
+  };
+  assetId: {
+    _id: string;
+    name: string;
+    type: string;
+    image: string;
+  };
   reason: string;
   status: 'Pending' | 'Approved' | 'Rejected';
-  applicationDate: string;
+  createdAt: string;
 }
 
 const AssetsApplication: React.FC = () => {
   const [applications, setApplications] = useState<AssetApplication[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState<AssetApplication | null>(null);
+  const [loading, setLoading] = useState(true);
   const [form] = Form.useForm();
 
   useEffect(() => {
-    // In a real application, you would fetch this data from an API
-    const mockApplications: AssetApplication[] = [
-      {
-        id: 1,
-        employeeName: 'John Doe',
-        employeeId: 'EMP001',
-        assetType: 'Laptop',
-        assetName: 'MacBook Pro',
-        reason: 'Need for development work',
-        status: 'Pending',
-        applicationDate: '2024-07-01',
-      },
-      {
-        id: 2,
-        employeeName: 'Jane Smith',
-        employeeId: 'EMP002',
-        assetType: 'Mobile',
-        assetName: 'iPhone 13',
-        reason: 'For client communication',
-        status: 'Approved',
-        applicationDate: '2024-06-28',
-      },
-    ];
-    setApplications(mockApplications);
+    fetchApplications();
   }, []);
 
+  const fetchApplications = async () => {
+    try {
+      setLoading(true);
+      const response = await getAllAssetApplications();
+      setApplications(response.data);
+    } catch (error) {
+      message.error('Failed to fetch asset applications');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const columns = [
-    { title: 'Employee Name', dataIndex: 'employeeName', key: 'employeeName' },
-    { title: 'Employee ID', dataIndex: 'employeeId', key: 'employeeId' },
-    { title: 'Asset Type', dataIndex: 'assetType', key: 'assetType' },
-    { title: 'Asset Name', dataIndex: 'assetName', key: 'assetName' },
-    { title: 'Application Date', dataIndex: 'applicationDate', key: 'applicationDate' },
+    { 
+      title: 'Employee Name', 
+      dataIndex: ['userId', 'name'], 
+      key: 'employeeName',
+    },
+    { 
+      title: 'Employee ID', 
+      dataIndex: ['userId', 'employeeId'], 
+      key: 'employeeId',
+    },
+    { 
+      title: 'Asset',
+      key: 'asset',
+      render: (text: string, record: AssetApplication) => (
+        <Space>
+          <Image
+            src={record.assetId.image}
+            alt={record.assetId.name}
+            width={50}
+            height={50}
+            style={{ objectFit: 'cover' }}
+          />
+          <span>{`${record.assetId.type} - ${record.assetId.name}`}</span>
+        </Space>
+      ),
+    },
+    { 
+      title: 'Application Date', 
+      dataIndex: 'createdAt', 
+      key: 'applicationDate',
+      render: (date: string) => new Date(date).toLocaleDateString(),
+    },
     { 
       title: 'Status', 
       dataIndex: 'status', 
@@ -90,32 +115,47 @@ const AssetsApplication: React.FC = () => {
         </Space>
       ),
     },
-  ];
+  ]
 
   const showConfirm = (action: 'approve' | 'reject', application: AssetApplication) => {
     confirm({
       title: `Do you want to ${action} this application?`,
       icon: <ExclamationCircleOutlined />,
-      content: `${action.charAt(0).toUpperCase() + action.slice(1)}ing application for ${application.assetName} by ${application.employeeName}`,
+      content: `${action.charAt(0).toUpperCase() + action.slice(1)}ing application for ${application.assetId.name} by ${application.userId.name}`,
       onOk() {
-        handleStatusChange(application.id, action === 'approve' ? 'Approved' : 'Rejected');
+        handleStatusChange(application._id, action === 'approve' ? 'Approved' : 'Rejected');
       },
     });
   };
 
-  const handleStatusChange = (id: number, newStatus: 'Approved' | 'Rejected') => {
-    const updatedApplications = applications.map(app =>
-      app.id === id ? { ...app, status: newStatus } : app
-    );
-    setApplications(updatedApplications);
-    message.success(`Application ${newStatus.toLowerCase()} successfully`);
+  const handleStatusChange = async (id: string, newStatus: 'Approved' | 'Rejected') => {
+    try {
+      // Here you would typically make an API call to update the status
+      // For now, we'll just update the local state
+      const updatedApplications = applications.map(app =>
+        app._id === id ? { ...app, status: newStatus } : app
+      );
+      setApplications(updatedApplications);
+      message.success(`Application ${newStatus.toLowerCase()} successfully`);
+    } catch (error) {
+      message.error('Failed to update application status');
+    }
   };
 
   const showModal = (application: AssetApplication) => {
     setSelectedApplication(application);
     setIsModalVisible(true);
-    form.setFieldsValue(application);
+    form.setFieldsValue({
+      employeeName: application.userId.name,
+      employeeId: application.userId.employeeId,
+      assetType: application.assetId.type,
+      assetName: application.assetId.name,
+      reason: application.reason,
+      applicationDate: new Date(application.createdAt).toLocaleDateString(),
+      status: application.status,
+    });
   };
+
 
   const handleCancel = () => {
     setIsModalVisible(false);
@@ -125,7 +165,12 @@ const AssetsApplication: React.FC = () => {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Asset Applications</h1>
-      <Table columns={columns} dataSource={applications} rowKey="id" />
+      <Table 
+        columns={columns} 
+        dataSource={applications} 
+        rowKey="_id" 
+        loading={loading}
+      />
 
       <Modal
         title="Application Details"
@@ -141,11 +186,17 @@ const AssetsApplication: React.FC = () => {
             <Form.Item name="employeeId" label="Employee ID">
               <Input disabled />
             </Form.Item>
-            <Form.Item name="assetType" label="Asset Type">
-              <Input disabled />
-            </Form.Item>
-            <Form.Item name="assetName" label="Asset Name">
-              <Input disabled />
+            <Form.Item label="Asset">
+              <Space>
+                <Image
+                  src={selectedApplication.assetId.image}
+                  alt={selectedApplication.assetId.name}
+                  width={100}
+                  height={100}
+                  style={{ objectFit: 'cover' }}
+                />
+                <Input disabled value={`${selectedApplication.assetId.type} - ${selectedApplication.assetId.name}`} />
+              </Space>
             </Form.Item>
             <Form.Item name="reason" label="Reason for Application">
               <Input.TextArea disabled />

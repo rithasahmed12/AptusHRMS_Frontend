@@ -27,7 +27,12 @@ const companyRoutes={
     asset:'asset',
     Asset:(id:string|undefined)=>`asset/${id}`,
     AssetAssign:(id:string|undefined)=>`asset/${id}/assign`,
-    AssetRequest:(id:string|undefined)=>`asset/${id}/request`,
+    assetRequest:'asset/request',
+    AssetRequest:(id:string|undefined,userId:string)=>`asset/${id}/${userId}/request`,
+    leaveRequest: 'leave/request',
+    LeaveRequest: (id: string | undefined) => `leave/request/${id}`,
+    updateLeaveRequestStatus: (id: string) => `leave/request/${id}/status`,
+    employeeLeaveDays: (employeeId: string) => `leave/employee/${employeeId}/days`,
 
 }
 

@@ -4,8 +4,10 @@ import { Table, Button, Space, Modal, Image, message ,Select} from 'antd';
 import { EditOutlined, PlusOutlined, SwapOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { Asset, getAllAssets, assignAsset, requestAsset, getEmployees } from '../../../api/company';
+import { useSelector } from 'react-redux';
 
 const AssetList: React.FC = () => {
+  const {companyInfo} = useSelector((state:any)=> state.companyInfo);
   const { Option } = Select;
   const [assets, setAssets] = useState<Asset[]>([]);
   const [isRequestModalVisible, setIsRequestModalVisible] = useState(false);
@@ -91,7 +93,7 @@ const AssetList: React.FC = () => {
   const handleRequest = async () => {
     if (selectedAsset) {
       try {
-        const response = await requestAsset(selectedAsset._id);
+        const response = await requestAsset(selectedAsset._id, companyInfo.id); // You'll need to have currentUserId available
         if (response.status === 200) {
           message.success('Asset requested successfully');
           fetchAssets();
@@ -104,6 +106,7 @@ const AssetList: React.FC = () => {
     }
     setIsRequestModalVisible(false);
   };
+
 
   const handleAssign = async (e: React.MouseEvent<HTMLButtonElement>) => {
     if (selectedAsset && assignedTo) {
