@@ -18,10 +18,13 @@ import {
   ScheduleOutlined,
   LogoutOutlined,
   MenuOutlined,
-  RightOutlined,
   AppstoreOutlined,
   LaptopOutlined,
   FormOutlined,
+  UserSwitchOutlined,
+  ProfileOutlined,
+  SolutionOutlined,
+  RightOutlined,
 } from "@ant-design/icons";
 
 interface SidebarProps {
@@ -42,6 +45,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [isAttendanceOpen, setIsAttendanceOpen] = useState(false);
   const [isAssetsOpen, setIsAssetsOpen] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isRecruitmentOpen, setIsRecruitmentOpen] = useState(false)
 
   const showModal = () => {
     setIsModalVisible(true);
@@ -60,9 +64,9 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <div
-      className={`flex flex-col ${
-        isSidebarExpanded ? "w-64" : "w-20"
-      } transition-width duration-300 py-7 px-2 text-sm absolute top-1 h-full left-0 bg-white shadow-lg`}
+    className={`flex flex-col ${
+      isSidebarExpanded ? "w-64" : "w-20"
+    } transition-width duration-300 py-7 px-2 text-sm fixed top-0 left-0 h-screen bg-white shadow-lg overflow-y-auto scrollbar-hide`}
     >
       <div
         className={`mb-6 ${
@@ -95,6 +99,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         <MenuOutlined style={{ fontSize: "24px", color: "#3d3d3d" }} />
       </button>
 
+      <div className="flex-grow overflow-y-auto scrollbar-hide">
       <nav className="space-y-1">
         <NavLink
           to="/c/dashboard"
@@ -399,6 +404,72 @@ const Sidebar: React.FC<SidebarProps> = ({
           )}
         </div>
 
+        <div>
+        <button
+          onClick={() => setIsRecruitmentOpen(!isRecruitmentOpen)}
+          className={`py-2.5 px-4 gap-3 w-full flex justify-between mb-1 items-center rounded transition duration-300 cursor-pointer ${
+            isRecruitmentOpen ? "bg-gray-200" : "hover:bg-gray-200"
+          }`}
+        >
+          <div className="flex items-center gap-3">
+            <UserSwitchOutlined
+              style={{ fontSize: "24px", color: "#3d3d3d" }}
+            />
+            {isSidebarExpanded && "Recruitment"}
+          </div>
+          <div
+            className={`transition-transform ${
+              isRecruitmentOpen ? "rotate-90" : "rotate-0"
+            }`}
+          >
+            {isSidebarExpanded && (
+              <RightOutlined style={{ fontSize: "18px", color: "#3d3d3d" }} />
+            )}
+          </div>
+        </button>
+        {isRecruitmentOpen && isSidebarExpanded && (
+          <div className="pl-8 space-y-1">
+            <NavLink
+              to="/c/recruitment/jobs"
+              className={({ isActive }) =>
+                `py-2.5 px-4 gap-3 flex rounded transition duration-300 cursor-pointer ${
+                  isActive
+                    ? "bg-black font-semibold text-white"
+                    : "hover:bg-gray-200"
+                }`
+              }
+            >
+              <ProfileOutlined style={{ fontSize: "16px" }} /> Listed Jobs
+            </NavLink>
+            <NavLink
+              to="/c/recruitment/applicants"
+              className={({ isActive }) =>
+                `py-2.5 px-4 gap-3 flex rounded transition duration-300 cursor-pointer ${
+                  isActive
+                    ? "bg-black font-semibold text-white"
+                    : "hover:bg-gray-200"
+                }`
+              }
+            >
+              <UserOutlined style={{ fontSize: "16px" }} /> Applied Candidates
+            </NavLink>
+            <NavLink
+              to="/c/recruitment/shortlisted"
+              className={({ isActive }) =>
+                `py-2.5 px-4 gap-3 flex rounded transition duration-300 cursor-pointer ${
+                  isActive
+                    ? "bg-black font-semibold text-white"
+                    : "hover:bg-gray-200"
+                }`
+              }
+            >
+              <SolutionOutlined style={{ fontSize: "16px" }} /> Shortlisted Candidates
+            </NavLink>
+          </div>
+        )}
+      </div>
+      </nav>
+
         <button
           onClick={showModal}
           className={`py-2.5 px-4 gap-3 w-full flex items-center rounded transition duration-300 cursor-pointer hover:bg-gray-100`}
@@ -406,7 +477,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           <LogoutOutlined style={{ fontSize: "24px", color: "#3d3d3d" }} />
           {isSidebarExpanded && "Logout"}
         </button>
-      </nav>
+      </div>
 
       <Modal
         title="Confirm Logout"

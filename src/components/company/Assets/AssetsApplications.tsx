@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Input, Select, message, Tag, Space, Image } from 'antd';
 import { CheckOutlined, CloseOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
-import { getAllAssetApplications } from '../../../api/company'; // Update the import path as needed
+import { getAllAssetApplications, updateAssetRequestStatus } from '../../../api/company'; // Update the import path as needed
 
 const { Option } = Select;
 const { confirm } = Modal;
@@ -130,8 +130,7 @@ const AssetsApplication: React.FC = () => {
 
   const handleStatusChange = async (id: string, newStatus: 'Approved' | 'Rejected') => {
     try {
-      // Here you would typically make an API call to update the status
-      // For now, we'll just update the local state
+      await updateAssetRequestStatus(id, newStatus);
       const updatedApplications = applications.map(app =>
         app._id === id ? { ...app, status: newStatus } : app
       );

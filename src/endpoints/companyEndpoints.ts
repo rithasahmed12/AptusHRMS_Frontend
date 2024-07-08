@@ -33,6 +33,14 @@ const companyRoutes={
     LeaveRequest: (id: string | undefined) => `leave/request/${id}`,
     updateLeaveRequestStatus: (id: string) => `leave/request/${id}/status`,
     employeeLeaveDays: (employeeId: string) => `leave/employee/${employeeId}/days`,
+    jobs: 'job',
+    Job: (id: string | undefined) => `job/${id}`,
+    jobApplication: 'job/application',
+    JobApplication: (id: string | undefined) => `job/application/${id}`,
+    updateJobApplicationStatus: (id: string) => `job/application/${id}/status`,
+    jobApplicants:`job/applicants`,
+    shortlistedCandidates: 'job/candidates/shortlisted',
+    candidateStatus: (candidateId: string) => `job/candidate/${candidateId}/status`,
 
 }
 

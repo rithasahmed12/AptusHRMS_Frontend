@@ -25,6 +25,7 @@ const Announcements: React.FC = () => {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [deletingAnnouncement, setDeletingAnnouncement] =
     useState<Annoucement | null>(null);
   const [editingAnnouncement, setEditingAnnouncement] =
@@ -36,12 +37,17 @@ const Announcements: React.FC = () => {
   const [form] = Form.useForm();
 
   const fetchAnnouncements = async () => {
+    setIsLoading(true);
     try {
       const response = await getAnnouncements();
       console.log(response);
-      setAnnouncements(response?.data);
+      setAnnouncements(response?.data || []);
     } catch (error) {
-      toast.error("Failed to fetch requests");
+      console.error("Failed to fetch announcements:", error);
+      toast.error("Failed to fetch announcements");
+      setAnnouncements([]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -221,66 +227,72 @@ const Announcements: React.FC = () => {
       </div>
 
       <div className="bg-white p-6 rounded-md shadow-lg mb-6">
-        <h2 className="text-xl font-medium mb-4">Latest Announcements</h2>
-        <div className="space-y-4">
-          {announcements.map((announcement: Annoucement) => (
-            <div
-              key={announcement._id}
-              className={`p-4 rounded-md ${
-                announcement.read ? "bg-gray-100" : "bg-blue-100"
-              }`}
-            >
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">{announcement.title}</h3>
-                <div className="flex space-x-2">
-                  <Tooltip title="Edit">
-                    <Button
-                      type="text"
-                      icon={<EditOutlined />}
-                      onClick={() => showEditModal(announcement)}
-                    >
-                      Edit
-                    </Button>
-                  </Tooltip>
-                  <Tooltip title="Delete">
-                    <Button
-                      type="text"
-                      danger
-                      icon={<DeleteOutlined />}
-                      onClick={() => showDeleteModal(announcement)}
-                    >
-                      Delete
-                    </Button>
-                  </Tooltip>
-                  <Tooltip title="View More">
-                    <Button
-                      type="text"
-                      icon={<EyeOutlined />}
-                      onClick={() => showViewModal(announcement)}
-                    >
-                      View More
-                    </Button>
-                  </Tooltip>
-                </div>
-              </div>
-              <p className="text-gray-700">
-                {truncateText(announcement.details, 40)}
-              </p>
-              <p className="text-gray-500 text-sm">
-                Posted on: {format(new Date(announcement.createdAt), "PPpp")}
-              </p>
-              {!announcement.read && (
+  <h2 className="text-xl font-medium mb-4">Latest Announcements</h2>
+  {isLoading ? (
+    <p>Loading announcements...</p>
+  ) : announcements.length > 0 ? (
+    <div className="space-y-4">
+      {announcements.map((announcement: Annoucement) => (
+        <div
+          key={announcement._id}
+          className={`p-4 rounded-md ${
+            announcement.read ? "bg-gray-100" : "bg-blue-100"
+          }`}
+        >
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-semibold">{announcement.title}</h3>
+            <div className="flex space-x-2">
+              <Tooltip title="Edit">
                 <Button
-                  type="link"
-                  onClick={() => handleMarkAsRead(announcement._id)}
+                  type="text"
+                  icon={<EditOutlined />}
+                  onClick={() => showEditModal(announcement)}
                 >
-                  Mark as Read
+                  Edit
                 </Button>
-              )}
+              </Tooltip>
+              <Tooltip title="Delete">
+                <Button
+                  type="text"
+                  danger
+                  icon={<DeleteOutlined />}
+                  onClick={() => showDeleteModal(announcement)}
+                >
+                  Delete
+                </Button>
+              </Tooltip>
+              <Tooltip title="View More">
+                <Button
+                  type="text"
+                  icon={<EyeOutlined />}
+                  onClick={() => showViewModal(announcement)}
+                >
+                  View More
+                </Button>
+              </Tooltip>
             </div>
-          ))}
+          </div>
+          <p className="text-gray-700">
+            {truncateText(announcement.details, 40)}
+          </p>
+          <p className="text-gray-500 text-sm">
+            Posted on: {format(new Date(announcement.createdAt), "PPpp")}
+          </p>
+          {!announcement.read && (
+            <Button
+              type="link"
+              onClick={() => handleMarkAsRead(announcement._id)}
+            >
+              Mark as Read
+            </Button>
+          )}
         </div>
-      </div>
+      ))}
+    </div>
+  ) : (
+    <p>No announcements available.</p>
+  )}
+</div>
 
       <ConfigProvider theme={modalTheme}>
         {/* Modal for adding announcements */}

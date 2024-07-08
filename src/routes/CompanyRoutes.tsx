@@ -28,11 +28,18 @@ import AssetList from "../components/company/Assets/AssetsList.tsx";
 import AddAsset from "../components/company/Assets/AddAsset.tsx";
 import EditAsset from "../components/company/Assets/EditAsset.tsx";
 import AssetsApplication from "../components/company/Assets/AssetsApplications.tsx";
+import JobListing from "../components/company/Recruitment/JobListPage.tsx";
+import AppliedCandidates from "../components/company/Recruitment/Applicants.tsx";
+import ShortlistedCandidates from "../components/company/Recruitment/ShortlistedApplicants.tsx";
+import JobForm from "../components/company/Recruitment/JobForm.tsx";
+import JobDetails from "../components/company/Recruitment/JobApplication.tsx";
+
 
 
 const CompanyRoutes = () => {
   return (
     <Routes>
+      <Route path="jobs/:id" element={<JobDetails/>} />
       <Route element={<ProtectedPortal />}>
         <Route index element={<LoginPages />} />
         <Route path="change-password" element={<ChangePasswordPage/>} />
@@ -63,6 +70,10 @@ const CompanyRoutes = () => {
             <Route path="assets/add" element={<AddAsset/>} />
             <Route path="assets/edit/:id" element={<EditAsset/>} />
             <Route path="assetsApplication" element={<AssetsApplication/>} />
+            <Route path="recruitment/jobs" element={<JobListing/>} />
+            <Route path="recruitment/jobs/add" element={<JobForm/>} />
+            <Route path="recruitment/applicants" element={<AppliedCandidates/>} />
+            <Route path="recruitment/shortlisted" element={<ShortlistedCandidates/>} />
           </Route>
         </Route>
       </Route>

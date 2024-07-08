@@ -604,6 +604,16 @@ export const getAllAssetApplications = async()=>{
   }
 }
 
+export const updateAssetRequestStatus = async (id: string, status: 'Approved' | 'Rejected') => {
+  try {
+    const response = await CompanyApi.put(`${companyRoutes.assetRequest}/${id}/status`, { status });
+    return response;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
 // api/company.ts
 
 export const getAllLeaveRequests = async () => {
@@ -655,5 +665,105 @@ export const getEmployeeLeaveDays = async (employeeId: string) => {
   }
 };
 
+// In your API file (e.g., company.ts)
 
+export const getAllJobs = async () => {
+  try {
+    const response = await CompanyApi.get(companyRoutes.jobs);
+    return response;
+  } catch (error: any) {
+    console.log('ERROR:', error);
+    throw error;
+  }
+};
+
+export const createJob = async (jobData: JobData) => {
+  try {
+    const response = await CompanyApi.post(companyRoutes.jobs, jobData);
+    return response;
+  } catch (error: any) {
+    console.log('ERROR:', error);
+    throw error;
+  }
+};
+
+export const updateJob = async (jobId: string, jobData: Partial<JobData>) => {
+  try {
+    const response = await CompanyApi.put(companyRoutes.Job(jobId), jobData);
+    return response;
+  } catch (error: any) {
+    console.log('ERROR:', error);
+    throw error;
+  }
+};
+
+export const deleteJob = async (jobId: string) => {
+  try {
+    const response = await CompanyApi.delete(companyRoutes.Job(jobId));
+    return response;
+  } catch (error: any) {
+    console.log('ERROR:', error);
+    throw error;
+  }
+};
+
+export const getJobDetails = async (jobId: string) => {
+  try {
+    const response = await CompanyApi.get(companyRoutes.Job(jobId));
+    return response;
+  } catch (error: any) {
+    console.log('ERROR:', error);
+    throw error;
+  }
+};
+
+export const submitApplication = async (applicationData: ApplicationData) => {
+  try {
+    const response = await CompanyApi.post(companyRoutes.jobApplication, applicationData);
+    return response;
+  } catch (error: any) {
+    console.log('ERROR:', error);
+    throw error;
+  }
+};
+
+export const getApplicants = async () => {
+  try {
+    const response = await CompanyApi.get(companyRoutes.jobApplicants);
+    return response;
+  } catch (error: any) {
+    console.log('ERROR:', error);
+    throw error;
+  }
+};
+
+export const updateApplicantStatus = async (applicationId: string, status: string) => {
+  try {
+    const response = await CompanyApi.put(companyRoutes.updateJobApplicationStatus(applicationId), { status });
+    return response;
+  } catch (error: any) {
+    console.log('ERROR:', error);
+    throw error;
+  }
+};
+
+export const getShortlistedCandidates = async () => {
+  try {
+    const response = await CompanyApi.get(companyRoutes.shortlistedCandidates);
+    return response;
+  } catch (error: any) {
+    console.log('ERROR:', error);
+    throw error;
+  }
+};
+
+export const updateCandidateStatus = async (candidateId: string, status: string) => {
+  try {
+    const response = await CompanyApi.put(companyRoutes.candidateStatus(candidateId), { status });
+    return response;
+  } catch (error: any) {
+    console.log('ERROR:', error);
+    throw error;
+  }
+};
 

@@ -1,12 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { ConfigProvider, Modal, Form, Input, Button, Tooltip, Table, Select } from "antd";
+import {
+  ConfigProvider,
+  Modal,
+  Form,
+  Input,
+  Button,
+  Tooltip,
+  Table,
+  Select,
+} from "antd";
 import { EditOutlined, DeleteOutlined, EyeOutlined } from "@ant-design/icons";
 import {
-    createDesignation,
-    deleteDesignation,
-    editDesignation,
-    getDesignations,
-    getDepartment // Fetch departments for the selector
+  createDesignation,
+  deleteDesignation,
+  editDesignation,
+  getDesignations,
+  getDepartment, // Fetch departments for the selector
 } from "../../../api/company";
 import { toast } from "react-toastify";
 
@@ -36,28 +45,38 @@ const DesignationPage: React.FC = () => {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [deletingDesignation, setDeletingDesignation] = useState<Designation | null>(null);
-  const [editingDesignation, setEditingDesignation] = useState<Designation | null>(null);
+  const [deletingDesignation, setDeletingDesignation] =
+    useState<Designation | null>(null);
+  const [editingDesignation, setEditingDesignation] =
+    useState<Designation | null>(null);
   const [designations, setDesignations] = useState<Designation[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [form] = Form.useForm();
 
   const fetchDesignations = async () => {
+    setIsLoading(true);
     try {
       const response = await getDesignations();
-      setDesignations(response.data);
+      setDesignations(response.data || []);
     } catch (error) {
+      console.error("Failed to fetch designations:", error);
       toast.error("Failed to fetch designations");
+      setDesignations([]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const fetchDepartments = async () => {
     try {
       const response = await getDepartment();
-      setDepartments(response.data);
+      setDepartments(response.data || []);
     } catch (error) {
+      console.error("Failed to fetch departments:", error);
       toast.error("Failed to fetch departments");
+      setDepartments([]);
     }
   };
 
@@ -72,8 +91,8 @@ const DesignationPage: React.FC = () => {
 
   const showViewModal = async (designationId: string) => {
     try {
-    //   const response = await getEmployeesInDesignation(designationId);
-    //   setEmployees(response.data);
+      //   const response = await getEmployeesInDesignation(designationId);
+      //   setEmployees(response.data);
       setIsViewModalOpen(true);
     } catch (error) {
       toast.error("Failed to fetch employees");
@@ -82,9 +101,9 @@ const DesignationPage: React.FC = () => {
 
   const handleAddOk = async () => {
     try {
-      const values = await form.validateFields(); 
+      const values = await form.validateFields();
       const response = await createDesignation(values);
-      
+
       setDesignations([response.data.designation, ...designations]);
       setIsAddModalOpen(false);
       form.resetFields();
@@ -124,7 +143,9 @@ const DesignationPage: React.FC = () => {
       if (deletingDesignation) {
         const response = await deleteDesignation(deletingDesignation._id);
         if (response.status === 200) {
-          setDesignations(designations.filter(d => d._id !== deletingDesignation._id));
+          setDesignations(
+            designations.filter((d) => d._id !== deletingDesignation._id)
+          );
           setIsDeleteModalOpen(false);
           setDeletingDesignation(null);
           toast.success("Designation deleted successfully");
@@ -145,7 +166,11 @@ const DesignationPage: React.FC = () => {
       const values = await form.validateFields();
       const response = await editDesignation(editingDesignation?._id, values);
       if (response.status === 200) {
-        setDesignations(designations.map(d => d._id === editingDesignation?._id ? { ...d, ...values } : d));
+        setDesignations(
+          designations.map((d) =>
+            d._id === editingDesignation?._id ? { ...d, ...values } : d
+          )
+        );
         setIsEditModalOpen(false);
         setEditingDesignation(null);
         form.resetFields();
@@ -164,19 +189,19 @@ const DesignationPage: React.FC = () => {
 
   const columns = [
     {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
     },
     {
-      title: 'Email',
-      dataIndex: 'email',
-      key: 'email',
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
     },
     {
-      title: 'Position',
-      dataIndex: 'position',
-      key: 'position',
+      title: "Position",
+      dataIndex: "position",
+      key: "position",
     },
   ];
 
@@ -196,48 +221,56 @@ const DesignationPage: React.FC = () => {
 
       <div className="bg-white p-6 rounded-md shadow-lg mb-6">
         <h2 className="text-xl font-medium mb-4">Designations</h2>
-        <div className="space-y-4">
-          {designations && designations.map((designation) => (
-            <div key={designation._id} className="p-4 bg-gray-100 rounded-md">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">{designation.name}</h3>
-                <div className="flex space-x-2">
-                  <Tooltip title="Edit">
-                    <Button
-                      type="text"
-                      icon={<EditOutlined />}
-                      onClick={() => showEditModal(designation)}
-                    >
-                      Edit
-                    </Button>
-                  </Tooltip>
-                  <Tooltip title="Delete">
-                    <Button
-                      type="text"
-                      danger
-                      icon={<DeleteOutlined />}
-                      onClick={() => showDeleteModal(designation)}
-                    >
-                      Delete
-                    </Button>
-                  </Tooltip>
-                  <Tooltip title="View Employees">
-                    <Button
-                      type="text"
-                      icon={<EyeOutlined />}
-                      onClick={() => showViewModal(designation._id)}
-                    >
-                      View Employees
-                    </Button>
-                  </Tooltip>
+        {isLoading ? (
+          <p>Loading designations...</p>
+        ) : designations.length > 0 ? (
+          <div className="space-y-4">
+            {designations.map((designation) => (
+              <div key={designation._id} className="p-4 bg-gray-100 rounded-md">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold">{designation.name}</h3>
+                  <div className="flex space-x-2">
+                    <Tooltip title="Edit">
+                      <Button
+                        type="text"
+                        icon={<EditOutlined />}
+                        onClick={() => showEditModal(designation)}
+                      >
+                        Edit
+                      </Button>
+                    </Tooltip>
+                    <Tooltip title="Delete">
+                      <Button
+                        type="text"
+                        danger
+                        icon={<DeleteOutlined />}
+                        onClick={() => showDeleteModal(designation)}
+                      >
+                        Delete
+                      </Button>
+                    </Tooltip>
+                    <Tooltip title="View Employees">
+                      <Button
+                        type="text"
+                        icon={<EyeOutlined />}
+                        onClick={() => showViewModal(designation._id)}
+                      >
+                        View Employees
+                      </Button>
+                    </Tooltip>
+                  </div>
                 </div>
+                <p className="text-gray-700">
+                  Department:{" "}
+                  {departments.find((d) => d._id === designation.departmentId)
+                    ?.name || "Unknown"}
+                </p>
               </div>
-              <p className="text-gray-700">
-                Department: {departments.find(d => d._id === designation.departmentId)?.name}
-              </p>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <p>No designations available.</p>
+        )}
       </div>
 
       <ConfigProvider theme={modalTheme}>
@@ -252,10 +285,12 @@ const DesignationPage: React.FC = () => {
             <Form.Item
               label="Department"
               name="departmentId"
-              rules={[{ required: true, message: "Please select a department!" }]}
+              rules={[
+                { required: true, message: "Please select a department!" },
+              ]}
             >
               <Select>
-                {departments.map(department => (
+                {departments.map((department) => (
                   <Option key={department._id} value={department._id}>
                     {department.name}
                   </Option>
@@ -265,7 +300,12 @@ const DesignationPage: React.FC = () => {
             <Form.Item
               label="Name"
               name="name"
-              rules={[{ required: true, message: "Please input the designation name!" }]}
+              rules={[
+                {
+                  required: true,
+                  message: "Please input the designation name!",
+                },
+              ]}
             >
               <Input />
             </Form.Item>
@@ -283,10 +323,12 @@ const DesignationPage: React.FC = () => {
             <Form.Item
               label="Department"
               name="departmentId"
-              rules={[{ required: true, message: "Please select a department!" }]}
+              rules={[
+                { required: true, message: "Please select a department!" },
+              ]}
             >
               <Select>
-                {departments.map(department => (
+                {departments.map((department) => (
                   <Option key={department._id} value={department._id}>
                     {department.name}
                   </Option>
@@ -296,7 +338,12 @@ const DesignationPage: React.FC = () => {
             <Form.Item
               label="Name"
               name="name"
-              rules={[{ required: true, message: "Please input the designation name!" }]}
+              rules={[
+                {
+                  required: true,
+                  message: "Please input the designation name!",
+                },
+              ]}
             >
               <Input />
             </Form.Item>

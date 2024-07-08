@@ -3,6 +3,7 @@ import { Table, Button, Modal, Form, Input, DatePicker, message } from 'antd';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { Holiday, getAllHolidays, createHoliday, updateHoliday, deleteHoliday } from '../../../api/company';
+import { format } from "date-fns";
 
 const HolidayList: React.FC = () => {
   const [holidays, setHolidays] = useState<Holiday[]>([]);
@@ -27,8 +28,12 @@ const HolidayList: React.FC = () => {
 
   const columns = [
     { title: 'Name', dataIndex: 'name', key: 'name' },
-    { title: 'Start Date', dataIndex: 'startDate', key: 'startDate' },
-    { title: 'End Date', dataIndex: 'endDate', key: 'endDate' },
+    { title: 'Start Date', dataIndex: 'startDate', key: 'startDate',
+      render:(startDate:Date) => startDate ? format(new Date(startDate),'dd/MM/yyy') : '',
+     },
+    { title: 'End Date', dataIndex: 'endDate', key: 'endDate',
+      render:(endDate:Date) => endDate ? format(new Date(endDate),'dd/MM/yyy') : '',
+     },
     {
       title: 'Day',
       key: 'day',
