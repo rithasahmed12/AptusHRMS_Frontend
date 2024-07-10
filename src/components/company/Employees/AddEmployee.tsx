@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import dayjs from 'dayjs';
+import dayjs from "dayjs";
 import {
   Tabs,
   Form,
@@ -15,7 +15,12 @@ import {
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import { createEmployee, getDepartment, getDesignations } from "../../../api/company";
+import {
+  createEmployee,
+  getAllWorkShifts,
+  getDepartment,
+  getDesignations,
+} from "../../../api/company";
 import Title from "antd/es/typography/Title";
 
 const { Option } = Select;
@@ -32,9 +37,20 @@ interface Department {
   head: string;
 }
 
+interface WorkShift {
+  _id:string;
+  shiftName:string;
+  shiftIn:string;
+  shiftOut:string
+}
+
 function convertToDate(dayjsObject: any): Date | null {
   if (dayjsObject && dayjs.isDayjs(dayjsObject)) {
-    return new Date(dayjsObject.year(), dayjsObject.month(), dayjsObject.date());
+    return new Date(
+      dayjsObject.year(),
+      dayjsObject.month(),
+      dayjsObject.date()
+    );
   }
   return null;
 }
@@ -50,6 +66,7 @@ const AddEmployee: React.FC = () => {
 
   const [departments, setDepartments] = useState<Department[]>([]);
   const [designations, setDesignations] = useState<Designation[]>([]);
+  const [workShifts, setWorkShifts] = useState<WorkShift[]>([]);
 
   const fetchDepartments = async () => {
     try {
@@ -69,24 +86,37 @@ const AddEmployee: React.FC = () => {
     }
   };
 
+  const fetchWorkShift = async () => {
+    try {
+      const response = await getAllWorkShifts();
+      setWorkShifts(response.data);
+    } catch (error) {
+      message.error("Could not get shifts");
+    }
+  };
+
   useEffect(() => {
     fetchDepartments();
     fetchDesignations();
+    fetchWorkShift();
   }, []);
-
-
 
   // const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [fileToUpload, setFileToUpload] = useState<File | null>(null);
 
   const isImageFile = (file: File) => {
-    const acceptedImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml'];
+    const acceptedImageTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/gif",
+      "image/svg+xml",
+    ];
     return file && acceptedImageTypes.includes(file.type);
   };
-  
+
   const handleFileChange = (info: any) => {
-    console.log('info:',info);
-    
+    console.log("info:", info);
+
     const file = info.file.originFileObj;
     if (file && isImageFile(file)) {
       // Create a preview URL
@@ -95,40 +125,39 @@ const AddEmployee: React.FC = () => {
         setPreviewUrl(reader.result as string);
       };
       reader.readAsDataURL(file);
-  
+
       setFileToUpload(file);
-    }else{
-      message.error('please upload image files only')
+    } else {
+      message.error("please upload image files only");
     }
   };
 
-  
   const handleSubmit = async (values: any) => {
     setIsSubmitted(true);
     setLoading(true);
     try {
       const formData = new FormData();
-  
+
       // Append all form fields to formData
-      Object.keys(values).forEach(key => {
-        if (key === 'dob' || key === 'hireDate' || key === 'joiningDate') {
+      Object.keys(values).forEach((key) => {
+        if (key === "dob" || key === "hireDate" || key === "joiningDate") {
           const date = convertToDate(values[key]);
-          formData.append(key, date ? date.toISOString() : '');
+          formData.append(key, date ? date.toISOString() : "");
         } else {
           formData.append(key, values[key]);
         }
       });
-  
+
       // Append the file
       if (fileToUpload) {
-        formData.append('file', fileToUpload); // Change 'profilePic' to 'file'
+        formData.append("file", fileToUpload); // Change 'profilePic' to 'file'
       }
-  
-      console.log('FormData content:');
+
+      console.log("FormData content:");
       for (let [key, value] of formData.entries()) {
         console.log(key, value);
       }
-  
+
       const response = await createEmployee(formData);
       console.log(response);
       message.success("Employee added successfully");
@@ -212,9 +241,7 @@ const AddEmployee: React.FC = () => {
               <Form.Item
                 label="Gender"
                 name="gender"
-                rules={[
-                  { required: false, message: "Please select gender!" },
-                ]}
+                rules={[{ required: false, message: "Please select gender!" }]}
               >
                 <Select placeholder="Select Gender">
                   <Option value="male">Male</Option>
@@ -268,9 +295,7 @@ const AddEmployee: React.FC = () => {
               <Form.Item
                 label="Country"
                 name="country"
-                rules={[
-                  { required: false, message: "Please input country!" },
-                ]}
+                rules={[{ required: false, message: "Please input country!" }]}
               >
                 <Input />
               </Form.Item>
@@ -289,9 +314,7 @@ const AddEmployee: React.FC = () => {
               </Form.Item>
             </Col>
           </Row>
-          <Form.Item style={{ marginTop: "20px" }}>
-            {renderButton()}
-          </Form.Item>
+          <Form.Item style={{ marginTop: "20px" }}>{renderButton()}</Form.Item>
         </>
       ),
     },
@@ -316,16 +339,13 @@ const AddEmployee: React.FC = () => {
               <Form.Item
                 label="Email"
                 name="email"
-                rules={[
-                  { required: true, message: "Please input email!" }]}
+                rules={[{ required: true, message: "Please input email!" }]}
               >
                 <Input />
               </Form.Item>
             </Col>
           </Row>
-          <Form.Item style={{ marginTop: "20px" }}>
-            {renderButton()}
-          </Form.Item>
+          <Form.Item style={{ marginTop: "20px" }}>{renderButton()}</Form.Item>
         </>
       ),
     },
@@ -451,9 +471,7 @@ const AddEmployee: React.FC = () => {
               <Form.Item
                 label="Status"
                 name="status"
-                rules={[
-                  { required: false, message: "Please select status!" },
-                ]}
+                rules={[{ required: false, message: "Please select status!" }]}
               >
                 <Select placeholder="Select Status">
                   <Option value="active">Active</Option>
@@ -468,9 +486,7 @@ const AddEmployee: React.FC = () => {
               <Form.Item
                 label="Role"
                 name="role"
-                rules={[
-                  { required: true, message: "Please select a role!" },
-                ]}
+                rules={[{ required: true, message: "Please select a role!" }]}
               >
                 <Select placeholder="Select Role">
                   <Option value="admin">Admin</Option>
@@ -484,22 +500,20 @@ const AddEmployee: React.FC = () => {
             <Col span={12}>
               <Form.Item
                 label="Shift"
-                name="shift"
-                rules={[
-                  { required: false, message: "Please select a shift!" },
-                ]}
+                name="workShift"
+                rules={[{ required: false, message: "Please select a shift!" }]}
               >
                 <Select>
-                  <Option value="morning">Morning</Option>
-                  <Option value="afternoon">Afternoon</Option>
-                  <Option value="night">Night</Option>
+                  {workShifts.map((shift) => (
+                    <Option key={shift._id} value={shift._id}>
+                      {shift.shiftName} <span className="text-gray-400"> ({shift.shiftIn} - {shift.shiftOut})</span>
+                    </Option>
+                  ))}
                 </Select>
               </Form.Item>
             </Col>
           </Row>
-          <Form.Item style={{ marginTop: "20px" }}>
-            {renderButton()}
-          </Form.Item>
+          <Form.Item style={{ marginTop: "20px" }}>{renderButton()}</Form.Item>
         </>
       ),
     },
@@ -507,73 +521,81 @@ const AddEmployee: React.FC = () => {
 
   return (
     <div>
-      
       <Spin spinning={loading}>
         <div className="container">
-          <div style={{ display: "flex", marginBottom: "20px",justifyContent:'space-between', marginLeft:'1%', alignItems:'center' }}>
-          <Title level={3}>Add Employee</Title>
-          <Button onClick={goBack}>
-            Go Back
-          </Button>
-          </div>
-          
-          <div style={{ display: "flex", marginBottom: "20px" }}>
-          <div style={{ marginRight: "20px", textAlign: "center" }}>
-          <div style={{ marginRight: "20px", textAlign: "center" }}>
-  <img
-    src={previewUrl || "https://via.placeholder.com/150"}
-    
-    alt="Profile Pic"
-    style={{
-      width: "150px",
-      height: "150px",
-      borderRadius: "50%",
-      marginBottom: "10px",
-      objectFit: "cover",
-    }}
-  />
- <Upload
-  name="profilePic"
-  listType="picture"
-  showUploadList={false}
-  beforeUpload={(file) => {
-    handleFileChange({ file: { originFileObj: file } });
-    return false;
-  }}
->
-  <Button icon={<UploadOutlined />}>Choose File</Button>
-</Upload>
-</div>
-                </div>
-          <Form
-            style={{ flex: 1 }}
-            form={form}
-            layout="vertical"
-            onFinish={handleSubmit}
-            initialValues={{
-              name: "",
-              gender: "",
-              dob: null,
-              streetAddress: "",
-              city: "",
-              country: "",
-              postalCode: "",
-              phone: "",
-              email: "",
-              hireDate: null,
-              joiningDate: null,
-              basicSalary: "",
-              employeeType: "",
-              departmentId: "",
-              designationId: "",
-              employeeId: "",
-              status: "",
-              role: "",
-              shift: "",
+          <div
+            style={{
+              display: "flex",
+              marginBottom: "20px",
+              justifyContent: "space-between",
+              marginLeft: "1%",
+              alignItems: "center",
             }}
           >
-            <Tabs activeKey={currentTab} onChange={handleTabChange} items={tabItems} />
-          </Form>
+            <Title level={3}>Add Employee</Title>
+            <Button onClick={goBack}>Go Back</Button>
+          </div>
+
+          <div style={{ display: "flex", marginBottom: "20px" }}>
+            <div style={{ marginRight: "20px", textAlign: "center" }}>
+              <div style={{ marginRight: "20px", textAlign: "center" }}>
+                <img
+                  src={previewUrl || "https://via.placeholder.com/150"}
+                  alt="Profile Pic"
+                  style={{
+                    width: "150px",
+                    height: "150px",
+                    borderRadius: "50%",
+                    marginBottom: "10px",
+                    objectFit: "cover",
+                  }}
+                />
+                <Upload
+                  name="profilePic"
+                  listType="picture"
+                  showUploadList={false}
+                  beforeUpload={(file) => {
+                    handleFileChange({ file: { originFileObj: file } });
+                    return false;
+                  }}
+                >
+                  <Button icon={<UploadOutlined />}>Choose File</Button>
+                </Upload>
+              </div>
+            </div>
+            <Form
+              style={{ flex: 1 }}
+              form={form}
+              layout="vertical"
+              onFinish={handleSubmit}
+              initialValues={{
+                name: "",
+                gender: "",
+                dob: null,
+                streetAddress: "",
+                city: "",
+                country: "",
+                postalCode: "",
+                phone: "",
+                email: "",
+                hireDate: null,
+                joiningDate: null,
+                basicSalary: "",
+                employeeType: "",
+                departmentId: "",
+                designationId: "",
+                employeeId: "",
+                status: "",
+                role: "",
+                shift: "",
+              }}
+            >
+              <Tabs
+                activeKey={currentTab}
+                onChange={handleTabChange}
+                items={tabItems}
+              />
+            </Form>
           </div>
         </div>
       </Spin>

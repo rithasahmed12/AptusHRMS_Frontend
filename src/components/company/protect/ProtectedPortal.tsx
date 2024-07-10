@@ -1,10 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { verifyTenant } from "../../../api/company";
 import { toast } from "react-toastify";
 import { Outlet } from "react-router-dom";
 
 const ProtectedPortal = () => {
-  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [portalId, setPortalId] = useState("");
 
@@ -22,9 +21,8 @@ const ProtectedPortal = () => {
   const handleSubmit = async () => {
     if (portalId.trim() !== "") {
       try {
-     
         const response = await verifyTenant(portalId);
-        console.log('response:', response);
+        console.log("response:", response);
 
         if (response.status === 201) {
           localStorage.setItem("portalId", response.data);
@@ -34,7 +32,9 @@ const ProtectedPortal = () => {
           toast.error(response?.data.message);
         }
       } catch (error) {
-        toast.error('Verification failed. Please check your Portal ID and try again.');
+        toast.error(
+          "Verification failed. Please check your Portal ID and try again."
+        );
       }
     }
   };
@@ -43,7 +43,9 @@ const ProtectedPortal = () => {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50">
         <div className="bg-white text-black p-6 rounded-lg shadow-lg relative top-10 w-[270px] animate-slideDown">
-          <h2 className="text-xl text-center font-bold mb-4">Enter Portal ID</h2>
+          <h2 className="text-xl text-center font-bold mb-4">
+            Enter Portal ID
+          </h2>
           <input
             type="text"
             value={portalId}
@@ -67,4 +69,4 @@ const ProtectedPortal = () => {
   return <Outlet />;
 };
 
-export default ProtectedPortal;
+export default memo(ProtectedPortal);

@@ -25,6 +25,7 @@ import {
   ProfileOutlined,
   SolutionOutlined,
   RightOutlined,
+  UnorderedListOutlined 
 } from "@ant-design/icons";
 
 interface SidebarProps {
@@ -281,6 +282,18 @@ const Sidebar: React.FC<SidebarProps> = ({
               >
                 <FieldTimeOutlined style={{ fontSize: "16px" }} /> Workshift
               </NavLink>
+              <NavLink
+            to="/c/attendance"
+            className={({ isActive }) =>
+              `py-2.5 px-4 gap-3 flex rounded transition duration-300 cursor-pointer ${
+                isActive
+                  ? "bg-black font-semibold text-white"
+                  : "hover:bg-gray-200"
+              }`
+            }
+          >
+            <UnorderedListOutlined style={{ fontSize: "16px" }} /> Attendance List
+          </NavLink>
             </div>
           )}
         </div>

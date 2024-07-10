@@ -28,7 +28,7 @@ interface Employee {
   employeeId?: string;
   status?: string;
   role: string;
-  shift?: string;
+  workShift?: {_id:string, shiftName:string, shiftIn: string, shiftOut:string};
   profilePic?: string;
 }
 
@@ -67,6 +67,21 @@ const EmployeeView: React.FC = () => {
       <Text>{value || "N/A"}</Text>
     </div>
   );
+
+  const renderShift = (shift: any) => (
+    <div style={{ marginBottom: "10px" }}>
+      <Text strong>Shift: </Text>
+      {shift ? (
+        <Text>
+          {shift.shiftName} (<span className="text-blue-500">{shift.shiftIn}</span> - <span className="text-blue-500">{shift.shiftOut}</span>)
+        </Text>
+      ) : (
+        "N/A"
+      )}
+    </div>
+  );
+  
+  
 
   if (loading) {
     return (
@@ -184,7 +199,7 @@ const EmployeeView: React.FC = () => {
                   </Col>
                   <Col span={12}>
                     {renderField("Status", employee.status)}
-                    {renderField("Shift", employee.shift)}
+                    {renderShift(employee.workShift)}
                   </Col>
                 </Row>
               ),

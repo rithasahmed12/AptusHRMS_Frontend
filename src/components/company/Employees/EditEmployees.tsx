@@ -20,6 +20,7 @@ import {
   getDepartment,
   getDesignations,
   updateEmployee,
+  getAllWorkShifts,
 } from "../../../api/company";
 import Title from "antd/es/typography/Title";
 
@@ -61,6 +62,13 @@ interface Department {
   head: string;
 }
 
+interface WorkShift {
+  _id:string;
+  shiftName:string;
+  shiftIn:string;
+  shiftOut:string
+}
+
 function convertToDate(dayjsObject: any): Date | null {
   if (dayjsObject && dayjs.isDayjs(dayjsObject)) {
     return new Date(
@@ -84,11 +92,13 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const [departments, setDepartments] = useState<Department[]>([]);
   const [designations, setDesignations] = useState<Designation[]>([]);
+  const [workShifts, setWorkShifts] = useState<WorkShift[]>([]);
 
   useEffect(() => {
     fetchEmployee();
     fetchDepartments();
     fetchDesignations();
+    fetchWorkShift();
   }, [id]);
 
   const fetchEmployee = async () => {
@@ -130,6 +140,15 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     }
   };
 
+  const fetchWorkShift = async () => {
+    try {
+      const response = await getAllWorkShifts();
+      setWorkShifts(response.data);
+    } catch (error) {
+      message.error("Could not get shifts");
+    }
+  };
+
   const isImageFile = (file: File) => {
     const acceptedImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml'];
     return file && acceptedImageTypes.includes(file.type);
@@ -164,7 +183,7 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
           formData.append(key, date ? date.toISOString() : '');
         } else if (key === 'basicSalary') {
           formData.append(key, values[key].toString());
-        } else if (key === 'departmentId' || key === 'designationId') {
+        } else if (key === 'departmentId' || key === 'designationId' || key === 'workShift') {
           formData.append(key, values[key]?._id || values[key]);
         } else {
           formData.append(key, values[key]);
@@ -191,7 +210,8 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     } finally {
       setLoading(false);
     }
-  };
+  };  
+  
 
   const goBack = () => {
     navigate(-1);
@@ -521,17 +541,20 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item
-                label="Shift"
-                name="shift"
-                rules={[{ required: true, message: "Please select a shift!" }]}
-              >
-                <Select>
-                  <Option value="morning">Morning</Option>
-                  <Option value="afternoon">Afternoon</Option>
-                  <Option value="night">Night</Option>
-                </Select>
-              </Form.Item>
+            <Form.Item
+  label="Shift"
+  name="workShift"
+  rules={[{ required: false, message: "Please select a shift!" }]}
+>
+  <Select>
+    {workShifts.map((shift) => (
+      <Option key={shift._id} value={shift._id}>
+        {shift.shiftName} <span className="text-gray-400">({shift.shiftIn} - {shift.shiftOut})</span>
+      </Option>
+    ))}
+  </Select>
+</Form.Item>
+
             </Col>
           </Row>
           <Form.Item style={{ marginTop: "20px" }}>{renderButton()}</Form.Item>

@@ -41,6 +41,11 @@ const companyRoutes={
     jobApplicants:`job/applicants`,
     shortlistedCandidates: 'job/candidates/shortlisted',
     candidateStatus: (candidateId: string) => `job/candidate/${candidateId}/status`,
+    attendance: {
+        checkIn: 'attendance/check-in',
+        checkOut: 'attendance/check-out',
+        today: 'attendance/today',
+      },
 
 }
 

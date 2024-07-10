@@ -767,3 +767,35 @@ export const updateCandidateStatus = async (candidateId: string, status: string)
   }
 };
 
+
+export const checkIn = async (employeeId:string) => {
+  try {
+    const response = await CompanyApi.post(companyRoutes.attendance.checkIn, { employeeId });
+    console.log('c-response:',response);
+    
+    return response.data;
+  } catch (error) {
+    console.log('c-error:',error);
+    
+    throw error;
+  }
+};
+
+export const checkOut = async (employeeId:string) => {
+  try {
+    const response = await CompanyApi.post(companyRoutes.attendance.checkOut, { employeeId });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getTodayAttendance = async () => {
+  try {
+    const response = await CompanyApi.get(companyRoutes.attendance.today);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+

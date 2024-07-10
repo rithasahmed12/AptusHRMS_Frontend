@@ -33,6 +33,7 @@ import AppliedCandidates from "../components/company/Recruitment/Applicants.tsx"
 import ShortlistedCandidates from "../components/company/Recruitment/ShortlistedApplicants.tsx";
 import JobForm from "../components/company/Recruitment/JobForm.tsx";
 import JobDetails from "../components/company/Recruitment/JobApplication.tsx";
+import AttendancePage from "../components/company/Attendance/AttendanceList/AttendancePage.tsx"
 
 
 
@@ -58,6 +59,7 @@ const CompanyRoutes = () => {
               <Route index path="user" element={<UserProfile/>} />
               <Route path="user/edit" element={<EditUserProfile/>} />
               <Route path="company" element={<CompanyProfile/>} />
+              <Route path="settings" element={<CompanyProfile/>} />
               <Route path="company/edit" element={<EditCompanyProfile/>} />
             </Route>
             <Route path="workshift" element={<ListWorkshift/>} />
@@ -74,6 +76,7 @@ const CompanyRoutes = () => {
             <Route path="recruitment/jobs/add" element={<JobForm/>} />
             <Route path="recruitment/applicants" element={<AppliedCandidates/>} />
             <Route path="recruitment/shortlisted" element={<ShortlistedCandidates/>} />
+            <Route path="attendance" element={<AttendancePage/>} />
           </Route>
         </Route>
       </Route>
