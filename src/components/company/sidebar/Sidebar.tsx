@@ -27,6 +27,7 @@ import {
   RightOutlined,
   UnorderedListOutlined 
 } from "@ant-design/icons";
+import { setLastPunchTime, setPunchStatus } from "../../../redux/slices/companySlice/attendanceSlice";
 
 interface SidebarProps {
   isSidebarExpanded: boolean;
@@ -54,6 +55,9 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const handleOk = () => {
     dispatch(companyLogout());
+    dispatch(setPunchStatus(null));
+    localStorage.removeItem('attendanceState')
+    dispatch(setLastPunchTime(null));
     navigate("/");
     message.success("Logout Successful!");
     setIsModalVisible(false);

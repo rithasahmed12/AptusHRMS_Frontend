@@ -45,6 +45,7 @@ const companyRoutes={
         checkIn: 'attendance/check-in',
         checkOut: 'attendance/check-out',
         today: 'attendance/today',
+        currentDay: (employeeId: string) => `attendance/current-day/${employeeId}`,
       },
 
 }

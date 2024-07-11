@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Card, Button, Space, Typography, Row, Col, message } from 'antd';
 import { ClockCircleOutlined, CheckOutlined } from '@ant-design/icons';
-import { checkIn, checkOut, getEmployee } from '../../../../api/company';
+import { checkIn, checkOut, getCurrentDayEmployeeAttendance, getEmployee } from '../../../../api/company';
 import moment from 'moment';
 import { setLastPunchTime, setPunchStatus } from '../../../../redux/slices/companySlice/attendanceSlice';
 
@@ -16,26 +16,43 @@ const PunchCard = () => {
 
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-  const [attendanceDetails, setAttendanceDetails] = useState({
-    inTime: '',
-    outTime: '',
-    hoursWorked: '',
+  const [attendanceDetails, setAttendanceDetails] = useState<any>({
+    checkInTime: null,
+    checkOutTime: null,
+    status: null,
   });
 
   useEffect(() => {
+    fetchCurrentDayEmployeeAttendance();
     if (userId) {
       fetchEmployeeDetails();
     }
   }, [userId]);
 
-  useEffect(() => {
-    if (lastPunchTime) {
-      setAttendanceDetails(prev => ({
-        ...prev,
-        [punchStatus === 'in' ? 'inTime' : 'outTime']: lastPunchTime,
-      }));
+  const fetchCurrentDayEmployeeAttendance = async () => {
+    try {
+      const response = await getCurrentDayEmployeeAttendance(userId);
+      console.log('currentDay:',response);
+      
+      setAttendanceDetails(response);
+      updatePunchStatus(response);
+    } catch (error) {
+      message.error('Failed to fetch attendance details');
     }
-  }, [lastPunchTime, punchStatus]);
+  };
+
+  const updatePunchStatus = (details: any) => {
+    if (details.checkInTime && !details.checkOutTime) {
+      dispatch(setPunchStatus('in'));
+      dispatch(setLastPunchTime(moment(details.checkInTime).format('HH:mm:ss')));
+    } else if (details.checkOutTime) {
+      dispatch(setPunchStatus('out'));
+      dispatch(setLastPunchTime(moment(details.checkOutTime).format('HH:mm:ss')));
+    } else {
+      dispatch(setPunchStatus(null));
+      dispatch(setLastPunchTime(null));
+    }
+  };
 
   const fetchEmployeeDetails = async () => {
     try {
@@ -47,10 +64,27 @@ const PunchCard = () => {
   };
 
   const canPunchIn = () => {
-    if (!currentUser) return false;
+    if (!currentUser || attendanceDetails.status === 'absent') return false;
+    
     const now = moment();
     const shiftStart = moment(currentUser.shiftIn, 'HH:mm');
-    return now.isBetween(shiftStart.clone().subtract(30, 'minutes'), shiftStart.clone().add(30, 'minutes'));
+    const shiftEnd = moment(currentUser.shiftOut, 'HH:mm');
+    
+    // Handle shifts that cross midnight
+    if (shiftEnd.isBefore(shiftStart)) {
+      shiftEnd.add(1, 'day');
+    }
+    
+    const shiftDuration = moment.duration(shiftEnd.diff(shiftStart));
+    const halfShiftDuration = shiftDuration.asMinutes() / 2;
+    
+    // Allow punch-in from 30 minutes before shift start
+    const punchInWindowStart = shiftStart.clone().subtract(30, 'minutes');
+    
+    // Allow punch-in until half of the shift duration has passed
+    const punchInWindowEnd = shiftStart.clone().add(halfShiftDuration, 'minutes');
+    
+    return now.isBetween(punchInWindowStart, punchInWindowEnd);
   };
 
   const handlePunch = async (type: 'in' | 'out') => {
@@ -64,15 +98,10 @@ const PunchCard = () => {
       dispatch(setPunchStatus(type));
       dispatch(setLastPunchTime(timeString));
       
-      if (type === 'out') {
-        setAttendanceDetails(prev => ({ 
-          ...prev, 
-          hoursWorked: response.hoursWorked || 'N/A'
-        }));
-      }
+      await fetchCurrentDayEmployeeAttendance();
       
       message.success(`Successfully checked ${type}`);
-    } catch (error:any) {
+    } catch (error: any) {
       message.error(`Failed to check ${type}: ${error.response?.data?.message || 'Unknown error'}`);
     } finally {
       setLoading(false);
@@ -115,11 +144,11 @@ const PunchCard = () => {
           </Row>
           <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
             <Col span={12}>
-              <Paragraph>In Time: {attendanceDetails.inTime || '-'}</Paragraph>
-              <Paragraph>Out Time: {attendanceDetails.outTime || '-'}</Paragraph>
+              <Paragraph>In Time: {attendanceDetails.checkInTime ? moment(attendanceDetails.checkInTime).format('HH:mm:ss') : '-'}</Paragraph>
+              <Paragraph>Out Time: {attendanceDetails.checkOutTime ? moment(attendanceDetails.checkOutTime).format('HH:mm:ss') : '-'}</Paragraph>
             </Col>
             <Col span={12}>
-              <Paragraph>Hours Worked: {attendanceDetails.hoursWorked || '-'}</Paragraph>
+              <Paragraph>Status: {attendanceDetails.status || '-'}</Paragraph>
               <Paragraph>Work Shift: {currentUser.shiftIn} - {currentUser.shiftOut}</Paragraph>
             </Col>
           </Row>

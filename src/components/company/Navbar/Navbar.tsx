@@ -8,6 +8,7 @@ import {
   SettingOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
+import { setLastPunchTime, setPunchStatus } from "../../../redux/slices/companySlice/attendanceSlice";
 
 const Navbar = () => {
   const userInfo = useSelector((store: any) => store.companyInfo.companyInfo);
@@ -21,6 +22,9 @@ const Navbar = () => {
 
   const handleOk = () => {
     dispatch(companyLogout());
+    dispatch(setPunchStatus(null));
+    localStorage.removeItem('attendanceState')
+    dispatch(setLastPunchTime(null));
     navigate("/");
     message.success("Logout Successful!");
     setIsModalVisible(false);

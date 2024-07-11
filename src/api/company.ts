@@ -799,3 +799,14 @@ export const getTodayAttendance = async () => {
   }
 };
 
+// api/attendanceApi.ts
+export const getCurrentDayEmployeeAttendance = async (employeeId: string) => {
+  try {
+    const response = await CompanyApi.get(companyRoutes.attendance.currentDay(employeeId));
+    return response.data;
+  } catch (error) {
+    console.log("Error:",error);
+    
+    throw error;
+  }
+};
