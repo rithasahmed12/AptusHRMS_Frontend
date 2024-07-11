@@ -1,22 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { Card, Button, Space, Typography, Row, Col, message } from 'antd';
 import { ClockCircleOutlined, CheckOutlined } from '@ant-design/icons';
 import { checkIn, checkOut, getEmployee } from '../../../../api/company';
+import moment from 'moment';
+import { setLastPunchTime, setPunchStatus } from '../../../../redux/slices/companySlice/attendanceSlice';
 
 const { Title, Paragraph } = Typography;
 
 const PunchCard = () => {
+  const dispatch = useDispatch();
   const userId = useSelector((state: any) => state.companyInfo.companyInfo.id);
+  const punchStatus = useSelector((state: any) => state.attendance.punchStatus);
+  const lastPunchTime = useSelector((state: any) => state.attendance.lastPunchTime);
 
   const [currentUser, setCurrentUser] = useState<any>(null);
-  const [punchStatus, setPunchStatus] = useState<'in'|'out'|null>(null);
   const [loading, setLoading] = useState(false);
   const [attendanceDetails, setAttendanceDetails] = useState({
     inTime: '',
     outTime: '',
     hoursWorked: '',
-    nextPunchTime: ''
   });
 
   useEffect(() => {
@@ -25,43 +28,52 @@ const PunchCard = () => {
     }
   }, [userId]);
 
-  const fetchEmployeeDetails = async() => {
-     try {
+  useEffect(() => {
+    if (lastPunchTime) {
+      setAttendanceDetails(prev => ({
+        ...prev,
+        [punchStatus === 'in' ? 'inTime' : 'outTime']: lastPunchTime,
+      }));
+    }
+  }, [lastPunchTime, punchStatus]);
+
+  const fetchEmployeeDetails = async () => {
+    try {
       const response = await getEmployee(userId);
-      console.log('Fetch Response:',response);
-      
       setCurrentUser(response.data.workShift);
-     } catch (error) {
-      message.error('failed to get users workshift')
-     }
+    } catch (error) {
+      message.error('Failed to get user\'s workshift');
+    }
   };
 
+  const canPunchIn = () => {
+    if (!currentUser) return false;
+    const now = moment();
+    const shiftStart = moment(currentUser.shiftIn, 'HH:mm');
+    return now.isBetween(shiftStart.clone().subtract(30, 'minutes'), shiftStart.clone().add(30, 'minutes'));
+  };
 
   const handlePunch = async (type: 'in' | 'out') => {
     try {
       setLoading(true);
       const response = type === 'in' ? await checkIn(userId) : await checkOut(userId);
-      console.log("punch response:",response);
       
+      const now = moment();
+      const timeString = now.format('HH:mm:ss');
       
-      const now = new Date();
-      const timeString = now.toLocaleTimeString();
+      dispatch(setPunchStatus(type));
+      dispatch(setLastPunchTime(timeString));
       
-      if (type === 'in') {
-        setAttendanceDetails(prev => ({ ...prev, inTime: timeString }));
-        setPunchStatus('in');
-      } else {
+      if (type === 'out') {
         setAttendanceDetails(prev => ({ 
           ...prev, 
-          outTime: timeString,
           hoursWorked: response.hoursWorked || 'N/A'
         }));
-        setPunchStatus('out');
       }
       
       message.success(`Successfully checked ${type}`);
     } catch (error:any) {
-      message.error(`Failed to check ${type}: ${error.response.data.message}`);
+      message.error(`Failed to check ${type}: ${error.response?.data?.message || 'Unknown error'}`);
     } finally {
       setLoading(false);
     }
@@ -82,7 +94,7 @@ const PunchCard = () => {
                 shape="circle" 
                 icon={<ClockCircleOutlined />} 
                 onClick={() => handlePunch('in')}
-                disabled={punchStatus === 'in'}
+                disabled={punchStatus === 'in' || !canPunchIn()}
                 style={{ width: 80, height: 80, fontSize: 20 }}
               >
                 IN

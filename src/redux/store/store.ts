@@ -2,7 +2,8 @@ import { configureStore } from "@reduxjs/toolkit";
 import customerSlice from "../slices/userSlice/customerSlice";
 import adminSlice from "../slices/adminSlice/adminSlice";
 import companySlice from "../slices/companySlice/companySlice";
-import emailSlice from "../slices/companySlice/emailSlice";
+import attendanceSlice from "../slices/companySlice/attendanceSlice";
+
 
 
 
@@ -12,7 +13,7 @@ const store = configureStore({
         customerInfo:customerSlice,
         adminInfo:adminSlice,
         companyInfo:companySlice,
-        email:emailSlice
+        attendance:attendanceSlice
     }
 })
 
