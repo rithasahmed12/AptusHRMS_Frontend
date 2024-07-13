@@ -34,6 +34,7 @@ import ShortlistedCandidates from "../components/company/Recruitment/Shortlisted
 import JobForm from "../components/company/Recruitment/JobForm.tsx";
 import JobDetails from "../components/company/Recruitment/JobApplication.tsx";
 import AttendancePage from "../components/company/Attendance/AttendanceList/AttendancePage.tsx"
+import PayrollTable from "../components/company/Payroll/Payroll.tsx";
 
 
 
@@ -77,6 +78,7 @@ const CompanyRoutes = () => {
             <Route path="recruitment/applicants" element={<AppliedCandidates/>} />
             <Route path="recruitment/shortlisted" element={<ShortlistedCandidates/>} />
             <Route path="attendance" element={<AttendancePage/>} />
+            <Route path="payroll" element={<PayrollTable/>} />
           </Route>
         </Route>
       </Route>

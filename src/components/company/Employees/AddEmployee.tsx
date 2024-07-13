@@ -60,6 +60,7 @@ const AddEmployee: React.FC = () => {
   const navigate = useNavigate();
   const [profilePic, setProfilePic] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [allowances, setAllowances] = useState<{ name: string; amount: number }[]>([]);
   const [currentTab, setCurrentTab] = useState<string>("1");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -104,6 +105,21 @@ const AddEmployee: React.FC = () => {
   // const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [fileToUpload, setFileToUpload] = useState<File | null>(null);
 
+  const handleRemoveAllowance = (index: number) => {
+    const newAllowances = allowances.filter((_, i) => i !== index);
+    setAllowances(newAllowances);
+  };
+
+  const handleAddAllowance = () => {
+    setAllowances([...allowances, { name: '', amount: 0 }]);
+  };
+
+  const handleAllowanceChange = (index: number, field: 'name' | 'amount', value: string | number) => {
+    const newAllowances = [...allowances];
+    newAllowances[index][field] = value as never;
+    setAllowances(newAllowances);
+  };
+
   const isImageFile = (file: File) => {
     const acceptedImageTypes = [
       "image/jpeg",
@@ -119,7 +135,7 @@ const AddEmployee: React.FC = () => {
 
     const file = info.file.originFileObj;
     if (file && isImageFile(file)) {
-      // Create a preview URL
+      
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreviewUrl(reader.result as string);
@@ -138,7 +154,7 @@ const AddEmployee: React.FC = () => {
     try {
       const formData = new FormData();
 
-      // Append all form fields to formData
+
       Object.keys(values).forEach((key) => {
         if (key === "dob" || key === "hireDate" || key === "joiningDate") {
           const date = convertToDate(values[key]);
@@ -146,17 +162,20 @@ const AddEmployee: React.FC = () => {
         } else {
           formData.append(key, values[key]);
         }
+       
       });
 
-      // Append the file
+      
       if (fileToUpload) {
-        formData.append("file", fileToUpload); // Change 'profilePic' to 'file'
+        formData.append("file", fileToUpload); 
       }
 
       console.log("FormData content:");
       for (let [key, value] of formData.entries()) {
         console.log(key, value);
       }
+
+      formData.append('allowances', JSON.stringify(allowances));
 
       const response = await createEmployee(formData);
       console.log(response);
@@ -281,6 +300,7 @@ const AddEmployee: React.FC = () => {
               </Form.Item>
             </Col>
           </Row>
+        
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
@@ -413,6 +433,39 @@ const AddEmployee: React.FC = () => {
               </Form.Item>
             </Col>
           </Row>
+            <Row gutter={16}>
+  <Col span={24}>
+    <Form.Item label="Allowances">
+      {allowances.map((allowance, index) => (
+        <Row key={index} gutter={8} style={{ marginBottom: 8 }}>
+          <Col span={10}>
+            <Input
+              placeholder="Allowance Name"
+              value={allowance.name}
+              onChange={(e) => handleAllowanceChange(index, 'name', e.target.value)}
+            />
+          </Col>
+          <Col span={10}>
+            <Input
+              type="number"
+              placeholder="Amount"
+              value={allowance.amount}
+              onChange={(e) => handleAllowanceChange(index, 'amount', parseFloat(e.target.value))}
+            />
+          </Col>
+          <Col span={4}>
+            <Button onClick={() => handleRemoveAllowance(index)} danger>
+              Remove
+            </Button>
+          </Col>
+        </Row>
+      ))}
+      <Button onClick={handleAddAllowance} type="dashed" block>
+        Add Allowance
+      </Button>
+    </Form.Item>
+  </Col>
+</Row>
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item

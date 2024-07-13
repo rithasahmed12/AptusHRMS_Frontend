@@ -1,12 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Tabs, Button, Row, Col, Spin, message, Card, Typography } from "antd";
+import { Tabs, Button, Row, Col, Spin, message, Card, Typography, Table } from "antd";
 import { getEmployee } from "../../../api/company";
 import dayjs from "dayjs";
 import { EditOutlined } from "@ant-design/icons";
 
 const { TabPane } = Tabs;
 const { Text, Title } = Typography;
+
+interface Allowance {
+  _id: string;
+  name: string;
+  amount: number;
+}
 
 interface Employee {
   _id: string;
@@ -30,6 +36,7 @@ interface Employee {
   role: string;
   workShift?: {_id:string, shiftName:string, shiftIn: string, shiftOut:string};
   profilePic?: string;
+  allowances?: Allowance[];
 }
 
 const EmployeeView: React.FC = () => {
@@ -80,8 +87,36 @@ const EmployeeView: React.FC = () => {
       )}
     </div>
   );
-  
-  
+
+  const renderAllowances = (allowances: Allowance[] | undefined) => {
+    if (!allowances || allowances.length === 0) {
+      return <Text>No allowances</Text>;
+    }
+
+    const columns = [
+      {
+        title: 'Name',
+        dataIndex: 'name',
+        key: 'name',
+      },
+      {
+        title: 'Amount',
+        dataIndex: 'amount',
+        key: 'amount',
+        render: (amount: number) => `₹${amount.toLocaleString()}`,
+      },
+    ];
+
+    return (
+      <Table 
+        dataSource={allowances} 
+        columns={columns} 
+        pagination={false} 
+        size="small"
+        rowKey="_id"
+      />
+    );
+  };
 
   if (loading) {
     return (
@@ -124,7 +159,7 @@ const EmployeeView: React.FC = () => {
               >
                 Edit Employee
               </Button>
-              <Button  onClick={goBack}>Go Back</Button>
+              <Button onClick={goBack}>Go Back</Button>
             </div>
           </div>
         }
@@ -193,13 +228,17 @@ const EmployeeView: React.FC = () => {
                     )}
                     {renderField(
                       "Basic Salary",
-                      `${employee.basicSalary?.toLocaleString()}`
+                      `₹${employee.basicSalary?.toLocaleString()}`
                     )}
                     {renderField("Employee Type", employee.employeeType)}
                   </Col>
                   <Col span={12}>
                     {renderField("Status", employee.status)}
                     {renderShift(employee.workShift)}
+                  </Col>
+                  <Col span={24} style={{ marginTop: '20px' }}>
+                    <Title level={5}>Allowances</Title>
+                    {renderAllowances(employee.allowances)}
                   </Col>
                 </Row>
               ),

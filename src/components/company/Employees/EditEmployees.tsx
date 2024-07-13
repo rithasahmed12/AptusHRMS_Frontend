@@ -93,6 +93,7 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [designations, setDesignations] = useState<Designation[]>([]);
   const [workShifts, setWorkShifts] = useState<WorkShift[]>([]);
+  const [allowances, setAllowances] = useState<{ name: string; amount: number }[]>([]);
 
   useEffect(() => {
     fetchEmployee();
@@ -107,6 +108,7 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
       const response = await getEmployee(id!);
       setEmployee(response.data);
       setPreviewUrl(response.data.profilePic);
+      setAllowances(response.data.allowances || []); // Set allowances from fetched data
       form.setFieldsValue({
         ...response.data,
         dob: response.data.dob ? dayjs(response.data.dob) : null,
@@ -121,6 +123,23 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
       setLoading(false);
     }
   };
+
+  // Add these functions to handle allowances
+  const handleRemoveAllowance = (index: number) => {
+    const newAllowances = allowances.filter((_, i) => i !== index);
+    setAllowances(newAllowances);
+  };
+
+  const handleAddAllowance = () => {
+    setAllowances([...allowances, { name: '', amount: 0 }]);
+  };
+
+  const handleAllowanceChange = (index: number, field: 'name' | 'amount', value: string | number) => {
+    const newAllowances = [...allowances];
+    newAllowances[index][field] = value as never;
+    setAllowances(newAllowances);
+  };
+
 
   const fetchDepartments = async () => {
     try {
@@ -190,6 +209,9 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
         }
       });
   
+      // Append allowances
+      formData.append('allowances', JSON.stringify(allowances));
+  
       // Append the file if a new one was selected
       if (fileToUpload) {
         formData.append('file', fileToUpload);
@@ -210,7 +232,7 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     } finally {
       setLoading(false);
     }
-  };  
+  };
   
 
   const goBack = () => {
@@ -455,6 +477,39 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
                 </Select>
               </Form.Item>
             </Col>
+            <Row gutter={16}>
+            <Col span={24}>
+              <Form.Item label="Allowances">
+                {allowances.map((allowance, index) => (
+                  <Row key={index} gutter={8} style={{ marginBottom: 8 }}>
+                    <Col span={10}>
+                      <Input
+                        placeholder="Allowance Name"
+                        value={allowance.name}
+                        onChange={(e) => handleAllowanceChange(index, 'name', e.target.value)}
+                      />
+                    </Col>
+                    <Col span={10}>
+                      <Input
+                        type="number"
+                        placeholder="Amount"
+                        value={allowance.amount}
+                        onChange={(e) => handleAllowanceChange(index, 'amount', parseFloat(e.target.value))}
+                      />
+                    </Col>
+                    <Col span={4}>
+                      <Button onClick={() => handleRemoveAllowance(index)} danger>
+                        Remove
+                      </Button>
+                    </Col>
+                  </Row>
+                ))}
+                <Button onClick={handleAddAllowance} type="dashed" block>
+                  Add Allowance
+                </Button>
+              </Form.Item>
+            </Col>
+          </Row>
           </Row>
           <Row gutter={16}>
             <Col span={12}>
