@@ -47,6 +47,9 @@ const companyRoutes={
         today: 'attendance/today',
         currentDay: (employeeId: string) => `attendance/current-day/${employeeId}`,
       },
+      payroll:'payroll/daily',
+      approvePayroll: (id: string) => `payroll/${id}/approve`,
+      declinePayroll: (id: string) => `payroll/${id}/decline`,  
 
 }
 

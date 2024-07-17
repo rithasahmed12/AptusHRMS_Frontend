@@ -1,117 +1,138 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Select, DatePicker, Form } from 'antd';
-import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
+import { Table, Button, Select, DatePicker, Form, message, Modal } from 'antd';
+import { getEmployees, getPayrollData } from '../../../api/company'; // Import the API function
+import { CloseCircleOutlined } from '@ant-design/icons';
 
 const { Option } = Select;
 
 const PayrollTable = () => {
   const [payrollData, setPayrollData] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
+  const [detailModalVisible, setDetailModalVisible] = useState(false);
+  const [selectedEmployeeData, setSelectedEmployeeData] = useState(null);
+  const [employees,setEmployees] = useState([]);
+  const [selectedEmployee, setSelectedEmployee] = useState('');
+
+  const fetchPayrollData = async (values = {}) => {
+    setLoading(true);
+    try {
+      console.log("values:", values);
+      
+      const data = await getPayrollData(values);
+      console.log('data:', data);
+      
+      setPayrollData(data);
+    } catch (error:any) {
+      console.log("FrontendERROR:",error);
+      
+      message.error(error?.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchEmployees = async()=>{
+    setLoading(true);
+    try {
+      const response = await getEmployees();
+      setEmployees(response.data);
+    } catch (error) {
+      message.error('Failed to fetch Data');
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    // Fetch payroll data here
-    // For now, we'll use mock data
-    const mockData = [
-      {
-        key: '1',
-        employeeId: '#SN1212',
-        name: 'Rithas Ahamed',
-        designation: 'Demo Officer',
-        department: 'Information Technology',
-        grossSalary: 50000,
-        attendanceDeduction: 1200,
-        creditDeduction: 0,
-        savingsDeduction: 5000,
-        savingsClaim: 0,
-        bonus: 5000,
-        allowances: 10000,
-        dueDate: '3/13/2023',
-        totalGrossSalary: 58800,
-        status: 'Due',
-      },
-      {
-        key: '2',
-        employeeId: '#MN234',
-        name: 'Rithas Ahamed',
-        designation: 'Demo Officer',
-        department: 'Information Technology',
-        grossSalary: 50000,
-        attendanceDeduction: 1200,
-        creditDeduction: 0,
-        savingsDeduction: 5000,
-        savingsClaim: 0,
-        bonus: 5000,
-        allowances: 10000,
-        dueDate: '3/14/2023',
-        totalGrossSalary: 58800,
-        status: 'Not Due',
-      },
-    ];
-    setPayrollData(mockData);
+    fetchPayrollData();
+    fetchEmployees();
   }, []);
+
+ 
+  
+    const handleEmployeeChange = value => {
+      setSelectedEmployee(value);
+    };
 
   const columns = [
     {
-      title: 'EmployeeID',
+      title: 'Employee ID',
       dataIndex: 'employeeId',
       key: 'employeeId',
     },
     {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-      render: (text, record) => (
-        <div>
-          <div>{text}</div>
-          <div className="text-xs text-gray-500">{record.designation}</div>
-          <div className="text-xs text-gray-500">{record.department}</div>
-        </div>
+      title: 'Year',
+      dataIndex: 'year',
+      key: 'year',
+    },
+    {
+      title: 'Month',
+      dataIndex: 'month',
+      key: 'month',
+    },
+    {
+      title: 'Total Salary',
+      dataIndex: ['summary', 'totalSalary'],
+      key: 'totalSalary',
+      render: (salary) => `₹${salary.toFixed(2)}`,
+    },
+    {
+      title: 'Working Days',
+      dataIndex: ['summary', 'totalWorkingDays'],
+      key: 'totalWorkingDays',
+    },
+    {
+      title: 'Present Days',
+      dataIndex: ['summary', 'totalPresentDays'],
+      key: 'totalPresentDays',
+    },
+    {
+      title: 'Absent Days',
+      dataIndex: ['summary', 'totalAbsentDays'],
+      key: 'totalAbsentDays',
+    },
+    {
+      title: 'Leave Days',
+      dataIndex: ['summary', 'totalLeaveDays'],
+      key: 'totalLeaveDays',
+    },
+    {
+      title: 'Holidays',
+      dataIndex: ['summary', 'totalHolidays'],
+      key: 'totalHolidays',
+    },
+    {
+      title: 'Action',
+      key: 'action',
+      render: (_, record) => (
+        <Button onClick={() => showAttendanceDetails(record)}>View Details</Button>
       ),
     },
+  ];
+
+  const showAttendanceDetails = (record) => {
+    setSelectedEmployeeData(record);
+    setDetailModalVisible(true);
+  };
+
+  const onFinish = (values) => {
+    const params = {};
+    if (values.month) {
+      params.year = values.month.year();
+      params.month = values.month.month() + 1;
+    }
+    if (values.employee) {
+      params.employeeId = values.employee;
+    }
+    fetchPayrollData(params);
+  };
+
+  const detailColumns = [
     {
-      title: 'Gross Salary',
-      dataIndex: 'grossSalary',
-      key: 'grossSalary',
-    },
-    {
-      title: 'Attendance Deduction',
-      dataIndex: 'attendanceDeduction',
-      key: 'attendanceDeduction',
-    },
-    {
-      title: 'Credit Deduction',
-      dataIndex: 'creditDeduction',
-      key: 'creditDeduction',
-    },
-    {
-      title: 'Savings Deduction',
-      dataIndex: 'savingsDeduction',
-      key: 'savingsDeduction',
-    },
-    {
-      title: 'Savings Claim',
-      dataIndex: 'savingsClaim',
-      key: 'savingsClaim',
-    },
-    {
-      title: 'Bonus',
-      dataIndex: 'bonus',
-      key: 'bonus',
-    },
-    {
-      title: 'Allowances',
-      dataIndex: 'allowances',
-      key: 'allowances',
-    },
-    {
-      title: 'Due Date',
-      dataIndex: 'dueDate',
-      key: 'dueDate',
-    },
-    {
-      title: 'Gross Salary',
-      dataIndex: 'totalGrossSalary',
-      key: 'totalGrossSalary',
+      title: 'Date',
+      dataIndex: 'date',
+      key: 'date',
     },
     {
       title: 'Status',
@@ -119,44 +140,12 @@ const PayrollTable = () => {
       key: 'status',
     },
     {
-      title: 'Action',
-      key: 'action',
-      render: (_, record) => (
-        <span>
-          <Button
-            type="primary"
-            icon={<CheckOutlined />}
-            className="mr-2"
-            onClick={() => handleApprove(record)}
-          >
-            Approve
-          </Button>
-          <Button
-            danger
-            icon={<CloseOutlined />}
-            onClick={() => handleDecline(record)}
-          >
-            Decline
-          </Button>
-        </span>
-      ),
+      title: 'Salary',
+      dataIndex: 'salary',
+      key: 'salary',
+      render: (salary) => `₹${salary.toFixed(2)}`,
     },
   ];
-
-  const handleApprove = (record) => {
-    console.log('Approved:', record);
-    // Implement approval logic here
-  };
-
-  const handleDecline = (record) => {
-    console.log('Declined:', record);
-    // Implement decline logic here
-  };
-
-  const onFinish = (values) => {
-    console.log('Form values:', values);
-    // Implement form submission logic here
-  };
 
   return (
     <div className="p-6">
@@ -167,25 +156,17 @@ const PayrollTable = () => {
         onFinish={onFinish}
         className="mb-4"
       >
-        <Form.Item name="department" className="mb-2">
-          <Select style={{ width: 200 }} placeholder="Select Department">
-            <Option value="it">Information Technology</Option>
-            {/* Add more departments as needed */}
-          </Select>
-        </Form.Item>
-        <Form.Item name="designation" className="mb-2">
-          <Select style={{ width: 200 }} placeholder="Select Designation">
-            <Option value="officer">Demo Officer</Option>
-            {/* Add more designations as needed */}
-          </Select>
-        </Form.Item>
-        <Form.Item name="month" className="mb-2">
+        <Form.Item name="month">
           <DatePicker.MonthPicker style={{ width: 200 }} placeholder="Select Month" />
         </Form.Item>
-        <Form.Item name="employee" className="mb-2">
-          <Select style={{ width: 200 }} placeholder="Select Employee">
-            <Option value="1">Rithas Ahamed</Option>
-            {/* Add more employees as needed */}
+        <Form.Item name="employee">
+          <Select onChange={handleEmployeeChange} style={{ width: 200 }} placeholder="Select Employee">
+            {selectedEmployee && <Option value="" style={{ color: 'red'}} ><CloseCircleOutlined/> Clear </Option>}
+            {employees && employees.map((employee:{_id:string,name:string})=>(
+              <Option key={employee._id} value={employee._id}>
+                {employee.name}
+              </Option>
+            ))}
           </Select>
         </Form.Item>
         <Form.Item>
@@ -194,7 +175,27 @@ const PayrollTable = () => {
           </Button>
         </Form.Item>
       </Form>
-      <Table columns={columns} dataSource={payrollData} scroll={{ x: true }} />
+      <Table 
+        columns={columns} 
+        dataSource={payrollData} 
+        scroll={{ x: true }} 
+        loading={loading}
+      />
+      <Modal
+        title={`Attendance Details - Employee ${selectedEmployeeData?.employeeId}`}
+        visible={detailModalVisible}
+        onCancel={() => setDetailModalVisible(false)}
+        footer={null}
+        width={800}
+      >
+        {selectedEmployeeData && (
+          <Table
+            columns={detailColumns}
+            dataSource={selectedEmployeeData.attendanceTable}
+            pagination={false}
+          />
+        )}
+      </Modal>
     </div>
   );
 };

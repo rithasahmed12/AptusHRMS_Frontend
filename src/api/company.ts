@@ -810,3 +810,41 @@ export const getCurrentDayEmployeeAttendance = async (employeeId: string) => {
     throw error;
   }
 };
+
+
+export const getPayrollData = async ({ year, month, employeeId }) => {
+  try {
+    const response = await CompanyApi.get('payroll/attendance', {
+      params: {
+        year,
+        month,
+        employeeId
+      }
+    });
+    return response.data;
+  } catch (error:any) {
+    console.log('ACIOS ERROR:',error);
+    
+    throw new Error(error.response.data.message);
+  }
+};
+
+export const approvePayroll = async (payrollId: string) => {
+  try {
+    const response = await CompanyApi.post(companyRoutes.approvePayroll(payrollId));
+    return response.data;
+  } catch (error) {
+    console.log("Error:", error);
+    throw error;
+  }
+};
+
+export const declinePayroll = async (payrollId: string) => {
+  try {
+    const response = await CompanyApi.post(companyRoutes.declinePayroll(payrollId));
+    return response.data;
+  } catch (error) {
+    console.log("Error:", error);
+    throw error;
+  }
+};
