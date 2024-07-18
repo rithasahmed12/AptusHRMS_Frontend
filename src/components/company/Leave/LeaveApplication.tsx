@@ -26,6 +26,7 @@ import {
 } from "../../../api/company";
 import { useSelector } from "react-redux";
 import { format } from "date-fns";
+import { toast } from "react-toastify";
 
 const { RangePicker } = DatePicker;
 
@@ -48,6 +49,8 @@ interface LeaveApplication {
 
 const LeaveApplicationList: React.FC = () => {
   const { companyInfo } = useSelector((state: any) => state.companyInfo);
+  const isAdminOrHR = companyInfo.role === "admin" || companyInfo.role === "hr";
+
   const [leaveApplications, setLeaveApplications] = useState<
     LeaveApplication[]
   >([]);
@@ -79,8 +82,8 @@ const [confirmAction, setConfirmAction] = useState<{
       } else {
         message.error("Failed to fetch leave applications");
       }
-    } catch (error) {
-      message.error("Failed to fetch leave applications");
+    } catch (error:any) {
+      toast.error(error.message);
     }
   };
 
@@ -92,8 +95,8 @@ const [confirmAction, setConfirmAction] = useState<{
       } else {
         message.error("Failed to fetch leave types");
       }
-    } catch (error) {
-      message.error("Failed to fetch leave types");
+    } catch (error:any) {
+      toast.error(error.message);
     }
   };
 
@@ -137,7 +140,7 @@ const [confirmAction, setConfirmAction] = useState<{
         </span>
       ),
     },
-    {
+    ...isAdminOrHR ? [{
       title: "Action",
       key: "_id",
       render: (_: any, record: LeaveApplication) => (
@@ -168,7 +171,7 @@ const [confirmAction, setConfirmAction] = useState<{
           </Tooltip>
         </span>
       ),
-    },
+    }]:[],
   ];
 
   const showModal = (application: LeaveApplication | null = null) => {
@@ -210,7 +213,7 @@ const [confirmAction, setConfirmAction] = useState<{
           message.error(`Failed to ${confirmAction.status.toLowerCase()} leave application`);
         }
       } catch (error) {
-        message.error(`Failed to ${confirmAction.status.toLowerCase()} leave application`);
+        toast.error(`Failed to ${confirmAction.status.toLowerCase()} leave application`);
       }
     }
     setIsConfirmModalVisible(false);
@@ -230,7 +233,7 @@ const [confirmAction, setConfirmAction] = useState<{
           message.success("Leave application updated successfully");
           fetchLeaveApplications();
         } else {
-          message.error("Failed to update leave application");
+          toast.error("Failed to update leave application");
         }
       } else {
         // Submit new application
@@ -248,7 +251,7 @@ const [confirmAction, setConfirmAction] = useState<{
           message.success("Leave application submitted successfully");
           fetchLeaveApplications();
         } else {
-          message.error("Failed to submit leave application");
+          toast.error("Failed to submit leave application");
         }
       }
       setIsModalVisible(false);
@@ -260,13 +263,13 @@ const [confirmAction, setConfirmAction] = useState<{
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Leave Application</h1>
-      <Button
+      {/* <Button
         icon={<PlusOutlined />}
         onClick={() => showModal()}
         className="mb-4"
       >
         Apply for Leave
-      </Button>
+      </Button> */}
       <Table columns={columns} dataSource={leaveApplications} rowKey="_id" />
 
       <Modal

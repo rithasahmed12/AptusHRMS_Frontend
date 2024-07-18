@@ -1,11 +1,6 @@
-import React from 'react';
-import { SearchOutlined, FilterOutlined } from '@ant-design/icons';
-import EmployeeView from './UserProfile/UserProfile';
+import { useSelector } from 'react-redux';
 import { NavLink, Outlet, useParams } from 'react-router-dom';
 
-interface ProfileContextType {
-  id: string;
-}
 
 const ProfilePage = () => {
   const { id } = useParams<{id:string}>();

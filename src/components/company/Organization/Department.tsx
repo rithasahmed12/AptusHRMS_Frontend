@@ -1,11 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { ConfigProvider, Modal, Form, Input, Button, Tooltip, Table } from "antd";
+import {
+  ConfigProvider,
+  Modal,
+  Form,
+  Input,
+  Button,
+  Tooltip,
+  Table,
+} from "antd";
 import { EditOutlined, DeleteOutlined, EyeOutlined } from "@ant-design/icons";
 import {
-    createDepartment,
-    deleteDepartment,
-    editDepartment,
-    getDepartment
+  createDepartment,
+  deleteDepartment,
+  editDepartment,
+  getDepartment,
 } from "../../../api/company";
 import { toast } from "react-toastify";
 
@@ -27,8 +35,11 @@ const DepartmentPage: React.FC = () => {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [deletingDepartment, setDeletingDepartment] = useState<Department | null>(null);
-  const [editingDepartment, setEditingDepartment] = useState<Department | null>(null);
+  const [deletingDepartment, setDeletingDepartment] =
+    useState<Department | null>(null);
+  const [editingDepartment, setEditingDepartment] = useState<Department | null>(
+    null
+  );
   const [departments, setDepartments] = useState<Department[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [form] = Form.useForm();
@@ -37,8 +48,8 @@ const DepartmentPage: React.FC = () => {
     try {
       const response = await getDepartment();
       setDepartments(response.data);
-    } catch (error) {
-      toast.error("Failed to fetch departments");
+    } catch (error: any) {
+      toast.error(error.message);
     }
   };
 
@@ -52,8 +63,8 @@ const DepartmentPage: React.FC = () => {
 
   const showViewModal = async (departmentId: string) => {
     try {
-    //   const response = await getEmployeesInDepartment(departmentId);
-    //   setEmployees(response.data);
+      //   const response = await getEmployeesInDepartment(departmentId);
+      //   setEmployees(response.data);
       setIsViewModalOpen(true);
     } catch (error) {
       toast.error("Failed to fetch employees");
@@ -62,15 +73,15 @@ const DepartmentPage: React.FC = () => {
 
   const handleAddOk = async () => {
     try {
-      const values = await form.validateFields(); 
+      const values = await form.validateFields();
       const response = await createDepartment(values);
-      
+
       setDepartments([response.data.department, ...departments]);
       setIsAddModalOpen(false);
       form.resetFields();
       toast.success("Department added successfully");
-    } catch (error) {
-      toast.error("Failed to add department");
+    } catch (error:any) {
+      toast.error(error.message);
     }
   };
 
@@ -102,16 +113,17 @@ const DepartmentPage: React.FC = () => {
   const handleDeleteOk = async () => {
     try {
       if (deletingDepartment) {
-        const response = await deleteDepartment(deletingDepartment._id);
-        if (response.status === 200) {
-          setDepartments(departments.filter(d => d._id !== deletingDepartment._id));
-          setIsDeleteModalOpen(false);
-          setDeletingDepartment(null);
-          toast.success("Department deleted successfully");
-        }
+        await deleteDepartment(deletingDepartment._id);
+
+        setDepartments(
+          departments.filter((d) => d._id !== deletingDepartment._id)
+        );
+        setIsDeleteModalOpen(false);
+        setDeletingDepartment(null);
+        toast.success("Department deleted successfully");
       }
-    } catch (error) {
-      toast.error("Failed to delete department");
+    } catch (error: any) {
+      toast.error(error.message);
     }
   };
 
@@ -123,16 +135,18 @@ const DepartmentPage: React.FC = () => {
   const handleEditOk = async () => {
     try {
       const values = await form.validateFields();
-      const response = await editDepartment(editingDepartment?._id, values);
-      if (response.status === 200) {
-        setDepartments(departments.map(d => d._id === editingDepartment?._id ? { ...d, ...values } : d));
+      await editDepartment(editingDepartment?._id, values);
+        setDepartments(
+          departments.map((d) =>
+            d._id === editingDepartment?._id ? { ...d, ...values } : d
+          )
+        );
         setIsEditModalOpen(false);
         setEditingDepartment(null);
         form.resetFields();
         toast.success("Department updated successfully");
-      }
-    } catch (error) {
-      toast.error("Failed to update department");
+    } catch (error:any) {
+      toast.error(error.message);
     }
   };
 
@@ -144,19 +158,19 @@ const DepartmentPage: React.FC = () => {
 
   const columns = [
     {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
     },
     {
-      title: 'Email',
-      dataIndex: 'email',
-      key: 'email',
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
     },
     {
-      title: 'Position',
-      dataIndex: 'position',
-      key: 'position',
+      title: "Position",
+      dataIndex: "position",
+      key: "position",
     },
   ];
 
@@ -212,9 +226,7 @@ const DepartmentPage: React.FC = () => {
                   </Tooltip>
                 </div>
               </div>
-              <p className="text-gray-700">
-                Head: {department.head}
-              </p>
+              <p className="text-gray-700">Head: {department.head}</p>
             </div>
           ))}
         </div>
@@ -232,14 +244,24 @@ const DepartmentPage: React.FC = () => {
             <Form.Item
               label="Name"
               name="name"
-              rules={[{ required: true, message: "Please input the department name!" }]}
+              rules={[
+                {
+                  required: true,
+                  message: "Please input the department name!",
+                },
+              ]}
             >
               <Input />
             </Form.Item>
             <Form.Item
               label="Head"
               name="head"
-              rules={[{ required: true, message: "Please input the department head!" }]}
+              rules={[
+                {
+                  required: true,
+                  message: "Please input the department head!",
+                },
+              ]}
             >
               <Input />
             </Form.Item>
@@ -257,14 +279,24 @@ const DepartmentPage: React.FC = () => {
             <Form.Item
               label="Name"
               name="name"
-              rules={[{ required: true, message: "Please input the department name!" }]}
+              rules={[
+                {
+                  required: true,
+                  message: "Please input the department name!",
+                },
+              ]}
             >
               <Input />
             </Form.Item>
             <Form.Item
               label="Head"
               name="head"
-              rules={[{ required: true, message: "Please input the department head!" }]}
+              rules={[
+                {
+                  required: true,
+                  message: "Please input the department head!",
+                },
+              ]}
             >
               <Input />
             </Form.Item>

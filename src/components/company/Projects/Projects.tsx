@@ -31,6 +31,8 @@ import {
   getEmployees,
   getProjects,
 } from "../../../api/company";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -54,6 +56,9 @@ interface Employee {
 }
 
 const ProjectList: React.FC = () => {
+  const userRole = useSelector((state: any) => state.companyInfo.companyInfo.role);
+  const userId = useSelector((state: any) => state.companyInfo.companyInfo.id);
+
   const [projects, setProjects] = useState<Project[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
@@ -77,9 +82,20 @@ const ProjectList: React.FC = () => {
   const fetchProjects = async () => {
     try {
       const response = await getProjects();
-      setProjects(response.data);
-    } catch (error) {
-      message.error("Failed to fetch projects");
+      console.log('Projectresponse:',response);
+      console.log('UserId:',userId);
+      
+      if (userRole === 'admin' || userRole === 'hr') {
+        setProjects(response.data);
+      } else {
+        // Filter projects assigned to the logged-in employee
+        const assignedProjects = response.data.filter(
+          (project: Project) => project.assignedPerson?._id === userId
+        );
+        setProjects(assignedProjects);
+      }
+    } catch (error:any) {
+      toast.error(error.message)
     }
   };
 
@@ -184,30 +200,38 @@ const ProjectList: React.FC = () => {
       width: "10%",
       render: (_: any, record: Project) => (
         <Space size="small">
-          <Tooltip title="Edit">
-            <Button
-              icon={<EditOutlined />}
-              onClick={() => handleEdit(record)}
-              size="small"
-            />
-          </Tooltip>
-          <Tooltip title="View More">
-            <Button
-              type="primary"
-              icon={<EyeOutlined />}
-              onClick={() => handleViewMore(record)}
-              size="small"
-            />
-          </Tooltip>
-          <Tooltip title="Delete">
-            <Button
-              type="primary"
-              danger
-              icon={<DeleteOutlined />}
-              onClick={() => handleDelete(record)}
-              size="small"
-            />
-          </Tooltip>
+          {(userRole === 'admin' || userRole === 'hr') && (
+            <>
+              <Tooltip title="Delete">
+                <Button
+                  type="primary"
+                  danger
+                  icon={<DeleteOutlined />}
+                  onClick={() => handleDelete(record)}
+                  size="small"
+                />
+              </Tooltip>
+            </>
+          )}
+          {(userRole === 'admin' || userRole === 'hr' || record.assignedPerson?._id === userId) && (
+            <>
+            <Tooltip title="Edit">
+                <Button
+                  icon={<EditOutlined />}
+                  onClick={() => handleEdit(record)}
+                  size="small"
+                />
+              </Tooltip>
+            <Tooltip title="View More">
+              <Button
+                type="primary"
+                icon={<EyeOutlined />}
+                onClick={() => handleViewMore(record)}
+                size="small"
+              />
+            </Tooltip>
+            </>
+          )}
         </Space>
       ),
     },
@@ -251,12 +275,12 @@ const ProjectList: React.FC = () => {
         endDate: values.endDate.toDate(),
         assignedPerson: values.assignedPerson || null,
       };
-      const response = await createProject(newProject);
-      setProjects([response.data, ...projects]);
+      await createProject(newProject);
+      fetchProjects();
       setIsAddModalVisible(false);
       message.success("Project created successfully!");
-    } catch (error) {
-      message.error("Failed to create project!");
+    } catch (error:any) {
+      toast.error(error.message)
     }
   };
 
@@ -274,14 +298,11 @@ const ProjectList: React.FC = () => {
         assignedPerson: values.assignedPerson || null,
       };
       await editProject(selectedProject._id, updatedProject);
-      const updatedProjects = projects.map((project) =>
-        project._id === selectedProject._id ? updatedProject : project
-      );
-      setProjects(updatedProjects);
+      fetchProjects();
       setIsEditModalVisible(false);
       message.success("Project edited successfully!");
-    } catch (error) {
-      message.error("Failed to edit project!");
+    } catch (error:any) {
+      toast.error(error.message)
     }
   };
 
@@ -304,8 +325,8 @@ const ProjectList: React.FC = () => {
       );
       setIsDeleteModalVisible(false);
       message.success("Project deleted successfully!");
-    } catch (error) {
-      message.error("Failed to delete project!");
+    } catch (error:any) {
+      toast.error(error.message)
     }
   };
 
@@ -315,11 +336,13 @@ const ProjectList: React.FC = () => {
         <Col>
           <Title level={2}>Project List</Title>
         </Col>
-        <Col>
-          <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
-            Add Project
-          </Button>
-        </Col>
+       {(userRole === 'admin' || userRole === 'hr') && (
+          <Col>
+            <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
+              Add Project
+            </Button>
+          </Col>
+        )}
       </Row>
       <Table columns={columns} dataSource={projects} rowKey="_id" />
 

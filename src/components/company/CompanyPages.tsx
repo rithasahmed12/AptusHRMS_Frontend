@@ -31,6 +31,7 @@ const CompanyPages: React.FC = () => {
           isSidebarExpanded={isSidebarExpanded}
           toggleSidebar={toggleSidebar}
           companyLogo={companyInfo.logo}
+          userRole={companyInfo.role}
         />
       )}
       <div

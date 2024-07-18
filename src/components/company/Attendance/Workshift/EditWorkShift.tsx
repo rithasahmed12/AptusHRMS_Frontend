@@ -3,6 +3,7 @@ import { Form, Input, Button, Checkbox, TimePicker, InputNumber, message, Spin }
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { editWorkShift, getWorkShift } from '../../../../api/company';
 import moment from 'moment';
+import { toast } from 'react-toastify';
 
 const EditWorkShift: React.FC = () => {
   const [form] = Form.useForm();
@@ -51,9 +52,9 @@ const EditWorkShift: React.FC = () => {
       } else {
         message.error('Failed to update work shift');
       }
-    } catch (error) {
+    } catch (error:any) {
       console.error('Error updating work shift:', error);
-      message.error('An error occurred while updating the work shift');
+      toast.error(error.message);
     }
   };
 

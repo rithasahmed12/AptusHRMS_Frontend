@@ -1,11 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, DatePicker, message } from 'antd';
-import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import moment from 'moment';
-import { Holiday, getAllHolidays, createHoliday, updateHoliday, deleteHoliday } from '../../../api/company';
+import React, { useState, useEffect } from "react";
+import { Table, Button, Modal, Form, Input, DatePicker, message } from "antd";
+import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+import moment from "moment";
+import {
+  Holiday,
+  getAllHolidays,
+  createHoliday,
+  updateHoliday,
+  deleteHoliday,
+} from "../../../api/company";
 import { format } from "date-fns";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 const HolidayList: React.FC = () => {
+  const userRole = useSelector(
+    (state: any) => state.companyInfo.companyInfo.role
+  );
+  const isAdminOrHR = userRole === "admin" || userRole === "hr";
+
   const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
@@ -22,41 +35,60 @@ const HolidayList: React.FC = () => {
     if (response.status === 200) {
       setHolidays(response.data);
     } else {
-      message.error('Failed to fetch holidays');
+      toast.error("Failed to fetch holidays");
     }
   };
 
   const columns = [
-    { title: 'Name', dataIndex: 'name', key: 'name' },
-    { title: 'Start Date', dataIndex: 'startDate', key: 'startDate',
-      render:(startDate:Date) => startDate ? format(new Date(startDate),'dd/MM/yyy') : '',
-     },
-    { title: 'End Date', dataIndex: 'endDate', key: 'endDate',
-      render:(endDate:Date) => endDate ? format(new Date(endDate),'dd/MM/yyy') : '',
-     },
+    { title: "Name", dataIndex: "name", key: "name" },
     {
-      title: 'Day',
-      key: 'day',
+      title: "Start Date",
+      dataIndex: "startDate",
+      key: "startDate",
+      render: (startDate: Date) =>
+        startDate ? format(new Date(startDate), "dd/MM/yyy") : "",
+    },
+    {
+      title: "End Date",
+      dataIndex: "endDate",
+      key: "endDate",
+      render: (endDate: Date) =>
+        endDate ? format(new Date(endDate), "dd/MM/yyy") : "",
+    },
+    {
+      title: "Day",
+      key: "day",
       render: (text: string, record: Holiday) => {
         const start = moment(record.startDate);
         const end = moment(record.endDate);
-        return end.diff(start, 'days') + 1;
+        return end.diff(start, "days") + 1;
       },
     },
-    {
-      title: 'Action',
-      key: 'action',
-      render: (text: string, record: Holiday) => (
-        <span>
-          <Button icon={<EditOutlined />} onClick={() => showEditModal(record)}>
-            Edit
-          </Button>
-          <Button icon={<DeleteOutlined />} onClick={() => showDeleteModal(record)} danger>
-            Delete
-          </Button>
-        </span>
-      ),
-    },
+    ...(isAdminOrHR
+      ? [
+          {
+            title: "Action",
+            key: "action",
+            render: (text: string, record: Holiday) => (
+              <span>
+                <Button
+                  icon={<EditOutlined />}
+                  onClick={() => showEditModal(record)}
+                >
+                  Edit
+                </Button>
+                <Button
+                  icon={<DeleteOutlined />}
+                  onClick={() => showDeleteModal(record)}
+                  danger
+                >
+                  Delete
+                </Button>
+              </span>
+            ),
+          },
+        ]
+      : []),
   ];
 
   const showAddModal = () => {
@@ -82,57 +114,60 @@ const HolidayList: React.FC = () => {
   const handleAdd = async (values: any) => {
     const newHoliday = {
       name: values.name,
-      startDate: values.startDate.format('YYYY-MM-DD'),
-      endDate: values.endDate.format('YYYY-MM-DD'),
+      startDate: values.startDate.format("YYYY-MM-DD"),
+      endDate: values.endDate.format("YYYY-MM-DD"),
     };
-    const response = await createHoliday(newHoliday);
-    if (response.status === 201) {
-      setIsAddModalVisible(false);
-      message.success('Holiday added successfully');
-      fetchHolidays();
-    } else {
-      message.error('Failed to add holiday');
+    try {
+      await createHoliday(newHoliday);
+        setIsAddModalVisible(false);
+        message.success("Holiday added successfully");
+        fetchHolidays();
+    } catch (error:any) {
+      toast.error(error.message)
     }
+   
   };
 
   const handleEdit = async (values: any) => {
     if (editingHoliday) {
       const updatedHoliday = {
         name: values.name,
-        startDate: values.startDate.format('YYYY-MM-DD'),
-        endDate: values.endDate.format('YYYY-MM-DD'),
+        startDate: values.startDate.format("YYYY-MM-DD"),
+        endDate: values.endDate.format("YYYY-MM-DD"),
       };
-      const response = await updateHoliday(editingHoliday._id, updatedHoliday);
-      if (response.status === 200) {
-        setIsEditModalVisible(false);
-        message.success('Holiday updated successfully');
-        fetchHolidays();
-      } else {
-        message.error('Failed to update holiday');
+      
+      try {   
+        await updateHoliday(editingHoliday._id, updatedHoliday);
+          setIsEditModalVisible(false);
+          message.success("Holiday updated successfully");
+          fetchHolidays();
+      } catch (error:any) {
+        toast.error(error.message)
       }
     }
   };
 
   const handleDelete = async () => {
     if (editingHoliday) {
-      const response = await deleteHoliday(editingHoliday._id);
-      if (response.status === 200) {
-        setIsDeleteModalVisible(false);
-        message.success('Holiday deleted successfully');
-        fetchHolidays();
-      } else {
-        message.error('Failed to delete holiday');
+      try {        
+        await deleteHoliday(editingHoliday._id);
+          setIsDeleteModalVisible(false);
+          message.success("Holiday deleted successfully");
+          fetchHolidays();
+      } catch (error:any) {
+        toast.error(error.message)
       }
     }
   };
 
-  
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Holiday List</h1>
-      <Button icon={<PlusOutlined />} onClick={showAddModal} className="mb-4">
-        Add Holiday
-      </Button>
+      {isAdminOrHR && (
+        <Button icon={<PlusOutlined />} onClick={showAddModal} className="mb-4">
+          Add Holiday
+        </Button>
+      )}
       <Table columns={columns} dataSource={holidays} rowKey="id" />
 
       <Modal
@@ -142,13 +177,25 @@ const HolidayList: React.FC = () => {
         footer={null}
       >
         <Form form={form} onFinish={handleAdd} layout="vertical">
-          <Form.Item name="name" label="Holiday Name" rules={[{ required: true }]}>
+          <Form.Item
+            name="name"
+            label="Holiday Name"
+            rules={[{ required: true }]}
+          >
             <Input />
           </Form.Item>
-          <Form.Item name="startDate" label="Start Date" rules={[{ required: true }]}>
+          <Form.Item
+            name="startDate"
+            label="Start Date"
+            rules={[{ required: true }]}
+          >
             <DatePicker className="w-full" />
           </Form.Item>
-          <Form.Item name="endDate" label="End Date" rules={[{ required: true }]}>
+          <Form.Item
+            name="endDate"
+            label="End Date"
+            rules={[{ required: true }]}
+          >
             <DatePicker className="w-full" />
           </Form.Item>
           <Form.Item>
@@ -166,13 +213,25 @@ const HolidayList: React.FC = () => {
         footer={null}
       >
         <Form form={form} onFinish={handleEdit} layout="vertical">
-          <Form.Item name="name" label="Holiday Name" rules={[{ required: true }]}>
+          <Form.Item
+            name="name"
+            label="Holiday Name"
+            rules={[{ required: true }]}
+          >
             <Input />
           </Form.Item>
-          <Form.Item name="startDate" label="Start Date" rules={[{ required: true }]}>
+          <Form.Item
+            name="startDate"
+            label="Start Date"
+            rules={[{ required: true }]}
+          >
             <DatePicker className="w-full" />
           </Form.Item>
-          <Form.Item name="endDate" label="End Date" rules={[{ required: true }]}>
+          <Form.Item
+            name="endDate"
+            label="End Date"
+            rules={[{ required: true }]}
+          >
             <DatePicker className="w-full" />
           </Form.Item>
           <Form.Item>

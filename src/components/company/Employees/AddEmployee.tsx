@@ -22,6 +22,7 @@ import {
   getDesignations,
 } from "../../../api/company";
 import Title from "antd/es/typography/Title";
+import { toast } from "react-toastify";
 
 const { Option } = Select;
 
@@ -73,8 +74,8 @@ const AddEmployee: React.FC = () => {
     try {
       const response = await getDepartment();
       setDepartments(response.data);
-    } catch (error) {
-      message.error("Data not fetched");
+    } catch (error:any) {
+      message.error(error.message);
     }
   };
 
@@ -82,8 +83,8 @@ const AddEmployee: React.FC = () => {
     try {
       const response = await getDesignations();
       setDesignations(response.data);
-    } catch (error) {
-      message.error("Data not fetched");
+    } catch (error:any) {
+      message.error(error.message);
     }
   };
 
@@ -91,8 +92,8 @@ const AddEmployee: React.FC = () => {
     try {
       const response = await getAllWorkShifts();
       setWorkShifts(response.data);
-    } catch (error) {
-      message.error("Could not get shifts");
+    } catch (error:any) {
+      message.error(error.message);
     }
   };
 
@@ -181,9 +182,9 @@ const AddEmployee: React.FC = () => {
       console.log(response);
       message.success("Employee added successfully");
       navigate("/c/employees");
-    } catch (error) {
+    } catch (error:any) {
       console.error("Error adding employee:", error);
-      message.error("Failed to add employee");
+      toast.error(error.message);
     } finally {
       setLoading(false);
     }

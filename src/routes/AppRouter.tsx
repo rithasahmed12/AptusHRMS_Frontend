@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import AdminRoutes from "./AdminRoutes";
 import UserRoutes from "./UserRoutes";
-import CompanyRoutes from "./CompanyRoutes";
+import CompanyRoutes from "./CompanyRoutes/CompanyRoutes";
 
 const AppRouter = () => {
   const [tenantName, setTenantName] = useState<string | null>(null);

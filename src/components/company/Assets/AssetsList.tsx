@@ -8,6 +8,8 @@ import { useSelector } from 'react-redux';
 
 const AssetList: React.FC = () => {
   const {companyInfo} = useSelector((state:any)=> state.companyInfo);
+  const isAdminOrHR = companyInfo.role === "admin" || companyInfo.role === "hr";
+
   const { Option } = Select;
   const [assets, setAssets] = useState<Asset[]>([]);
   const [isRequestModalVisible, setIsRequestModalVisible] = useState(false);
@@ -70,11 +72,19 @@ const AssetList: React.FC = () => {
       key: 'action',
       render: (_:any, record: Asset) => (
         <Space size="middle">
+          {isAdminOrHR ?
+          <>
           <Link to={`/c/assets/edit/${record._id}`}>
             <Button icon={<EditOutlined />}>Edit</Button>
           </Link>
-          <Button icon={<SwapOutlined />} onClick={() => showRequestModal(record)}>Request</Button>
           <Button onClick={() => showAssignModal(record)}>Assign</Button>
+          </> : 
+          <>
+          <Button icon={<SwapOutlined />} onClick={() => showRequestModal(record)}>Request</Button>
+          </>
+          }
+          
+          
         </Space>
       ),
     },
@@ -128,11 +138,13 @@ const AssetList: React.FC = () => {
   return (
     <div className="p-6">
     <h1 className="text-2xl font-bold mb-4">Company Assets</h1>
+    {isAdminOrHR &&
       <Link to="/c/assets/add">
         <Button icon={<PlusOutlined />} className="mb-4">
           Add New Asset
         </Button>
       </Link>
+    }
       <Table columns={columns} dataSource={assets} rowKey="id" />
 
 

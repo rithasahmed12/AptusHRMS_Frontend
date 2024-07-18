@@ -4,6 +4,7 @@ import { Tabs, Button, Row, Col, Spin, message, Card, Typography } from "antd";
 import { EditOutlined, LinkedinOutlined, WhatsAppOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { getCompanyInfo } from "../../../../api/company";
+import { useSelector } from "react-redux";
 
 const { Text, Title } = Typography;
 
@@ -21,6 +22,11 @@ interface Company {
 }
 
 const CompanyProfile: React.FC = () => {
+  const userRole = useSelector(
+    (state: any) => state.companyInfo.companyInfo.role
+  );
+  const isAdminOrHR = userRole === "admin" || userRole === "hr";
+
   const [company, setCompany] = useState<Company | null>(null);
   const [loading, setLoading] = useState(true);
   const { id } = useParams<{ id: string }>();
@@ -83,6 +89,7 @@ const CompanyProfile: React.FC = () => {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <Title level={3}>Company Profile</Title>
             <div>
+              {isAdminOrHR &&
               <Button
                 style={{ marginRight: '8px' }}
                 type="primary"
@@ -91,6 +98,7 @@ const CompanyProfile: React.FC = () => {
               >
                 Edit Company
               </Button>
+          }
               <Button onClick={goBack}>Go Back</Button>
             </div>
           </div>

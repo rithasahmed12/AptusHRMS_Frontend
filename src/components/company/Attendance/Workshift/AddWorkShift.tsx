@@ -2,6 +2,7 @@ import React from 'react';
 import { Form, Input, Button, Checkbox, TimePicker, InputNumber, message } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 import { createWorkShift } from '../../../../api/company';
+import { toast } from 'react-toastify';
 
 const AddWorkShift: React.FC = () => {
   const [form] = Form.useForm();
@@ -24,9 +25,9 @@ const AddWorkShift: React.FC = () => {
       } else {
         message.error('Failed to add work shift');
       }
-    } catch (error) {
+    } catch (error:any) {
       console.error('Error adding work shift:', error);
-      message.error('An error occurred while adding the work shift');
+      toast.error(error.message);
     }
   };
 

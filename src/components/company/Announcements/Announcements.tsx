@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ConfigProvider, Modal, Form, Input, Button, Tooltip } from "antd";
+import { ConfigProvider, Modal, Form, Input, Button, Tooltip, message } from "antd";
 import { EditOutlined, DeleteOutlined, EyeOutlined } from "@ant-design/icons";
 import {
   AnnoucementmarkAsRead,
@@ -10,6 +10,7 @@ import {
 } from "../../../api/company";
 import { toast } from "react-toastify";
 import { format } from "date-fns";
+import { useSelector } from "react-redux";
 
 interface Annoucement {
   _id: string;
@@ -21,6 +22,7 @@ interface Annoucement {
 }
 
 const Announcements: React.FC = () => {
+  const userRole = useSelector((state: any) => state.companyInfo.companyInfo.role);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -76,17 +78,13 @@ const Announcements: React.FC = () => {
       };
 
       const response = await addAnnouncements(body);
-
-      console.log(response);
-
-      if (response.status === 201) {
         setAnnouncements([response.data.announcement, ...announcements]);
         setIsAddModalOpen(false);
         form.resetFields();
         toast.success(response.data.message);
-      }
-    } catch (error) {
-      toast.error("Failed to add announcement!");
+      
+    } catch (error:any) {
+      toast.error(error.message);
     }
   };
 
@@ -127,9 +125,8 @@ const Announcements: React.FC = () => {
     try {
       if (deletingAnnouncement) {
         // Assuming you have a deleteAnnouncement API function
-        const response = await deleteAnnouncement(deletingAnnouncement._id);
+         await deleteAnnouncement(deletingAnnouncement._id);
 
-        if (response.status === 200) {
           const updatedAnnouncements = announcements.filter(
             (a: Annoucement) => a._id !== deletingAnnouncement._id
           );
@@ -137,10 +134,10 @@ const Announcements: React.FC = () => {
           setIsDeleteModalOpen(false);
           setDeletingAnnouncement(null);
           toast.success("Announcement deleted successfully");
-        }
+        
       }
-    } catch (error) {
-      toast.error("Failed to delete announcement!");
+    } catch (error:any) {
+      toast.error(error.message);
     }
   };
 
@@ -161,9 +158,8 @@ const Announcements: React.FC = () => {
         author: companyInfo.email,
       };
 
-      const response = await editAnnouncement(editingAnnouncement?._id, body);
+      await editAnnouncement(editingAnnouncement?._id, body);
 
-      if (response.status === 200) {
         const updatedAnnouncements = announcements.map((a: Annoucement) =>
           a._id === editingAnnouncement?._id ? { ...a, ...values } : a
         );
@@ -172,9 +168,9 @@ const Announcements: React.FC = () => {
         setEditingAnnouncement(null);
         form.resetFields();
         toast.success("Announcement updated successfully");
-      }
-    } catch (error) {
-      toast.error("Failed to update announcement!");
+      
+    } catch (error:any) {
+      toast.error(error.message);
     }
   };
 
@@ -214,85 +210,92 @@ const Announcements: React.FC = () => {
 
   return (
     <div className="p-4 flex-1">
-      <div className="flex justify-between items-center mb-6">
+     <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold">Announcements</h1>
-        <ConfigProvider theme={modalTheme}>
-          <Button
-            className="bg-black text-white rounded-md px-3 py-1 hover:bg-slate-700 duration-300"
-            onClick={showAddModal}
-          >
-            Add Announcement
-          </Button>
-        </ConfigProvider>
+        {(userRole === 'admin' || userRole === 'hr') && (
+          <ConfigProvider theme={modalTheme}>
+            <Button
+              className="bg-black text-white rounded-md px-3 py-1 hover:bg-slate-700 duration-300"
+              onClick={showAddModal}
+            >
+              Add Announcement
+            </Button>
+          </ConfigProvider>
+        )}
       </div>
 
       <div className="bg-white p-6 rounded-md shadow-lg mb-6">
-  <h2 className="text-xl font-medium mb-4">Latest Announcements</h2>
-  {isLoading ? (
-    <p>Loading announcements...</p>
-  ) : announcements.length > 0 ? (
-    <div className="space-y-4">
-      {announcements.map((announcement: Annoucement) => (
-        <div
-          key={announcement._id}
-          className={`p-4 rounded-md ${
-            announcement.read ? "bg-gray-100" : "bg-blue-100"
-          }`}
-        >
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">{announcement.title}</h3>
-            <div className="flex space-x-2">
-              <Tooltip title="Edit">
-                <Button
-                  type="text"
-                  icon={<EditOutlined />}
-                  onClick={() => showEditModal(announcement)}
-                >
-                  Edit
-                </Button>
-              </Tooltip>
-              <Tooltip title="Delete">
-                <Button
-                  type="text"
-                  danger
-                  icon={<DeleteOutlined />}
-                  onClick={() => showDeleteModal(announcement)}
-                >
-                  Delete
-                </Button>
-              </Tooltip>
-              <Tooltip title="View More">
-                <Button
-                  type="text"
-                  icon={<EyeOutlined />}
-                  onClick={() => showViewModal(announcement)}
-                >
-                  View More
-                </Button>
-              </Tooltip>
-            </div>
+        <h2 className="text-xl font-medium mb-4">Latest Announcements</h2>
+        {isLoading ? (
+          <p>Loading announcements...</p>
+        ) : announcements.length > 0 ? (
+          <div className="space-y-4">
+            {announcements.map((announcement: Annoucement) => (
+              <div
+                key={announcement._id}
+                className={`p-4 rounded-md ${
+                  announcement.read ? "bg-gray-100" : "bg-blue-100"
+                }`}
+              >
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold">{announcement.title}</h3>
+                  <div className="flex space-x-2">
+                    {(userRole === 'admin' || userRole === 'hr') && (
+                      <>
+                        <Tooltip title="Edit">
+                          <Button
+                            type="text"
+                            icon={<EditOutlined />}
+                            onClick={() => showEditModal(announcement)}
+                          >
+                            Edit
+                          </Button>
+                        </Tooltip>
+                        <Tooltip title="Delete">
+                          <Button
+                            type="text"
+                            danger
+                            icon={<DeleteOutlined />}
+                            onClick={() => showDeleteModal(announcement)}
+                          >
+                            Delete
+                          </Button>
+                        </Tooltip>
+                      </>
+                    )}
+                    <Tooltip title="View More">
+                      <Button
+                        type="text"
+                        icon={<EyeOutlined />}
+                        onClick={() => showViewModal(announcement)}
+                      >
+                        View More
+                      </Button>
+                    </Tooltip>
+                    {!announcement.read && (
+                  <Button
+                    type="link"
+                    onClick={() => handleMarkAsRead(announcement._id)}
+                  >
+                    Mark as Read
+                  </Button>
+                )}
+                  </div>
+                </div>
+                <p className="text-gray-700">
+                  {truncateText(announcement.details, 40)}
+                </p>
+                <p className="text-gray-500 text-sm">
+                  Posted on: {format(new Date(announcement.createdAt), "PPpp")}
+                </p>
+           
+              </div>
+            ))}
           </div>
-          <p className="text-gray-700">
-            {truncateText(announcement.details, 40)}
-          </p>
-          <p className="text-gray-500 text-sm">
-            Posted on: {format(new Date(announcement.createdAt), "PPpp")}
-          </p>
-          {!announcement.read && (
-            <Button
-              type="link"
-              onClick={() => handleMarkAsRead(announcement._id)}
-            >
-              Mark as Read
-            </Button>
-          )}
-        </div>
-      ))}
-    </div>
-  ) : (
-    <p>No announcements available.</p>
-  )}
-</div>
+        ) : (
+          <p>No announcements available.</p>
+        )}
+      </div>
 
       <ConfigProvider theme={modalTheme}>
         {/* Modal for adding announcements */}

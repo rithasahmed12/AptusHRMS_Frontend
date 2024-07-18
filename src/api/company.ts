@@ -67,6 +67,9 @@ export const companyLogin = async (body: { email: string; password: string }) =>
   }
 };
 
+
+// Announcements ********************************************** //
+
 interface Annoucement{
   title: string,
   details:string,
@@ -77,8 +80,8 @@ export const addAnnouncements = async (body:Annoucement)=>{
   try {
     const response = await CompanyApi.post(companyRoutes.announcements,body);
     return response;
-  } catch (error:any) {
-    return error.response;
+  } catch (error:any) { 
+    throw new Error(error.response.data.message);
   }
 }
 
@@ -105,7 +108,7 @@ export const editAnnouncement = async(id:string|undefined,body:Annoucement)=>{
     const response = await CompanyApi.put(companyRoutes.Announcements(id),body);
     return response;
   } catch (error:any) {
-    return error.response;
+    throw new Error(error.response.data.message);
   }
 }
 
@@ -114,16 +117,19 @@ export const deleteAnnouncement = async(id:string)=>{
     const response = await CompanyApi.delete(companyRoutes.Announcements(id));
     return response;
   } catch (error:any) {
-    return error.response;
+    throw new Error(error.response.data.message);
   }
 }
+
+
+// Department ********************************************** //
 
 export const getDepartment = async()=>{
   try {
     const response = await CompanyApi.get(companyRoutes.department);
     return response;
   } catch (error:any) {
-    throw Error;
+    throw new Error(error.response.data.message);
   }
 }
 
@@ -137,7 +143,7 @@ export const createDepartment = async (body:Department)=>{
     const response = await CompanyApi.post(companyRoutes.department,body);
     return response;
   } catch (error:any) {
-    return error.response;
+    throw new Error(error.response.data.message);
   }
 }
 
@@ -146,7 +152,7 @@ export const editDepartment = async(id:string|undefined,body:Department)=>{
     const response = await CompanyApi.put(companyRoutes.Department(id),body);
     return response;
   } catch (error:any) {
-    return error.response;
+    throw new Error(error.response.data.message);
   }
 }
 
@@ -155,9 +161,12 @@ export const deleteDepartment = async(id:string)=>{
     const response = await CompanyApi.delete(companyRoutes.Department(id));
     return response;
   } catch (error:any) {
-    return error.response;
+    throw new Error(error.response.data.message);
   }
 }
+
+
+// Designation ********************************************** //
 
 interface Designation {
   name: string;
@@ -169,7 +178,7 @@ export const createDesignation = async (designation:Designation) => {
     const response = await CompanyApi.post(companyRoutes.designation, designation);
     return response;
   } catch (error:any) {
-    return error.response;
+    throw new Error(error.response.data.message);
   }
 };
 
@@ -178,7 +187,7 @@ export const deleteDesignation = async (id:string) => {
     const response = await CompanyApi.delete(companyRoutes.Designation(id));
     return response;
   } catch (error:any) {
-    return error.response;
+    throw new Error(error.response.data.message);
   }
 };
 
@@ -187,7 +196,7 @@ export const editDesignation = async (id:string|undefined, designation:Designati
     const response = await CompanyApi.put(companyRoutes.Designation(id), designation);
     return response;
   } catch (error:any) {
-    return error.response;
+    throw new Error(error.response.data.message);
   }
 };
 
@@ -196,10 +205,12 @@ export const getDesignations = async () => {
     const response = await CompanyApi.get(companyRoutes.designation);
     return response;
   } catch (error:any) {
-    return error.response;
+    throw new Error(error.response.data.message);
   }
 };
 
+
+// Employee Management ********************************************** //
 
 export const createEmployee = async (formData: FormData) => {
   try {
@@ -213,7 +224,7 @@ export const createEmployee = async (formData: FormData) => {
     return response;
   } catch (error: any) {
     console.error('Error in createEmployee:', error.response?.data || error.message);
-    throw error;
+    throw new Error(error.response.data.message);
   }
 };
 
@@ -221,9 +232,9 @@ export const getEmployees = async()=>{
   try {
     const response = await CompanyApi.get(companyRoutes.employee);
     return response 
-  } catch (error) {
+  } catch (error:any) {
     console.log(error);
-    throw Error;
+    throw new Error(error.response.data.message);
   }
 }
 
@@ -231,8 +242,8 @@ export const getEmployee = async(id:string)=>{
   try {
     const response = await CompanyApi.get(companyRoutes.Employee(id));
     return response;
-  } catch (error) {
-    throw Error;
+  } catch (error:any) {
+    throw new Error(error.response.data.message);
   } 
 }
 
@@ -245,9 +256,9 @@ export const updateEmployee = async(id:string,formData:FormData)=>{
       }
     });
     return response;
-  } catch (error) {
+  } catch (error:any) {
     console.log(error); 
-    throw Error;
+    throw new Error(error.response.data.message);
   } 
 }
 
@@ -255,12 +266,15 @@ export const deleteEmployee = async(id:string)=>{
   try {
     const response = await CompanyApi.delete(companyRoutes.Employee(id));
     return response;
-  } catch (error) {
-    throw Error;
+  } catch (error:any) {
+    throw new Error(error.response.data.message);
   } 
 }
 
+// Project ********************************************** //
+
 interface Project {
+  _id?:string;
   name: string;
   description: string;
   status: "Not Started" | "In Progress" | "Completed";
@@ -280,9 +294,9 @@ export const createProject = async (body: Omit<Project, '_id'>) => {
       },
     });
     return response;
-  } catch (error) {
+  } catch (error:any) {
     console.log('ERROR:', error);
-    throw new Error("Failed to create project");
+    throw new Error(error.response.data.message);
   }
 };
 
@@ -291,9 +305,8 @@ export const getProjects = async()=>{
   try {
     const response = await CompanyApi.get(companyRoutes.project);
     return response;
-  } catch (error) {
-    console.log(error);
-    throw Error;
+  } catch (error:any) {
+    throw new Error(error.response.data.message);
   }
 }
 
@@ -302,9 +315,8 @@ export const editProject = async (id: string, body: Project) => {
     console.log('body:',body);
     const response = await CompanyApi.put(companyRoutes.Project(id), body);
     return response;
-  } catch (error) {
-    console.log(error);
-    throw new Error("Failed to edit project");
+  } catch (error:any) {
+    throw new Error(error.response.data.message);
   }
 };
 
@@ -312,11 +324,13 @@ export const deleteProject = async(id:string)=>{
   try {
     const response = await CompanyApi.delete(companyRoutes.Project(id));
     return response;
-  } catch (error) {
-    console.log(error);
-    throw Error;
+  } catch (error:any) {
+    throw new Error(error.response.data.message);
   }
 }
+
+
+// Forget Password ********************************************** //
 
 export const sentOTP = async(email:string) => {
   try{
@@ -350,6 +364,8 @@ export const changePassword = async(body:{email:string,newPassword:string})=>{
 }
 }
 
+// Company info ********************************************** //
+
 export const getCompanyInfo = async()=>{
   try {
     const response = await CompanyApi.get(companyRoutes.company);
@@ -366,12 +382,13 @@ export const companyDataUpsert = async(formData:FormData)=>{
       headers:{'Content-Type': 'multipart/form-data'},
     });
     return response;
-  } catch (error) {
+  } catch (error:any) {
     console.log(error);
-    throw Error;
+    throw new Error(error.response.data.message);
   }
 }
 
+// Workshift ********************************************** //
 
 interface WorkShift {
   shiftName: string;
@@ -388,7 +405,7 @@ export const getAllWorkShifts = async () => {
     const response = await CompanyApi.get(companyRoutes.workShift);
     return response;
   } catch (error: any) {
-    return error.response;
+    throw new Error(error.response.data.message);
   }
 };
 
@@ -397,7 +414,7 @@ export const getWorkShift = async (id: string|undefined) => {
     const response = await CompanyApi.get(companyRoutes.WorkShift(id));
     return response;
   } catch (error: any) {
-    return error.response;
+    throw new Error(error.response.data.message);
   }
 };
 
@@ -406,7 +423,7 @@ export const createWorkShift = async (workShift: WorkShift) => {
     const response = await CompanyApi.post(companyRoutes.workShift, workShift);
     return response;
   } catch (error: any) {
-    return error.response;
+    throw new Error(error.response.data.message);
   }
 };
 
@@ -415,7 +432,7 @@ export const editWorkShift = async (id: string|undefined, workShift: Partial<Wor
     const response = await CompanyApi.put(companyRoutes.WorkShift(id), workShift);
     return response;
   } catch (error: any) {
-    return error.response;
+    throw new Error(error.response.data.message);
   }
 };
 
@@ -424,9 +441,11 @@ export const deleteWorkShift = async (id: string) => {
     const response = await CompanyApi.delete(companyRoutes.WorkShift(id));
     return response;
   } catch (error: any) {
-    return error.response;
+    throw new Error(error.response.data.message);
   }
 };
+
+// Holidays ********************************************** //
 
 export interface Holiday {
   _id: string;
@@ -440,7 +459,7 @@ export const getAllHolidays = async () => {
     const response = await CompanyApi.get(companyRoutes.holiday);
     return response;
   } catch (error: any) {
-    return error.response;
+    throw new Error(error.response.data.message);
   }
 };
 
@@ -449,7 +468,7 @@ export const createHoliday = async (holiday: Omit<Holiday, '_id'>) => {
     const response = await CompanyApi.post(companyRoutes.holiday, holiday);
     return response;
   } catch (error: any) {
-    return error.response;
+    throw new Error(error.response.data.message);
   }
 };
 
@@ -458,7 +477,7 @@ export const updateHoliday = async (id: string|undefined, holiday: Partial<Omit<
     const response = await CompanyApi.put(companyRoutes.Holiday(id), holiday);
     return response;
   } catch (error: any) {
-    return error.response;
+    throw new Error(error.response.data.message);
   }
 };
 
@@ -467,9 +486,11 @@ export const deleteHoliday = async (id: string) => {
     const response = await CompanyApi.delete(companyRoutes.Holiday(id));
     return response;
   } catch (error: any) {
-    return error.response;
+    throw new Error(error.response.data.message);
   }
 };
+
+// Leave ********************************************** //
 
 export interface LeaveType {
   _id: string;
@@ -483,7 +504,7 @@ export const getAllLeaveTypes = async () => {
     const response = await CompanyApi.get(companyRoutes.leaveType);
     return response;
   } catch (error: any) {
-    return error.response;
+    throw new Error(error.response.data.message);
   }
 };
 
@@ -492,7 +513,7 @@ export const createLeaveType = async (leaveType: Omit<LeaveType, '_id'>) => {
     const response = await CompanyApi.post(companyRoutes.leaveType, leaveType);
     return response;
   } catch (error: any) {
-    return error.response;
+    throw new Error(error.response.data.message);
   }
 };
 
@@ -501,7 +522,7 @@ export const updateLeaveType = async (id: string|undefined, leaveType: Partial<O
     const response = await CompanyApi.put(companyRoutes.LeaveType(id), leaveType);
     return response;
   } catch (error: any) {
-    return error.response;
+    throw new Error(error.response.data.message);
   }
 };
 
@@ -510,9 +531,60 @@ export const deleteLeaveType = async (id: string) => {
     const response = await CompanyApi.delete(companyRoutes.LeaveType(id));
     return response;
   } catch (error: any) {
-    return error.response;
+    throw new Error(error.response.data.message);
   }
 };
+
+export const getAllLeaveRequests = async () => {
+  try {
+    const response = await CompanyApi.get(companyRoutes.leaveRequest);
+    return response;
+  } catch (error) {
+    console.log(error);
+    throw new Error(error.response.data.message);
+  }
+};
+
+interface LeaveRequestData {
+  leaveTypeId: string;
+  startDate: string;
+  endDate: string;
+  reason: string;
+  userId: string;
+}
+
+export const submitLeaveRequest = async (leaveData: LeaveRequestData) => {
+  try {
+    console.log('leaveData:',leaveData);
+    
+    const response = await CompanyApi.post(companyRoutes.leaveRequest, leaveData);
+    return response;
+  } catch (error: any) {
+    console.log('ERROR:',error);
+    
+    throw new Error(error.response.data.message);
+  }
+};
+
+export const updateLeaveRequestStatus = async (requestId: string, status: string) => {
+  try {
+    const response = await CompanyApi.put(companyRoutes.updateLeaveRequestStatus(requestId), { status });
+    return response;
+  } catch (error: any) {
+    throw new Error(error.response.data.message);
+  }
+};
+
+export const getEmployeeLeaveDays = async (employeeId: string) => {
+  try {
+    const response = await CompanyApi.get(companyRoutes.employeeLeaveDays(employeeId));
+    return response;
+  } catch (error: any) {
+    throw new Error(error.response.data.message);
+  }
+};
+
+
 
 export interface Asset {
   _id: string;
@@ -616,54 +688,7 @@ export const updateAssetRequestStatus = async (id: string, status: 'Approved' | 
 
 // api/company.ts
 
-export const getAllLeaveRequests = async () => {
-  try {
-    const response = await CompanyApi.get(companyRoutes.leaveRequest);
-    return response;
-  } catch (error) {
-    console.log(error);
-    throw Error;
-  }
-};
 
-interface LeaveRequestData {
-  leaveTypeId: string;
-  startDate: string;
-  endDate: string;
-  reason: string;
-  userId: string;
-}
-
-export const submitLeaveRequest = async (leaveData: LeaveRequestData) => {
-  try {
-    console.log('leaveData:',leaveData);
-    
-    const response = await CompanyApi.post(companyRoutes.leaveRequest, leaveData);
-    return response;
-  } catch (error: any) {
-    console.log('ERROR:',error);
-    
-    throw Error;
-  }
-};
-
-export const updateLeaveRequestStatus = async (requestId: string, status: string) => {
-  try {
-    const response = await CompanyApi.put(companyRoutes.updateLeaveRequestStatus(requestId), { status });
-    return response;
-  } catch (error: any) {
-    return error.response;
-  }
-};
-
-export const getEmployeeLeaveDays = async (employeeId: string) => {
-  try {
-    const response = await CompanyApi.get(companyRoutes.employeeLeaveDays(employeeId));
-    return response;
-  } catch (error: any) {
-    return error.response;
-  }
-};
 
 // In your API file (e.g., company.ts)
 

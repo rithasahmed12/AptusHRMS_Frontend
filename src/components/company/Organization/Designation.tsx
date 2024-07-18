@@ -60,9 +60,9 @@ const DesignationPage: React.FC = () => {
     try {
       const response = await getDesignations();
       setDesignations(response.data || []);
-    } catch (error) {
+    } catch (error:any) {
       console.error("Failed to fetch designations:", error);
-      toast.error("Failed to fetch designations");
+      toast.error(error.message);
       setDesignations([]);
     } finally {
       setIsLoading(false);
@@ -73,9 +73,9 @@ const DesignationPage: React.FC = () => {
     try {
       const response = await getDepartment();
       setDepartments(response.data || []);
-    } catch (error) {
+    } catch (error:any) {
       console.error("Failed to fetch departments:", error);
-      toast.error("Failed to fetch departments");
+      toast.error(error.message);
       setDepartments([]);
     }
   };
@@ -108,8 +108,8 @@ const DesignationPage: React.FC = () => {
       setIsAddModalOpen(false);
       form.resetFields();
       toast.success("Designation added successfully");
-    } catch (error) {
-      toast.error("Failed to add designation");
+    } catch (error:any) {
+      toast.error(error.message);
     }
   };
 
@@ -141,8 +141,7 @@ const DesignationPage: React.FC = () => {
   const handleDeleteOk = async () => {
     try {
       if (deletingDesignation) {
-        const response = await deleteDesignation(deletingDesignation._id);
-        if (response.status === 200) {
+         await deleteDesignation(deletingDesignation._id);
           setDesignations(
             designations.filter((d) => d._id !== deletingDesignation._id)
           );
@@ -150,9 +149,8 @@ const DesignationPage: React.FC = () => {
           setDeletingDesignation(null);
           toast.success("Designation deleted successfully");
         }
-      }
-    } catch (error) {
-      toast.error("Failed to delete designation");
+    } catch (error:any) {
+      toast.error(error.message);
     }
   };
 
@@ -164,8 +162,7 @@ const DesignationPage: React.FC = () => {
   const handleEditOk = async () => {
     try {
       const values = await form.validateFields();
-      const response = await editDesignation(editingDesignation?._id, values);
-      if (response.status === 200) {
+       await editDesignation(editingDesignation?._id, values);
         setDesignations(
           designations.map((d) =>
             d._id === editingDesignation?._id ? { ...d, ...values } : d
@@ -175,9 +172,8 @@ const DesignationPage: React.FC = () => {
         setEditingDesignation(null);
         form.resetFields();
         toast.success("Designation updated successfully");
-      }
-    } catch (error) {
-      toast.error("Failed to update designation");
+    } catch (error:any) {
+      toast.error(error.message);
     }
   };
 

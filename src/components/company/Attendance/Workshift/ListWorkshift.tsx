@@ -4,6 +4,8 @@ import { PlusOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { getAllWorkShifts, deleteWorkShift } from '../../../../api/company';
 import moment from 'moment';
+import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 
 interface WorkShift {
   key: string;
@@ -14,6 +16,9 @@ interface WorkShift {
 }
 
 const ListWorkshift: React.FC = () => {
+  const userRole = useSelector((state: any) => state.companyInfo.companyInfo.role);
+  const isAdminOrHR = userRole === 'admin' || userRole === 'hr';
+
   const [data, setData] = useState<WorkShift[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
@@ -36,7 +41,7 @@ const ListWorkshift: React.FC = () => {
       }
     } catch (error) {
       console.error('Error fetching work shifts:', error);
-      message.error('Failed to fetch data. Check your network connection');
+      toast.error('Failed to fetch data. Check your network connection');
     } finally {
       setLoading(false);
     }
@@ -76,9 +81,9 @@ const ListWorkshift: React.FC = () => {
         } else {
           message.error('Failed to delete work shift');
         }
-      } catch (error) {
+      } catch (error:any) {
         console.error('Error deleting work shift:', error);
-        message.error('An error occurred while deleting the work shift');
+       toast.error(error.message);
       } finally {
         setIsDeleteModalVisible(false);
         setWorkShiftToDelete(null);
@@ -112,7 +117,7 @@ const ListWorkshift: React.FC = () => {
       dataIndex: 'workingDays',
       key: 'workingDays',
     },
-    {
+     ...(isAdminOrHR ? [{
       title: 'Action',
       key: 'action',
       render: (_: any, record: WorkShift) => (
@@ -125,18 +130,20 @@ const ListWorkshift: React.FC = () => {
           </Button>
         </span>
       ),
-    },
+    }] : []),
   ];
 
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Work Shift</h1>
-        <Link to="/c/workshift/add">
-          <Button type="primary" icon={<PlusOutlined />}>
-            Add new Shift
-          </Button>
-        </Link>
+        {isAdminOrHR && (
+          <Link to="/c/workshift/add">
+            <Button type="primary" icon={<PlusOutlined />}>
+              Add new Shift
+            </Button>
+          </Link>
+        )}
       </div>
       <Table columns={columns} dataSource={data} loading={loading} />
       <Modal

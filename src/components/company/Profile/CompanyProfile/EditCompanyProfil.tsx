@@ -18,6 +18,7 @@ import dayjs from "dayjs";
 import { companyDataUpsert, getCompanyInfo } from "../../../../api/company";
 import { useDispatch, useSelector } from "react-redux";
 import { setCompanyInfo } from "../../../../redux/slices/companySlice/companySlice";
+import { toast } from "react-toastify";
 
 
 const { TextArea } = Input;
@@ -145,9 +146,6 @@ const EditCompanyProfile: React.FC = () => {
 
       const response = await companyDataUpsert(formData);
 
-      console.log("reponse:", response);
-
-      if (response.status === 201) {
         dispatch(setCompanyInfo({
           ...companyInfo,
           companyName:response.data.name,
@@ -155,12 +153,11 @@ const EditCompanyProfile: React.FC = () => {
         }));
         message.success("Company profile updated successfully");
         navigate(`/c/profile/${id}/company`);
-      } else {
-        throw new Error("Failed to update company profile");
-      }
-    } catch (error) {
+      
+    } catch (error:any) {
       console.error("Error updating company:", error);
-      message.error("Failed to update company profile");
+      toast.error(error.message);
+
     } finally {
       setLoading(false);
     }

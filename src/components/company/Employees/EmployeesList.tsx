@@ -4,6 +4,8 @@ import { EditOutlined, DeleteOutlined, EyeOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { deleteEmployee, getEmployees } from "../../../api/company";
 import { format } from "date-fns";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 interface Designation {
   _id: string;
@@ -43,6 +45,7 @@ interface Employee {
 }
 
 const EmployeeList: React.FC = () => {
+  const userRole = useSelector((state: any) => state.companyInfo.companyInfo.role); 
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [deletingEmployee, setDeletingEmployee] = useState<Employee | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -82,8 +85,8 @@ const EmployeeList: React.FC = () => {
         setDeletingEmployee(null);
         message.success("Employee deleted successfully");
       }
-    } catch (error) {
-      message.error("Failed to delete employee");
+    } catch (error:any) {
+      toast.error(error.message);
     }
   };
 
@@ -141,8 +144,7 @@ const EmployeeList: React.FC = () => {
       key: "joiningDate",
       render: (joiningDate: Date) => joiningDate ? format(new Date(joiningDate), 'dd/MM/yyyy') : '',
     },
-    // ... rest of the columns remain the same
-    {
+    ...(userRole === 'admin' || userRole === 'hr' ? [{
       title: "Action",
       key: "action",
       render: (text: any, record: Employee) => (
@@ -158,7 +160,7 @@ const EmployeeList: React.FC = () => {
           </Button>
         </Space>
       ),
-    },
+    }] : []),
   ];
 
   const handleAddEmployee = () => {
@@ -177,9 +179,11 @@ const EmployeeList: React.FC = () => {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold">Employee List</h1>
+         {(userRole === 'admin' || userRole === 'hr') && (
         <Button type="primary" onClick={handleAddEmployee}>
           Add Employee
         </Button>
+      )}
       </div>
 
       <Table columns={columns} dataSource={employees} rowKey="_id" />

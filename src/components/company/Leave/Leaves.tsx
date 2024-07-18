@@ -3,11 +3,15 @@ import { Table, Button, Modal, Form, Input, InputNumber, Select, message, DatePi
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { LeaveType, getAllLeaveTypes, createLeaveType, updateLeaveType, deleteLeaveType, submitLeaveRequest, } from '../../../api/company';
 import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 
 const { RangePicker } = DatePicker;
 
 const LeaveTypeList: React.FC = () => {
   const {companyInfo} = useSelector((state:any)=>state.companyInfo);
+
+  const isAdminOrHR = companyInfo.role === "admin" || companyInfo.role === "hr";
+
   const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>([]);
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
@@ -31,7 +35,7 @@ const LeaveTypeList: React.FC = () => {
         message.error('Failed to fetch leave types');
       }
     } catch (error) {
-      message.error('Failed to fetch leave types');
+      toast.error('Failed to fetch leave types');
     }
   };
 
@@ -44,12 +48,16 @@ const LeaveTypeList: React.FC = () => {
       key: 'action',
       render: (_: any, record: LeaveType) => (
         <span className='flex gap-3 '>
+          {isAdminOrHR &&
+          <>
           <Button icon={<EditOutlined />} onClick={() => showEditModal(record)}>
             Edit
           </Button>
           <Button icon={<DeleteOutlined />} onClick={() => showDeleteModal(record)} danger>
             Delete
           </Button>
+          </>
+          }
           <Button onClick={() => showApplyModal(record)}>
             Apply
           </Button>
@@ -90,8 +98,8 @@ const LeaveTypeList: React.FC = () => {
       } else {
         message.error('Failed to add leave type');
       }
-    } catch (error) {
-      message.error('Failed to add leave type');
+    } catch (error:any) {
+      toast.error(error.message);
     }
   };
 
@@ -106,8 +114,8 @@ const LeaveTypeList: React.FC = () => {
         } else {
           message.error('Failed to update leave type');
         }
-      } catch (error) {
-        message.error('Failed to update leave type');
+      } catch (error:any) {
+        toast.error(error.message)
       }
     }
   };
@@ -123,8 +131,8 @@ const LeaveTypeList: React.FC = () => {
         } else {
           message.error('Failed to delete leave type');
         }
-      } catch (error) {
-        message.error('Failed to delete leave type');
+      } catch (error:any) {
+        toast.error(error.message);
       }
     } 
   };
@@ -155,9 +163,11 @@ const LeaveTypeList: React.FC = () => {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Leave Type</h1>
+      {isAdminOrHR && 
       <Button icon={<PlusOutlined />} onClick={showAddModal} className="mb-4 mr-2">
         Add Leave Type
       </Button>
+      }
       <Button onClick={() => showApplyModal()} className="mb-4">
         Apply for Leave
       </Button>

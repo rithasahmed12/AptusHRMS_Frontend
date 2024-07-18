@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Input, Select, message, Tag, Space, Image } from 'antd';
 import { CheckOutlined, CloseOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { getAllAssetApplications, updateAssetRequestStatus } from '../../../api/company'; // Update the import path as needed
+import { useSelector } from 'react-redux';
 
 const { Option } = Select;
 const { confirm } = Modal;
@@ -25,6 +26,9 @@ interface AssetApplication {
 }
 
 const AssetsApplication: React.FC = () => {
+  const { companyInfo } = useSelector((state: any) => state.companyInfo);
+  const isAdminOrHR = companyInfo.role === "admin" || companyInfo.role === "hr";
+
   const [applications, setApplications] = useState<AssetApplication[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState<AssetApplication | null>(null);
@@ -90,7 +94,7 @@ const AssetsApplication: React.FC = () => {
         </Tag>
       ),
     },
-    {
+    ...isAdminOrHR ? [{
       title: 'Action',
       key: 'action',
       render: (_: any, record: AssetApplication) => (
@@ -114,7 +118,7 @@ const AssetsApplication: React.FC = () => {
           <Button onClick={() => showModal(record)}>View Details</Button>
         </Space>
       ),
-    },
+    }]:[],
   ]
 
   const showConfirm = (action: 'approve' | 'reject', application: AssetApplication) => {

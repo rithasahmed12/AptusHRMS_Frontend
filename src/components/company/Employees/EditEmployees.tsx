@@ -23,6 +23,7 @@ import {
   getAllWorkShifts,
 } from "../../../api/company";
 import Title from "antd/es/typography/Title";
+import { toast } from "react-toastify";
 
 const { Option } = Select;
 
@@ -226,9 +227,9 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
       console.log(response);
       message.success("Employee updated successfully");
       navigate("/c/employees");
-    } catch (error) {
+    } catch (error:any) {
       console.error("Error updating employee:", error);
-      message.error("Failed to update employee");
+      toast.error(error.message);
     } finally {
       setLoading(false);
     }

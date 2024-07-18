@@ -39,12 +39,14 @@ interface SidebarProps {
   isSidebarExpanded: boolean;
   toggleSidebar: () => void;
   companyLogo?: string;
+  userRole: 'admin' | 'hr' | 'se' | 'me' | 'je'; // Add this line
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
   isSidebarExpanded,
   toggleSidebar,
   companyLogo,
+  userRole
 }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -55,6 +57,9 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isRecruitmentOpen, setIsRecruitmentOpen] = useState(false);
   const [isPayrollOpen, setIsPayrollOpen] = useState(false);
+
+  const isAdmin = userRole === 'admin';
+  const isHR = userRole === 'hr';
 
   const showModal = () => {
     setIsModalVisible(true);
@@ -205,6 +210,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             )}
           </NavLink>
 
+          {isAdmin &&  
           <div>
             <button
               onClick={() => setIsOrgOpen(!isOrgOpen)}
@@ -257,6 +263,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               </div>
             )}
           </div>
+          }
 
           <div>
             <button
@@ -285,6 +292,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             </button>
             {isLeaveOpen && isSidebarExpanded && (
               <div className="pl-8 space-y-1">
+                {isAdmin &&
                 <NavLink
                   to="/c/workshift"
                   className={({ isActive }) =>
@@ -297,6 +305,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 >
                   <FieldTimeOutlined style={{ fontSize: "16px" }} /> Workshift
                 </NavLink>
+                }
                 <NavLink
                   to="/c/attendance"
                   className={({ isActive }) =>
@@ -505,7 +514,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               </div>
             )}
           </div>
-
+          {(isAdmin || isHR) && (
           <div>
             <button
               onClick={() => setIsRecruitmentOpen(!isRecruitmentOpen)}
@@ -574,6 +583,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               </div>
             )}
           </div>
+          )}
         </nav>
 
         <button

@@ -45,7 +45,8 @@ const LoginPages = () => {
         token: response.data.accessToken,
         profilePic:response.data.profilePic,
         logo:response.data.logo,
-        companyName:response.data.companyName
+        companyName:response.data.companyName,
+        role:response.data.role,
       }));
       navigate('/c/dashboard');
     } else {
