@@ -5,6 +5,7 @@ import { EditOutlined, PlusOutlined, SwapOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { Asset, getAllAssets, assignAsset, requestAsset, getEmployees } from '../../../api/company';
 import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 
 const AssetList: React.FC = () => {
   const {companyInfo} = useSelector((state:any)=> state.companyInfo);
@@ -128,8 +129,8 @@ const AssetList: React.FC = () => {
         } else {
           message.error('Failed to assign asset');
         }
-      } catch (error) {
-        message.error('Failed to assign asset');
+      } catch (error:any) {
+        toast.error(error.message);
       }
     }
     setIsAssignModalVisible(false);

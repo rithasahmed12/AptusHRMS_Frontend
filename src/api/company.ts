@@ -539,7 +539,7 @@ export const getAllLeaveRequests = async () => {
   try {
     const response = await CompanyApi.get(companyRoutes.leaveRequest);
     return response;
-  } catch (error) {
+  } catch (error:any) {
     console.log(error);
     throw new Error(error.response.data.message);
   }
@@ -585,6 +585,7 @@ export const getEmployeeLeaveDays = async (employeeId: string) => {
 };
 
 
+// Assets ********************************************** //
 
 export interface Asset {
   _id: string;
@@ -600,7 +601,7 @@ export const getAllAssets = async () => {
     const response = await CompanyApi.get(companyRoutes.asset);
     return response;
   } catch (error: any) {
-    return error.response;
+    throw new Error(error.response.data.message);
   }
 };
 
@@ -611,7 +612,7 @@ export const createAsset = async (asset: FormData) => {
     });
     return response;
   } catch (error: any) {
-    return error.response;
+    throw new Error(error.response.data.message);
   }
 };
 
@@ -624,7 +625,7 @@ export const updateAsset = async (id: string|undefined, asset: FormData) => {
     return response;
   } catch (error: any) {
     console.log(error);
-    return error.response;
+    throw new Error(error.response.data.message);
   }
 };
 
@@ -633,7 +634,7 @@ export const deleteAsset = async (id: string) => {
     const response = await CompanyApi.delete(companyRoutes.Asset(id));
     return response;
   } catch (error: any) {
-    return error.response;
+    throw new Error(error.response.data.message);
   }
 };
 
@@ -642,7 +643,7 @@ export const assignAsset = async (id: string, assignedTo: string) => {
     const response = await CompanyApi.put(companyRoutes.AssetAssign(id), { assignedTo });
     return response;
   } catch (error: any) {
-    return error.response;
+    throw new Error(error.response.data.message);
   }
 };
 
@@ -652,7 +653,7 @@ export const assignAsset = async (id: string, assignedTo: string) => {
       const response = await CompanyApi.put(companyRoutes.AssetRequest(assetId, userId));
       return response;
     } catch (error: any) {
-      return error.response;
+      throw new Error(error.response.data.message);
     }
   };
 
@@ -661,7 +662,7 @@ export const getAssetById = async (id: string|undefined) => {
     const response = await CompanyApi.get(companyRoutes.Asset(id));
     return response;
   } catch (error: any) {
-    return error.response;
+    throw new Error(error.response.data.message);
   }
 };
 
@@ -669,9 +670,8 @@ export const getAllAssetApplications = async()=>{
   try {
     const response = await CompanyApi.get(companyRoutes.assetRequest);
     return response;
-  } catch (error) {
-    console.log(error);
-    throw Error;
+  } catch (error:any) {
+    throw new Error(error.response.data.message);
     
   }
 }
@@ -680,17 +680,12 @@ export const updateAssetRequestStatus = async (id: string, status: 'Approved' | 
   try {
     const response = await CompanyApi.put(`${companyRoutes.assetRequest}/${id}/status`, { status });
     return response;
-  } catch (error) {
-    console.log(error);
-    throw error;
+  } catch (error:any) {
+    throw new Error(error.response.data.message);
   }
 };
 
-// api/company.ts
 
-
-
-// In your API file (e.g., company.ts)
 
 export const getAllJobs = async () => {
   try {

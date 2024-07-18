@@ -18,6 +18,7 @@ import {
   updateAsset,
 } from "../../../api/company";
 import Title from "antd/es/typography/Title";
+import { toast } from "react-toastify";
 
 const EditAsset: React.FC = () => {
   const { Option } = Select;
@@ -84,8 +85,8 @@ const EditAsset: React.FC = () => {
       } else {
         message.error("Failed to update asset");
       }
-    } catch (error) {
-      message.error("Failed to update asset");
+    } catch (error:any) {
+      toast.error(error.message);
     } finally {
       setLoading(false);
     }

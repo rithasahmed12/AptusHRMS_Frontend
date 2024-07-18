@@ -140,8 +140,8 @@ const AssetsApplication: React.FC = () => {
       );
       setApplications(updatedApplications);
       message.success(`Application ${newStatus.toLowerCase()} successfully`);
-    } catch (error) {
-      message.error('Failed to update application status');
+    } catch (error:any) {
+      message.error(error.message);
     }
   };
 

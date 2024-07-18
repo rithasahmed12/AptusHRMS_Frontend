@@ -4,6 +4,7 @@ import { UploadOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { createAsset, getEmployees } from "../../../api/company";
 import Title from "antd/es/typography/Title";
+import { toast } from "react-toastify";
 
 const AddAsset: React.FC = () => {
   const { Option } = Select;
@@ -49,8 +50,8 @@ const AddAsset: React.FC = () => {
       } else {
         message.error("Failed to add asset");
       }
-    } catch (error) {
-      message.error("Failed to add asset");
+    } catch (error:any) {
+      toast.error(error.message);
     } finally {
       setLoading(false);
     }
