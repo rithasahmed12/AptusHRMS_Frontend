@@ -1,9 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Select, DatePicker, Form, message, Modal } from 'antd';
-import { getEmployees, getPayrollData } from '../../../api/company'; // Import the API function
-import { CloseCircleOutlined } from '@ant-design/icons';
+import { Table, Button, Select, DatePicker, Form, message, Modal, Avatar, Typography } from 'antd';
+import { getEmployees, getPayrollData } from '../../../api/company';
+import { CloseCircleOutlined, UserOutlined } from '@ant-design/icons';
 
 const { Option } = Select;
+const { Text } = Typography;
+
+const EmployeeInfo = ({ employee }) => (
+  <div className="flex items-center">
+    <Avatar 
+      src={employee?.profilePic} 
+      icon={<UserOutlined />} 
+      size="large"
+    />
+    <div className="ml-3">
+      <Text strong>{employee?.name || 'N/A'}</Text>
+      <br />
+      <Text type="secondary">
+        {employee?.department || 'No Department'} - {employee?.designation || 'No Designation'}
+      </Text>
+    </div>
+  </div>
+);
 
 const PayrollTable = () => {
   const [payrollData, setPayrollData] = useState([]);
@@ -55,61 +73,62 @@ const PayrollTable = () => {
       setSelectedEmployee(value);
     };
 
-  const columns = [
-    {
-      title: 'Employee ID',
-      dataIndex: 'employeeId',
-      key: 'employeeId',
-    },
-    {
-      title: 'Year',
-      dataIndex: 'year',
-      key: 'year',
-    },
-    {
-      title: 'Month',
-      dataIndex: 'month',
-      key: 'month',
-    },
-    {
-      title: 'Total Salary',
-      dataIndex: ['summary', 'totalSalary'],
-      key: 'totalSalary',
-      render: (salary) => `₹${salary.toFixed(2)}`,
-    },
-    {
-      title: 'Working Days',
-      dataIndex: ['summary', 'totalWorkingDays'],
-      key: 'totalWorkingDays',
-    },
-    {
-      title: 'Present Days',
-      dataIndex: ['summary', 'totalPresentDays'],
-      key: 'totalPresentDays',
-    },
-    {
-      title: 'Absent Days',
-      dataIndex: ['summary', 'totalAbsentDays'],
-      key: 'totalAbsentDays',
-    },
-    {
-      title: 'Leave Days',
-      dataIndex: ['summary', 'totalLeaveDays'],
-      key: 'totalLeaveDays',
-    },
-    {
-      title: 'Holidays',
-      dataIndex: ['summary', 'totalHolidays'],
-      key: 'totalHolidays',
-    },
-    {
-      title: 'Action',
-      key: 'action',
-      render: (_, record) => (
-        <Button onClick={() => showAttendanceDetails(record)}>View Details</Button>
-      ),
-    },
-  ];
+    const columns = [
+      {
+        title: 'Employee',
+        dataIndex: 'employeeId',
+        key: 'employeeId',
+        render: (employeeId) => <EmployeeInfo employee={employeeId} />,
+      },
+      {
+        title: 'Year',
+        dataIndex: 'year',
+        key: 'year',
+      },
+      {
+        title: 'Month',
+        dataIndex: 'month',
+        key: 'month',
+      },
+      {
+        title: 'Total Salary',
+        dataIndex: ['summary', 'totalSalary'],
+        key: 'totalSalary',
+        render: (salary) => `₹${salary.toFixed(2)}`,
+      },
+      {
+        title: 'Working Days',
+        dataIndex: ['summary', 'totalWorkingDays'],
+        key: 'totalWorkingDays',
+      },
+      {
+        title: 'Present Days',
+        dataIndex: ['summary', 'totalPresentDays'],
+        key: 'totalPresentDays',
+      },
+      {
+        title: 'Absent Days',
+        dataIndex: ['summary', 'totalAbsentDays'],
+        key: 'totalAbsentDays',
+      },
+      {
+        title: 'Leave Days',
+        dataIndex: ['summary', 'totalLeaveDays'],
+        key: 'totalLeaveDays',
+      },
+      {
+        title: 'Holidays',
+        dataIndex: ['summary', 'totalHolidays'],
+        key: 'totalHolidays',
+      },
+      {
+        title: 'Action',
+        key: 'action',
+        render: (_, record) => (
+          <Button onClick={() => showAttendanceDetails(record)}>View Details</Button>
+        ),
+      },
+    ];
 
   const showAttendanceDetails = (record) => {
     setSelectedEmployeeData(record);
@@ -182,7 +201,11 @@ const PayrollTable = () => {
         loading={loading}
       />
       <Modal
-        title={`Attendance Details - Employee ${selectedEmployeeData?.employeeId}`}
+        title={
+          selectedEmployeeData && (
+            <EmployeeInfo employee={selectedEmployeeData.employeeId} />
+          )
+        }
         visible={detailModalVisible}
         onCancel={() => setDetailModalVisible(false)}
         footer={null}

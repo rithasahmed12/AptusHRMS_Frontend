@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Card, Descriptions, Form, Input, DatePicker, InputNumber, Upload, Button, message, Row, Col, Typography, List, Divider } from 'antd';
+import { Card, Form, Input, DatePicker, InputNumber, Upload, Button, message, Row, Col, Typography, List, Divider, Descriptions } from 'antd';
 import { UploadOutlined, ClockCircleOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import { getJobDetails, submitApplication } from '../../../api/company';
 
@@ -10,9 +10,12 @@ const JobDetails = () => {
   const { id } = useParams();
   const [job, setJob] = useState(null);
   const [form] = Form.useForm();
+  const [fileList, setFileList] = useState({});
+  const [place, setPlace] = useState(null);
 
   useEffect(() => {
     fetchJobDetails();
+    getUserLocation();
   }, [id]);
 
   const fetchJobDetails = async () => {
@@ -25,19 +28,68 @@ const JobDetails = () => {
     }
   };
 
+  const getUserLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          try {
+            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+            const data = await response.json();
+            setPlace(data.display_name);
+          } catch (error) {
+            console.error('Error getting place name:', error);
+            setPlace(`${latitude}, ${longitude}`);
+          }
+        },
+        (error) => {
+          console.error('Error getting location:', error);
+        }
+      );
+    } else {
+      console.error('Geolocation is not supported by this browser.');
+    }
+  };
+
   const onFinish = async (values) => {
     try {
-      await submitApplication({ ...values, jobId: id });
+      const formData = new FormData();
+      
+      // Append non-file fields
+      Object.keys(values).forEach(key => {
+        if (!fileList[key]) {
+          formData.append(key, values[key]);
+        }
+      });
+  
+      // Append files
+      Object.keys(fileList).forEach(key => {
+        fileList[key].forEach(file => {
+          formData.append(key, file.originFileObj);
+        });
+      });
+  
+      formData.append('jobId', id);
+      
+      if (place) {
+        formData.append('place', place);
+      }
+  
+      await submitApplication(formData);
       message.success('Application submitted successfully');
       form.resetFields();
+      setFileList({});
     } catch (error) {
       console.error('Failed to submit application:', error);
       message.error('Failed to submit application');
     }
   };
 
-  const beforeUpload = (file, acceptedTypes) => {
-    // ... (keep the existing beforeUpload function)
+  const handleFileChange = ({ file, fileList }, fieldName) => {
+    setFileList(prev => ({
+      ...prev,
+      [fieldName]: fileList
+    }));
   };
 
   if (!job) return <div>Loading...</div>;
@@ -48,7 +100,6 @@ const JobDetails = () => {
         <Card 
           hoverable
           style={{ height: '100%', overflow: 'auto' }}
-        //   cover={<img alt="Job banner" src="https://via.placeholder.com/600x200?text=Job+Banner" />} 
         >
           <Title level={2}>{job.title}</Title>
           <Paragraph type="secondary">
@@ -69,7 +120,7 @@ const JobDetails = () => {
           />
           <Divider />
           <Descriptions>
-            <Descriptions.Item label="Status" span={3}>
+            <Descriptions.Item label="Status">
               <Button type={job.status === 'Open' ? 'primary' : 'default'}>
                 {job.status}
               </Button>
@@ -98,7 +149,9 @@ const JobDetails = () => {
                   return (
                     <Form.Item key={index} name={field.name} label={field.name} rules={[{ required: field.required }]}>
                       <Upload 
-                        beforeUpload={(file) => beforeUpload(file, field.fileTypes)}
+                        fileList={fileList[field.name] || []}
+                        onChange={(info) => handleFileChange(info, field.name)}
+                        beforeUpload={() => false}
                         accept={field.fileTypes.map(type => type === 'pdf' ? '.pdf' : type === 'image' ? 'image/*' : '.doc,.docx').join(',')}
                       >
                         <Button icon={<UploadOutlined />}>Upload File</Button>

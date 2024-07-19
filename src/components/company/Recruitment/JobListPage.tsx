@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, message } from 'antd';
+import { Table, Button, message, Popconfirm } from 'antd';
 import { EditOutlined, DeleteOutlined, PlusOutlined, EyeOutlined } from '@ant-design/icons';
 import { getAllJobs, deleteJob } from '../../../api/company';
 import { useNavigate } from 'react-router-dom';
@@ -43,7 +43,14 @@ const ListedJobs = () => {
       render: (_, record) => (
         <>
           <Button icon={<EditOutlined />} onClick={() => navigate(`/c/recruitment/jobs/edit/${record._id}`)}>Edit</Button>
-          <Button icon={<DeleteOutlined />} onClick={() => handleDelete(record._id)} danger>Delete</Button>
+          <Popconfirm
+            title="Are you sure you want to delete this job?"
+            onConfirm={() => handleDelete(record._id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button icon={<DeleteOutlined />} danger>Delete</Button>
+          </Popconfirm>
           <Button icon={<EyeOutlined />} onClick={() => navigate(`/jobs/${record._id}`)}>View Form</Button>
         </>
       ),

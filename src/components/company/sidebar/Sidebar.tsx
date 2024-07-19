@@ -362,7 +362,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 >
                   <DollarOutlined style={{ fontSize: "16px" }} /> Payroll
                 </NavLink>
-                <NavLink
+                {/* <NavLink
                   to="/c/payslip"
                   className={({ isActive }) =>
                     `py-2.5 px-4 gap-3 flex rounded transition duration-300 cursor-pointer ${
@@ -386,7 +386,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 >
                   <HistoryOutlined style={{ fontSize: "16px" }} /> Payment
                   History
-                </NavLink>
+                </NavLink> */}
               </div>
             )}
           </div>

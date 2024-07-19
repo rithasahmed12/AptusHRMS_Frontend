@@ -686,6 +686,7 @@ export const updateAssetRequestStatus = async (id: string, status: 'Approved' | 
 };
 
 
+// Job Recruitments ********************************************** //
 
 export const getAllJobs = async () => {
   try {
@@ -727,7 +728,7 @@ export const deleteJob = async (jobId: string) => {
   }
 };
 
-export const getJobDetails = async (jobId: string) => {
+export const getJobDetails = async (jobId: string|undefined) => {
   try {
     const response = await CompanyApi.get(companyRoutes.Job(jobId));
     return response;
@@ -737,11 +738,13 @@ export const getJobDetails = async (jobId: string) => {
   }
 };
 
-export const submitApplication = async (applicationData: ApplicationData) => {
+export const submitApplication = async (formData:FormData) => {
   try {
-    const response = await CompanyApi.post(companyRoutes.jobApplication, applicationData);
+    const response = await CompanyApi.post(companyRoutes.jobApplication, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
     return response;
-  } catch (error: any) {
+  } catch (error) {
     console.log('ERROR:', error);
     throw error;
   }
@@ -757,9 +760,10 @@ export const getApplicants = async () => {
   }
 };
 
-export const updateApplicantStatus = async (applicationId: string, status: string) => {
+// api/company.ts
+export const getShortlistedCandidates = async () => {
   try {
-    const response = await CompanyApi.put(companyRoutes.updateJobApplicationStatus(applicationId), { status });
+    const response = await CompanyApi.get(companyRoutes.shortlistedCandidates);
     return response;
   } catch (error: any) {
     console.log('ERROR:', error);
@@ -767,9 +771,19 @@ export const updateApplicantStatus = async (applicationId: string, status: strin
   }
 };
 
-export const getShortlistedCandidates = async () => {
+export const updateApplicantStatus = async (applicantId: string, status: string) => {
   try {
-    const response = await CompanyApi.get(companyRoutes.shortlistedCandidates);
+    const response = await CompanyApi.put(`${companyRoutes.jobApplicants}/${applicantId}/status`, { status });
+    return response;
+  } catch (error: any) {
+    console.log('ERROR:', error);
+    throw error;
+  }
+};
+
+export const deleteApplicant = async (applicantId: string) => {
+  try {
+    const response = await CompanyApi.delete(`${companyRoutes.jobApplicants}/${applicantId}`);
     return response;
   } catch (error: any) {
     console.log('ERROR:', error);

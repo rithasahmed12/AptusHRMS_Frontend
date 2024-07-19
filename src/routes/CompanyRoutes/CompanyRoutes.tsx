@@ -31,12 +31,14 @@ import AssetsApplication from "../../components/company/Assets/AssetsApplication
 import JobListing from "../../components/company/Recruitment/JobListPage.tsx";
 import AppliedCandidates from "../../components/company/Recruitment/Applicants.tsx";
 import ShortlistedCandidates from "../../components/company/Recruitment/ShortlistedApplicants.tsx";
-import JobForm from "../../components/company/Recruitment/JobForm.tsx";
+import JobForm from "../../components/company/Recruitment/JobCreateForm.tsx";
 import JobDetails from "../../components/company/Recruitment/JobApplication.tsx";
 import AttendancePage from "../../components/company/Attendance/AttendanceList/AttendancePage.tsx"
 import PayrollTable from "../../components/company/Payroll/Payroll.tsx";
 import RoleBasedRoute from "./RoleBasedRoute.tsx";
 import UnauthorizedPage from "../../components/company/ErrorPages/UnauthorizedPage.tsx";
+import EditJobForm from "../../components/company/Recruitment/JobEditForm.tsx";
+
 
 
 
@@ -64,6 +66,7 @@ const CompanyRoutes = () => {
               <Route path="assets/edit/:id" element={<EditAsset/>} />
               <Route path="recruitment/jobs" element={<JobListing/>} />
               <Route path="recruitment/jobs/add" element={<JobForm/>} />
+              <Route path="recruitment/jobs/edit/:id" element={<EditJobForm/>} />
               <Route path="recruitment/applicants" element={<AppliedCandidates/>} />
               <Route path="recruitment/shortlisted" element={<ShortlistedCandidates/>} />
             </Route>

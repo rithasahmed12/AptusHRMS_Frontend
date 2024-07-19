@@ -5,6 +5,7 @@ import { ClockCircleOutlined, CheckOutlined } from '@ant-design/icons';
 import { checkIn, checkOut, getCurrentDayEmployeeAttendance, getEmployee } from '../../../../api/company';
 import moment from 'moment';
 import { setLastPunchTime, setPunchStatus } from '../../../../redux/slices/companySlice/attendanceSlice';
+import { toast } from 'react-toastify';
 
 const { Title, Paragraph } = Typography;
 
@@ -37,7 +38,7 @@ const PunchCard = () => {
       setAttendanceDetails(response);
       updatePunchStatus(response);
     } catch (error) {
-      message.error('Failed to fetch attendance details');
+      toast.error('Failed to fetch attendance details');
     }
   };
 
@@ -59,7 +60,7 @@ const PunchCard = () => {
       const response = await getEmployee(userId);
       setCurrentUser(response.data.workShift);
     } catch (error) {
-      message.error('Failed to get user\'s workshift');
+      toast.error('Failed to get user\'s workshift');
     }
   };
 
@@ -102,7 +103,7 @@ const PunchCard = () => {
       
       message.success(`Successfully checked ${type}`);
     } catch (error: any) {
-      message.error(`Failed to check ${type}: ${error.response?.data?.message || 'Unknown error'}`);
+      toast.error(`Failed to check ${type}: ${error.response?.data?.message || 'Unknown error'}`);
     } finally {
       setLoading(false);
     }
