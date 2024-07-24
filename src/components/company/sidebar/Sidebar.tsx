@@ -27,8 +27,6 @@ import {
   RightOutlined,
   UnorderedListOutlined,
   DollarOutlined,
-  FileTextOutlined,
-  HistoryOutlined,
 } from "@ant-design/icons";
 import {
   setLastPunchTime,

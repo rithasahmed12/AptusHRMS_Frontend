@@ -1,11 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Space, Image, message } from 'antd';
+import { Table, Button, Modal, Space, Image, message, Popconfirm } from 'antd';
 import { getShortlistedCandidates, updateApplicantStatus, deleteApplicant } from '../../../api/company';
 
-const ShortlistedCandidates = () => {
-  const [shortlisted, setShortlisted] = useState([]);
-  const [selectedApplicant, setSelectedApplicant] = useState(null);
-  const [isModalVisible, setIsModalVisible] = useState(false);
+interface ApplicantDetails {
+  Name: string;
+  place: string;
+  [key: string]: string;
+}
+
+interface UploadedFile {
+  name: string;
+  type: string;
+  cloudinaryUrl: string;
+}
+
+interface Applicant {
+  _id: string;
+  applicantDetails: ApplicantDetails;
+  submittedAt: string;
+  place: string;
+  uploadedFiles?: {
+    [key: string]: UploadedFile[];
+  };
+}
+
+const ShortlistedCandidates: React.FC = () => {
+  const [shortlisted, setShortlisted] = useState<Applicant[]>([]);
+  const [selectedApplicant, setSelectedApplicant] = useState<Applicant | null>(null);
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
   useEffect(() => {
     fetchShortlisted();
@@ -21,7 +43,7 @@ const ShortlistedCandidates = () => {
     }
   };
 
-  const handleUpdateStatus = async (applicantId, status) => {
+  const handleUpdateStatus = async (applicantId: string, status: string) => {
     try {
       await updateApplicantStatus(applicantId, status);
       message.success(`Candidate status updated to ${status}`);
@@ -32,7 +54,7 @@ const ShortlistedCandidates = () => {
     }
   };
 
-  const handleDelete = async (applicantId) => {
+  const handleDelete = async (applicantId: string) => {
     try {
       await deleteApplicant(applicantId);
       message.success('Candidate removed from shortlist');
@@ -43,7 +65,7 @@ const ShortlistedCandidates = () => {
     }
   };
 
-  const handleViewDetails = (applicant) => {
+  const handleViewDetails = (applicant: Applicant) => {
     setSelectedApplicant(applicant);
     setIsModalVisible(true);
   };
@@ -53,29 +75,50 @@ const ShortlistedCandidates = () => {
       title: 'Name', 
       dataIndex: ['applicantDetails', 'Name'], 
       key: 'name',
-      render: (text, record) => record.applicantDetails?.Name || 'N/A'
+      render: (_text: string, record: Applicant) => record.applicantDetails?.Name || 'N/A'
     },
     { 
       title: 'Place', 
       dataIndex: ['applicantDetails', 'place'], 
       key: 'place',
-      render: (text, record) => record.applicantDetails?.place || 'N/A'
+      render: (_text: string, record: Applicant) => record.applicantDetails?.place || 'N/A'
     },
     { 
       title: 'Applied Date', 
       dataIndex: 'submittedAt', 
       key: 'appliedDate',
-      render: (text) => new Date(text).toLocaleDateString()
+      render: (text: string) => new Date(text).toLocaleDateString()
     },
     {
       title: 'Actions',
       key: 'actions',
-      render: (_, record) => (
+      render: (_: any, record: Applicant) => (
         <Space>
           <Button onClick={() => handleViewDetails(record)}>View Details</Button>
-          <Button onClick={() => handleUpdateStatus(record._id, 'Interviewed')}>Mark as Interviewed</Button>
-          <Button onClick={() => handleUpdateStatus(record._id, 'Hired')} type="primary">Hire</Button>
-          <Button onClick={() => handleDelete(record._id)} danger>Remove</Button>
+          <Popconfirm
+            title="Are you sure you want to mark this candidate as interviewed?"
+            onConfirm={() => handleUpdateStatus(record._id, 'Interviewed')}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button>Mark as Interviewed</Button>
+          </Popconfirm>
+          <Popconfirm
+            title="Are you sure you want to hire this candidate?"
+            onConfirm={() => handleUpdateStatus(record._id, 'Hired')}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button type="primary">Hire</Button>
+          </Popconfirm>
+          <Popconfirm
+            title="Are you sure you want to remove this candidate from the shortlist?"
+            onConfirm={() => handleDelete(record._id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button danger>Remove</Button>
+          </Popconfirm>
         </Space>
       ),
     },

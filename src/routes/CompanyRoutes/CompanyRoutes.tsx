@@ -33,68 +33,89 @@ import AppliedCandidates from "../../components/company/Recruitment/Applicants.t
 import ShortlistedCandidates from "../../components/company/Recruitment/ShortlistedApplicants.tsx";
 import JobForm from "../../components/company/Recruitment/JobCreateForm.tsx";
 import JobDetails from "../../components/company/Recruitment/JobApplication.tsx";
-import AttendancePage from "../../components/company/Attendance/AttendanceList/AttendancePage.tsx"
+import AttendancePage from "../../components/company/Attendance/AttendanceList/AttendancePage.tsx";
 import PayrollTable from "../../components/company/Payroll/Payroll.tsx";
 import RoleBasedRoute from "./RoleBasedRoute.tsx";
 import UnauthorizedPage from "../../components/company/ErrorPages/UnauthorizedPage.tsx";
 import EditJobForm from "../../components/company/Recruitment/JobEditForm.tsx";
-
-
-
+import Settings from "../../components/company/Profile/Settings/SettingsPage.tsx";
+import GeneralSettings from "../../components/company/Profile/Settings/GeneralSettings.tsx";
+import ChangePassword from "../../components/company/Profile/Settings/ChangePassword.tsx";
 
 const CompanyRoutes = () => {
   return (
     <Routes>
-      <Route path="jobs/:id" element={<JobDetails/>} />
-      <Route path="unauthorized" element={<UnauthorizedPage/>} />
+      <Route path="jobs/:id" element={<JobDetails />} />
+      <Route path="unauthorized" element={<UnauthorizedPage />} />
       <Route element={<ProtectedPortal />}>
         <Route index element={<LoginPages />} />
-        <Route path="change-password" element={<ChangePasswordPage/>} />
-        <Route path="/" element={<LoginProtect/>}>
-          <Route path="/c" element={<CompanyPages/>}>
-            <Route path="dashboard" element={<Dashboard/>} />
-            <Route path="announcements" element={<Announcements/>} />
+        <Route path="change-password" element={<ChangePasswordPage />} />
+        <Route path="/" element={<LoginProtect />}>
+          <Route path="/c" element={<CompanyPages />}>
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="announcements" element={<Announcements />} />
 
             {/* Employee Management Routes */}
-              <Route path="employees" element={<EmployeeList/>} />
-            <Route element={<RoleBasedRoute allowedRoles={['admin', 'hr']} />}>
-              <Route path="employees/add" element={<AddEmployee/>} />
-              <Route path="employees/edit/:id" element={<EditEmployee/>} />
+            <Route path="employees" element={<EmployeeList />} />
+            <Route element={<RoleBasedRoute allowedRoles={["admin", "hr"]} />}>
+              <Route path="employees/add" element={<AddEmployee />} />
+              <Route path="employees/edit/:id" element={<EditEmployee />} />
               <Route path="/c/employees/view/:id" element={<EmployeeView />} />
-              <Route path="user/edit" element={<EditUserProfile/>} />
-              <Route path="assets/add" element={<AddAsset/>} />
-              <Route path="assets/edit/:id" element={<EditAsset/>} />
-              <Route path="recruitment/jobs" element={<JobListing/>} />
-              <Route path="recruitment/jobs/add" element={<JobForm/>} />
-              <Route path="recruitment/jobs/edit/:id" element={<EditJobForm/>} />
-              <Route path="recruitment/applicants" element={<AppliedCandidates/>} />
-              <Route path="recruitment/shortlisted" element={<ShortlistedCandidates/>} />
+              <Route path="user/edit" element={<EditUserProfile />} />
+              <Route path="assets/add" element={<AddAsset />} />
+              <Route path="assets/edit/:id" element={<EditAsset />} />
+              <Route path="recruitment/jobs" element={<JobListing />} />
+              <Route path="recruitment/jobs/add" element={<JobForm />} />
+              <Route
+                path="recruitment/jobs/edit/:id"
+                element={<EditJobForm />}
+              />
+              <Route
+                path="recruitment/applicants"
+                element={<AppliedCandidates />}
+              />
+              <Route
+                path="recruitment/shortlisted"
+                element={<ShortlistedCandidates />}
+              />
             </Route>
 
-            <Route  element={<RoleBasedRoute allowedRoles={['admin']} />}> 
-            <Route path="organization/department" element={<Department/>} />
-            <Route path="organization/designation" element={<DesignationPage/>} />
-            <Route path="workshift" element={<ListWorkshift/>} />
-            < Route path="workshift/add" element={<AddWorkShift/>} />
-            <Route path="workshift/edit/:id" element={<EditWorkShift/>} />
+            <Route element={<RoleBasedRoute allowedRoles={["admin"]} />}>
+              <Route path="organization/department" element={<Department />} />
+              <Route
+                path="organization/designation"
+                element={<DesignationPage />}
+              />
+              <Route path="workshift" element={<ListWorkshift />} />
+              <Route path="workshift/add" element={<AddWorkShift />} />
+              <Route path="workshift/edit/:id" element={<EditWorkShift />} />
             </Route>
 
-            <Route path="projects" element={<ProjectList/>} />
-            <Route path="profile/:id" element={<ProfilePage/>} >
-              <Route index path="user" element={<UserProfile/>} />
-              <Route path="company" element={<CompanyProfile/>} />
-              <Route element={<RoleBasedRoute allowedRoles={['admin', 'hr']} />}>
-              <Route path="company/edit" element={<EditCompanyProfile/>} />
+            <Route path="projects" element={<ProjectList />} />
+            <Route path="profile/:id" element={<ProfilePage />}>
+              <Route index path="user" element={<UserProfile />} />
+            <Route path="user/edit" element={<EditUserProfile />} />
+
+              <Route path="company" element={<CompanyProfile />} />
+              <Route
+                element={<RoleBasedRoute allowedRoles={["admin", "hr"]} />}
+              >
+                <Route path="company/edit" element={<EditCompanyProfile />} />
+                <Route path="settings" element={<Settings />}>
+                  <Route index element={<GeneralSettings />} />
+                  <Route path="general" element={<GeneralSettings />} />
+                  <Route path="password" element={<ChangePassword />} />
+                </Route>
               </Route>
-              <Route path="settings" element={<CompanyProfile/>} />
+        
             </Route>
-            <Route path="holidays" element={<HolidayList/>} />
-            <Route path="leaves" element={<LeaveTypeList/>} />
-            <Route path="leaveApplication" element={<LeaveApplicationList/>} />
-            <Route path="assets" element={<AssetList/>} />
-            <Route path="assetsApplication" element={<AssetsApplication/>} />
-            <Route path="attendance" element={<AttendancePage/>} />
-            <Route path="payroll" element={<PayrollTable/>} />
+            <Route path="holidays" element={<HolidayList />} />
+            <Route path="leaves" element={<LeaveTypeList />} />
+            <Route path="leaveApplication" element={<LeaveApplicationList />} />
+            <Route path="assets" element={<AssetList />} />
+            <Route path="assetsApplication" element={<AssetsApplication />} />
+            <Route path="attendance" element={<AttendancePage />} />
+            <Route path="payroll" element={<PayrollTable />} />
           </Route>
         </Route>
       </Route>

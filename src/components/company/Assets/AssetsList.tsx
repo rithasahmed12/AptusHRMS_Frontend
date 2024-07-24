@@ -66,7 +66,7 @@ const AssetList: React.FC = () => {
       title: 'Assigned To', 
       dataIndex: ['assignedTo', 'name'], 
       key: 'assignedTo',
-      render: (name: string, record: Asset) => record.assignedTo?.name || 'Not Assigned'
+      render: (_name: string, record: Asset) => record.assignedTo?.name || 'Not Assigned'
     },
     {
       title: 'Action',
@@ -119,7 +119,7 @@ const AssetList: React.FC = () => {
   };
 
 
-  const handleAssign = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleAssign = async (_e: React.MouseEvent<HTMLButtonElement>) => {
     if (selectedAsset && assignedTo) {
       try {
         const response = await assignAsset(selectedAsset._id, assignedTo);

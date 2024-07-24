@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
 import { EyeIcon, EyeSlashIcon, ChevronLeftIcon } from "@heroicons/react/24/outline";
 import { changePassword, sentOTP, verifyOTP } from "../../../api/company";
 import { message } from "antd";
@@ -71,7 +70,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({ email, onNext, onBack
   const [isLoading, setIsLoading] = useState(false);
   const [timer, setTimer] = useState(60);
   const [otp, setOtp] = useState<string[]>(['', '', '', '']);
-  const [otpSent, setOtpSent] = useState(false);
+  const [_otpSent, setOtpSent] = useState(false);
   const inputRefs = [useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null)];
 
   useEffect(() => {
@@ -206,7 +205,7 @@ const ChangePassword: React.FC<ChangePasswordProps> = ({ email, onBack }) => {
     }
     try {
       setIsLoading(true);
-      const response = await changePassword({ email, newPassword: password });
+      await changePassword({ email, newPassword: password });
       setIsLoading(false);
       message.success('Password successfully changed!');
       navigate('/c/dashboard');

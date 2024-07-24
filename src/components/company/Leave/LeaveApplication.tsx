@@ -11,8 +11,6 @@ import {
   Tooltip,
 } from "antd";
 import {
-  EditOutlined,
-  PlusOutlined,
   CheckOutlined,
   CloseOutlined,
   EyeOutlined,
@@ -21,7 +19,6 @@ import {
   getAllLeaveRequests,
   submitLeaveRequest,
   updateLeaveRequestStatus,
-  getEmployeeLeaveDays,
   getAllLeaveTypes,
 } from "../../../api/company";
 import { useSelector } from "react-redux";
@@ -64,7 +61,7 @@ const [confirmAction, setConfirmAction] = useState<{
   status: "Approved" | "Rejected";
 } | null>(null);
   const [isReasonModalVisible, setIsReasonModalVisible] = useState(false);
-  const [editingApplication, setEditingApplication] =
+  const [editingApplication, _setEditingApplication] =
     useState<LeaveApplication | null>(null);
   const [viewingReason, setViewingReason] = useState<string>("");
   const [form] = Form.useForm();
@@ -174,18 +171,6 @@ const [confirmAction, setConfirmAction] = useState<{
     }]:[],
   ];
 
-  const showModal = (application: LeaveApplication | null = null) => {
-    setEditingApplication(application);
-    if (application) {
-      form.setFieldsValue({
-        ...application,
-        dateRange: [application.startDate, application.endDate],
-      });
-    } else {
-      form.resetFields();
-    }
-    setIsModalVisible(true);
-  };
 
   const showReasonModal = (reason: string) => {
     setViewingReason(reason);

@@ -1,11 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Space, Image, message, Tag } from 'antd';
+import { Table, Button, Modal, Space, Image, message, Tag, Popconfirm } from 'antd';
 import { deleteApplicant, getApplicants, updateApplicantStatus } from '../../../api/company';
 
-const AppliedCandidates = () => {
-  const [applicants, setApplicants] = useState([]);
-  const [selectedApplicant, setSelectedApplicant] = useState(null);
-  const [isModalVisible, setIsModalVisible] = useState(false);
+interface ApplicantDetails {
+  Name?: string;
+  place?: string;
+  [key: string]: any;
+}
+
+interface UploadedFile {
+  name: string;
+  type: string;
+  cloudinaryUrl: string;
+}
+
+interface Applicant {
+  _id: string;
+  applicantDetails: ApplicantDetails;
+  submittedAt: string;
+  status: string;
+  place?: string;
+  uploadedFiles?: {
+    [key: string]: UploadedFile[];
+  };
+}
+
+const AppliedCandidates: React.FC = () => {
+  const [applicants, setApplicants] = useState<Applicant[]>([]);
+  const [selectedApplicant, setSelectedApplicant] = useState<Applicant | null>(null);
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
   useEffect(() => {
     fetchApplicants();
@@ -21,12 +44,12 @@ const AppliedCandidates = () => {
     }
   };
 
-  const handleViewDetails = (applicant) => {
+  const handleViewDetails = (applicant: Applicant) => {
     setSelectedApplicant(applicant);
     setIsModalVisible(true);
   };
 
-  const handleUpdateStatus = async (applicantId, status) => {
+  const handleUpdateStatus = async (applicantId: string, status: string) => {
     try {
       await updateApplicantStatus(applicantId, status);
       message.success(`Applicant ${status === 'Shortlisted' ? 'shortlisted' : 'rejected'} successfully`);
@@ -37,7 +60,7 @@ const AppliedCandidates = () => {
     }
   };
 
-  const handleDelete = async (applicantId) => {
+  const handleDelete = async (applicantId: string) => {
     try {
       await deleteApplicant(applicantId);
       message.success('Applicant deleted successfully');
@@ -48,7 +71,7 @@ const AppliedCandidates = () => {
     }
   };
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string): string => {
     switch (status) {
       case 'Shortlisted':
         return 'green';
@@ -68,25 +91,25 @@ const AppliedCandidates = () => {
       title: 'Name', 
       dataIndex: ['applicantDetails', 'Name'], 
       key: 'name',
-      render: (text, record) => record.applicantDetails?.Name || 'N/A'
+      render: (_: any, record: Applicant) => record.applicantDetails?.Name || 'N/A'
     },
     { 
       title: 'Place', 
       dataIndex: ['location','place'], 
       key: 'place',
-      render: (text, record) => record.applicantDetails?.place || 'N/A'
+      render: (_: any, record: Applicant) => record.applicantDetails?.place || 'N/A'
     },
     { 
       title: 'Applied Date', 
       dataIndex: 'submittedAt', 
       key: 'appliedDate',
-      render: (text) => new Date(text).toLocaleDateString()
+      render: (text: string) => new Date(text).toLocaleDateString()
     },
     {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
-      render: (status) => (
+      render: (status: string) => (
         <Tag color={getStatusColor(status)}>
           {status || 'Pending'}
         </Tag>
@@ -95,16 +118,41 @@ const AppliedCandidates = () => {
     {
       title: 'Actions',
       key: 'actions',
-      render: (_, record) => (
+      render: (_: any, record: Applicant) => (
         <Space>
           <Button onClick={() => handleViewDetails(record)}>View Details</Button>
-          {record.status !== 'Shortlisted' && (
-            <Button onClick={() => handleUpdateStatus(record._id, 'Shortlisted')}>Shortlist</Button>
+          {record.status !== 'Hired' && (
+            <>
+              {record.status !== 'Shortlisted' && (
+                <Popconfirm
+                  title="Are you sure you want to shortlist this applicant?"
+                  onConfirm={() => handleUpdateStatus(record._id, 'Shortlisted')}
+                  okText="Yes"
+                  cancelText="No"
+                >
+                  <Button>Shortlist</Button>
+                </Popconfirm>
+              )}
+              {record.status !== 'Rejected' && (
+                <Popconfirm
+                  title="Are you sure you want to reject this applicant?"
+                  onConfirm={() => handleUpdateStatus(record._id, 'Rejected')}
+                  okText="Yes"
+                  cancelText="No"
+                >
+                  <Button danger>Reject</Button>
+                </Popconfirm>
+              )}
+            </>
           )}
-          {record.status !== 'Rejected' && (
-            <Button onClick={() => handleUpdateStatus(record._id, 'Rejected')} danger>Reject</Button>
-          )}
-          <Button onClick={() => handleDelete(record._id)} danger>Delete</Button>
+          <Popconfirm
+            title="Are you sure you want to delete this applicant?"
+            onConfirm={() => handleDelete(record._id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button danger>Delete</Button>
+          </Popconfirm>
         </Space>
       ),
     },

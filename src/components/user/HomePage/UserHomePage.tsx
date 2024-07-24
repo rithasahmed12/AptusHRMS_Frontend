@@ -5,9 +5,7 @@ import ProgressBar from "../common/ProgressBar";
 import BrownButton from "../common/BrownButton";
 import Footer from "../common/Footer";
 
-type Props = {};
-
-const UserHomePage = (props: Props) => {
+const UserHomePage = () => {
   return (
     <>
       <NavBar />

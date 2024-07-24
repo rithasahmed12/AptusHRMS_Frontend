@@ -5,7 +5,6 @@ import { companyLogout } from "../../../redux/slices/companySlice/companySlice";
 import { Modal, message, Dropdown, MenuProps } from "antd";
 import {
   UserOutlined,
-  SettingOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
 import { setLastPunchTime, setPunchStatus } from "../../../redux/slices/companySlice/attendanceSlice";
@@ -62,7 +61,7 @@ const Navbar = () => {
         <div className="relative flex items-center justify-between h-16">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <Link to='/' className="font-bold text-xl text-black">{userInfo.companyName}</Link>
+              <Link to='/' className="font-bold text-xl text-black">{userInfo.companyName || "Company Name"}</Link>
             </div>
           </div>
           <div className="flex items-center">

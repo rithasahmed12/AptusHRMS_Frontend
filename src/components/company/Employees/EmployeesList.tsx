@@ -104,7 +104,7 @@ const EmployeeList: React.FC = () => {
     {
       title: "Info",
       key: "info",
-      render: (text: any, record: Employee) => (
+      render: (_text: any, record: Employee) => (
         <div className="flex items-center">
             <img 
               src={record.profilePic||"https://via.placeholder.com/150"} 
@@ -131,7 +131,7 @@ const EmployeeList: React.FC = () => {
     {
       title: "Contacts",
       key: "contacts",
-      render: (text: any, record: Employee) => (
+      render: (_text: any, record: Employee) => (
         <>
           <p>Phone: {record.phone}</p>
           <p>Email: {record.email}</p>
@@ -147,7 +147,7 @@ const EmployeeList: React.FC = () => {
     ...(userRole === 'admin' || userRole === 'hr' ? [{
       title: "Action",
       key: "action",
-      render: (text: any, record: Employee) => (
+      render: (_text: any, record: Employee) => (
         <Space size="middle">
           <Button type="primary" icon={<EditOutlined />} onClick={() => handleEdit(record)}>
             Edit

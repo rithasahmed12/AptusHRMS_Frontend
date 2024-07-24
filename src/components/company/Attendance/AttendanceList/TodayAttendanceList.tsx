@@ -1,5 +1,5 @@
 // components/TodayAttendanceList.tsx
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Table, Card, message, Tooltip } from 'antd';
 import { getTodayAttendance } from '../../../../api/company'
 import moment from 'moment';
@@ -79,7 +79,7 @@ const TodayAttendanceList = () => {
     {
       title: 'Late/Early',
       key: 'lateEarly',
-      render: (text: string, record: any) => (
+      render: (_text: string, record: any) => (
         <span>
           {record.lateArrivalMinutes > 0 && (
             <Tooltip title="Late Arrival">

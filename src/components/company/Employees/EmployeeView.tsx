@@ -5,7 +5,6 @@ import { getEmployee } from "../../../api/company";
 import dayjs from "dayjs";
 import { EditOutlined } from "@ant-design/icons";
 
-const { TabPane } = Tabs;
 const { Text, Title } = Typography;
 
 interface Allowance {

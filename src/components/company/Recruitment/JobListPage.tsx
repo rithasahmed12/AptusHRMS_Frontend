@@ -4,8 +4,15 @@ import { EditOutlined, DeleteOutlined, PlusOutlined, EyeOutlined } from '@ant-de
 import { getAllJobs, deleteJob } from '../../../api/company';
 import { useNavigate } from 'react-router-dom';
 
-const ListedJobs = () => {
-  const [jobs, setJobs] = useState([]);
+interface Job {
+  _id: string;
+  title: string;
+  status: string;
+  createdAt: string;
+}
+
+const ListedJobs: React.FC = () => {
+  const [jobs, setJobs] = useState<Job[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,7 +29,7 @@ const ListedJobs = () => {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: string) => {
     try {
       await deleteJob(id);
       message.success('Job deleted successfully');
@@ -34,13 +41,18 @@ const ListedJobs = () => {
   };
 
   const columns = [
-    { title: 'Title', dataIndex: 'title', key: '_id' },
-    { title: 'Status', dataIndex: 'status', key: '_id' },
-    { title: 'Created At', dataIndex: 'createdAt', key: '_id', render: (date) => new Date(date).toLocaleDateString() },
+    { title: 'Title', dataIndex: 'title', key: 'title' },
+    { title: 'Status', dataIndex: 'status', key: 'status' },
+    { 
+      title: 'Created At', 
+      dataIndex: 'createdAt', 
+      key: 'createdAt', 
+      render: (date: string) => new Date(date).toLocaleDateString() 
+    },
     {
       title: 'Actions',
-      key: '_id',
-      render: (_, record) => (
+      key: 'actions',
+      render: (_: any, record: Job) => (
         <>
           <Button icon={<EditOutlined />} onClick={() => navigate(`/c/recruitment/jobs/edit/${record._id}`)}>Edit</Button>
           <Popconfirm

@@ -85,7 +85,7 @@ const EditEmployee: React.FC = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const [employee, setEmployee] = useState<Employee | null>(null);
+  const [, setEmployee] = useState<Employee | null>(null);
   const [fileToUpload, setFileToUpload] = useState<File | null>(null);
 const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState<string>("1");
@@ -243,11 +243,6 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const nextTab = () => {
     const nextTabKey = (parseInt(currentTab) + 1).toString();
     setCurrentTab(nextTabKey);
-  };
-
-  const prevTab = () => {
-    const prevTabKey = (parseInt(currentTab) - 1).toString();
-    setCurrentTab(prevTabKey);
   };
 
   const handleTabChange = (key: string) => {

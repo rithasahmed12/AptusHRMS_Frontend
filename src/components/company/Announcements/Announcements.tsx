@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ConfigProvider, Modal, Form, Input, Button, Tooltip, message } from "antd";
+import { ConfigProvider, Modal, Form, Input, Button, Tooltip } from "antd";
 import { EditOutlined, DeleteOutlined, EyeOutlined } from "@ant-design/icons";
 import {
   AnnoucementmarkAsRead,

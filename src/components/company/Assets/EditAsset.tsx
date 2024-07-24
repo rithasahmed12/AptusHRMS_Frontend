@@ -12,7 +12,6 @@ import {
 import { UploadOutlined } from "@ant-design/icons";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  Asset,
   getAssetById,
   getEmployees,
   updateAsset,

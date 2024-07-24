@@ -4,9 +4,8 @@ import BrownButton from "../common/BrownButton";
 import WhiteButton from "../common/WhiteButton";
 import { Link } from 'react-router-dom';
 
-type Props = {};
 
-const MainComponent = (props: Props) => {
+const MainComponent = () => {
   const [isSmallScreen, setIsSmallScreen] = useState(false);
 
   useEffect(() => {

@@ -41,7 +41,7 @@ const DepartmentPage: React.FC = () => {
     null
   );
   const [departments, setDepartments] = useState<Department[]>([]);
-  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [employees] = useState<Employee[]>([]);
   const [form] = Form.useForm();
 
   const fetchDepartments = async () => {
@@ -61,7 +61,7 @@ const DepartmentPage: React.FC = () => {
     setIsAddModalOpen(true);
   };
 
-  const showViewModal = async (departmentId: string) => {
+  const showViewModal = async (_departmentId: string) => {
     try {
       //   const response = await getEmployeesInDepartment(departmentId);
       //   setEmployees(response.data);

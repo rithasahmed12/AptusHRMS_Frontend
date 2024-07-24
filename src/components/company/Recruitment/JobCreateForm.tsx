@@ -6,47 +6,56 @@ import { useNavigate } from 'react-router-dom';
 
 const { Option } = Select;
 
+interface DynamicField {
+  name: string;
+  type: 'text' | 'number' | 'date' | 'file';
+  required: boolean;
+  fileTypes?: string[];
+}
+
+interface JobFormValues {
+  title: string;
+  description: string;
+  requirements: string[];
+  status: 'Open' | 'Closed';
+}
+
 const JobForm: React.FC = () => {
   const navigate = useNavigate();  
-  const [form] = Form.useForm();
-  const [dynamicFields, setDynamicFields] = useState([]);
+  const [form] = Form.useForm<JobFormValues>();
+  const [dynamicFields, setDynamicFields] = useState<DynamicField[]>([]);
 
-  const onFinish = async (values) => {
+  const onFinish = async (values: JobFormValues) => {
     try {
-        const jobData = {
-            ...values,
-            dynamicFields: dynamicFields.map(field => ({
-              name: field.name,
-              type: field.type,
-              required: field.required,
-              fileTypes: field.fileTypes // Only for file upload fields
-            }))
-          };
-          console.log("Job Data:",jobData);
-          // return;
-          await createJob(jobData);
-          message.success('job created successfully');
-          navigate('/c/recruitment/jobs')
-          
+      const jobData = {
+        ...values,
+        dynamicFields: dynamicFields.map(field => ({
+          name: field.name,
+          type: field.type,
+          required: field.required,
+          fileTypes: field.fileTypes
+        }))
+      };
+      console.log("Job Data:", jobData);
+      await createJob(jobData);
+      message.success('job created successfully');
+      navigate('/c/recruitment/jobs');
     } catch (error) {
-        message.error('failed to add job')
+      message.error('failed to add job');
     }
-  
-    
-    
   };
 
   const addDynamicField = () => {
     setDynamicFields([...dynamicFields, { name: '', type: 'text', required: false, fileTypes: [] }]);
   };
 
-  const removeDynamicField = (index) => {
+  const removeDynamicField = (index: number) => {
     const newFields = [...dynamicFields];
     newFields.splice(index, 1);
     setDynamicFields(newFields);
   };
 
-  const updateDynamicField = (index, field) => {
+  const updateDynamicField = (index: number, field: Partial<DynamicField>) => {
     const newFields = [...dynamicFields];
     newFields[index] = { ...newFields[index], ...field };
     setDynamicFields(newFields);
@@ -64,7 +73,7 @@ const JobForm: React.FC = () => {
         <Form.List name="requirements">
           {(fields, { add, remove }) => (
             <>
-              {fields.map((field, index) => (
+              {fields.map((field, _index) => (
                 <Space key={field.key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
                   <Form.Item
                     {...field}
@@ -101,7 +110,7 @@ const JobForm: React.FC = () => {
             />
             <Select
               value={field.type}
-              onChange={(value) => updateDynamicField(index, { type: value })}
+              onChange={(value: DynamicField['type']) => updateDynamicField(index, { type: value })}
             >
               <Option value="text">Text</Option>
               <Option value="number">Number</Option>
@@ -112,7 +121,7 @@ const JobForm: React.FC = () => {
               <Select
                 mode="multiple"
                 value={field.fileTypes}
-                onChange={(value) => updateDynamicField(index, { fileTypes: value })}
+                onChange={(value: string[]) => updateDynamicField(index, { fileTypes: value })}
                 placeholder="Select file types"
               >
                 <Option value="pdf">PDF</Option>
@@ -122,7 +131,7 @@ const JobForm: React.FC = () => {
             )}
             <Select
               value={field.required}
-              onChange={(value) => updateDynamicField(index, { required: value })}
+              onChange={(value: boolean) => updateDynamicField(index, { required: value })}
             >
               <Option value={true}>Required</Option>
               <Option value={false}>Optional</Option>

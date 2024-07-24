@@ -1,13 +1,9 @@
-import { useSelector } from 'react-redux';
 import { NavLink, Outlet, useParams } from 'react-router-dom';
-
 
 const ProfilePage = () => {
   const { id } = useParams<{id:string}>();
   return (
     <div className="bg-gray-100 min-h-screen">
-
-
       {/* Navigation */}
       <nav className="bg-white shadow">
         <div className="container mx-auto px-4">
@@ -21,9 +17,7 @@ const ProfilePage = () => {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
-
-          <Outlet context={{id}}/>
-
+        <Outlet context={{id}}/>
       </div>
     </div>
   );

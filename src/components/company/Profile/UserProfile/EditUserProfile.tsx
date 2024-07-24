@@ -21,14 +21,14 @@ import {
   getEmployee,
   getDepartment,
   getDesignations,
-  updateEmployee,
+  updateEmployeeProfile,
 } from "../../../../api/company";
 import { useDispatch, useSelector } from "react-redux";
 import { setCompanyInfo } from "../../../../redux/slices/companySlice/companySlice";
 
 
 const { Option } = Select;
-const {Text,Title} = Typography
+const {Title} = Typography
 
 interface Employee {
   _id: string;
@@ -84,14 +84,14 @@ const EditUserProfile: React.FC = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const [employee, setEmployee] = useState<Employee | null>(null);
+  const [_employee, setEmployee] = useState<Employee | null>(null);
   const [fileToUpload, setFileToUpload] = useState<File | null>(null);
 const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState<string>("1");
   const [loading, setLoading] = useState(false);
 
-  const [departments, setDepartments] = useState<Department[]>([]);
-  const [designations, setDesignations] = useState<Designation[]>([]);
+  const [_departments, setDepartments] = useState<Department[]>([]);
+  const [_designations, setDesignations] = useState<Designation[]>([]);
 
   useEffect(() => {
     fetchEmployee();
@@ -189,7 +189,7 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
         console.log(key, value);
       }
   
-      const response = await updateEmployee(id!, formData);
+      const response = await updateEmployeeProfile(id!, formData);
       console.log(response);
       dispatch(setCompanyInfo({
         ...companyInfo,
@@ -214,10 +214,10 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     setCurrentTab(nextTabKey);
   };
 
-  const prevTab = () => {
-    const prevTabKey = (parseInt(currentTab) - 1).toString();
-    setCurrentTab(prevTabKey);
-  };
+  // const prevTab = () => {
+  //   const prevTabKey = (parseInt(currentTab) - 1).toString();
+  //   setCurrentTab(prevTabKey);
+  // };
 
   const handleTabChange = (key: string) => {
     setCurrentTab(key);

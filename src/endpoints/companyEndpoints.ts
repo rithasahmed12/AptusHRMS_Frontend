@@ -16,6 +16,8 @@ const companyRoutes={
     Designation:(id:string|undefined)=>`designation/${id}`,
     employee:'employee',
     Employee:(id:string|undefined)=>`employee/${id}`,
+    EmployeeProfile:(id:string|undefined)=>`employee/profile/${id}`,
+    changePasswordProfile:(id:string)=>`employee/change-password/${id}`,
     project:'project',
     Project:(id:string|undefined)=>`project/${id}`,
     workShift:'workshift',

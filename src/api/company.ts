@@ -1,9 +1,10 @@
 import companyRoutes from "../endpoints/companyEndpoints";
 import axios from "axios";
 
-const BASE_URL = import.meta.env.VITE_BASE_URL;
-const CompanyApi = axios.create({ baseURL: BASE_URL , withCredentials:true});
+const BASE_URL = import.meta.env.PROD ? 'https://api.shoetopia.site/' : import.meta.env.VITE_BASE_URL;
+console.log('BaseUrl:',BASE_URL);
 
+const CompanyApi = axios.create({ baseURL: BASE_URL , withCredentials:true});
 
 
 
@@ -262,6 +263,21 @@ export const updateEmployee = async(id:string,formData:FormData)=>{
   } 
 }
 
+export const updateEmployeeProfile = async(id:string,formData:FormData)=>{
+  try {
+    console.log('Employee:',formData);
+    const response = await CompanyApi.put(companyRoutes.EmployeeProfile(id),formData,{
+      headers:{
+        'Content-Type': 'multipart/form-data',
+      }
+    });
+    return response;
+  } catch (error:any) {
+    console.log(error); 
+    throw new Error(error.response.data.message);
+  } 
+}
+
 export const deleteEmployee = async(id:string)=>{
   try {
     const response = await CompanyApi.delete(companyRoutes.Employee(id));
@@ -271,10 +287,8 @@ export const deleteEmployee = async(id:string)=>{
   } 
 }
 
-// Project ********************************************** //
-
 interface Project {
-  _id?:string;
+  _id?: string;
   name: string;
   description: string;
   status: "Not Started" | "In Progress" | "Completed";
@@ -282,9 +296,8 @@ interface Project {
   priority: "Low" | "Medium" | "High";
   startDate: Date;
   endDate: Date;
-  assignedPerson:{_id:string};
+  assignedPerson?: { _id: string };
 }
-
 
 export const createProject = async (body: Omit<Project, '_id'>) => {
   try {
@@ -294,41 +307,39 @@ export const createProject = async (body: Omit<Project, '_id'>) => {
       },
     });
     return response;
-  } catch (error:any) {
+  } catch (error: any) {
     console.log('ERROR:', error);
-    throw new Error(error.response.data.message);
+    throw new Error(error.response?.data?.message || 'An error occurred');
   }
 };
 
-
-export const getProjects = async()=>{
+export const getProjects = async () => {
   try {
     const response = await CompanyApi.get(companyRoutes.project);
     return response;
-  } catch (error:any) {
-    throw new Error(error.response.data.message);
-  }
-}
-
-export const editProject = async (id: string, body: Project) => {
-  try {
-    console.log('body:',body);
-    const response = await CompanyApi.put(companyRoutes.Project(id), body);
-    return response;
-  } catch (error:any) {
-    throw new Error(error.response.data.message);
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || 'An error occurred');
   }
 };
 
-export const deleteProject = async(id:string)=>{
+export const editProject = async (id: string, body: Project) => {
+  try {
+    console.log('body:', body);
+    const response = await CompanyApi.put(companyRoutes.Project(id), body);
+    return response;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || 'An error occurred');
+  }
+};
+
+export const deleteProject = async (id: string) => {
   try {
     const response = await CompanyApi.delete(companyRoutes.Project(id));
     return response;
-  } catch (error:any) {
-    throw new Error(error.response.data.message);
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || 'An error occurred');
   }
-}
-
+};
 
 // Forget Password ********************************************** //
 
@@ -381,6 +392,22 @@ export const companyDataUpsert = async(formData:FormData)=>{
     const response = await CompanyApi.post(companyRoutes.upsert,formData,{
       headers:{'Content-Type': 'multipart/form-data'},
     });
+    return response;
+  } catch (error:any) {
+    console.log(error);
+    throw new Error(error.response.data.message);
+  }
+}
+
+interface ChangePassword {
+  currentPassword:string;
+  newPassword:string;
+  confirmPassword:string
+}
+
+export const profileChangePassword = async(id:string,body:ChangePassword)=>{
+  try {
+    const response = await CompanyApi.patch(companyRoutes.changePasswordProfile(id),body);
     return response;
   } catch (error:any) {
     console.log(error);
@@ -698,7 +725,7 @@ export const getAllJobs = async () => {
   }
 };
 
-export const createJob = async (jobData: JobData) => {
+export const createJob = async (jobData: any) => {
   try {
     const response = await CompanyApi.post(companyRoutes.jobs, jobData);
     return response;
@@ -708,7 +735,7 @@ export const createJob = async (jobData: JobData) => {
   }
 };
 
-export const updateJob = async (jobId: string, jobData: Partial<JobData>) => {
+export const updateJob = async (jobId: string, jobData: Partial<any>) => {
   try {
     const response = await CompanyApi.put(companyRoutes.Job(jobId), jobData);
     return response;
@@ -760,7 +787,6 @@ export const getApplicants = async () => {
   }
 };
 
-// api/company.ts
 export const getShortlistedCandidates = async () => {
   try {
     const response = await CompanyApi.get(companyRoutes.shortlistedCandidates);
@@ -833,7 +859,6 @@ export const getTodayAttendance = async () => {
   }
 };
 
-// api/attendanceApi.ts
 export const getCurrentDayEmployeeAttendance = async (employeeId: string) => {
   try {
     const response = await CompanyApi.get(companyRoutes.attendance.currentDay(employeeId));
@@ -846,7 +871,7 @@ export const getCurrentDayEmployeeAttendance = async (employeeId: string) => {
 };
 
 
-export const getPayrollData = async ({ year, month, employeeId }) => {
+export const getPayrollData = async ({ year, month, employeeId }:any) => {
   try {
     const response = await CompanyApi.get('payroll/attendance', {
       params: {
@@ -857,7 +882,7 @@ export const getPayrollData = async ({ year, month, employeeId }) => {
     });
     return response.data;
   } catch (error:any) {
-    console.log('ACIOS ERROR:',error);
+    console.log('AXIOS ERROR:',error);
     
     throw new Error(error.response.data.message);
   }

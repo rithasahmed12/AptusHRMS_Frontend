@@ -65,7 +65,7 @@ const AssetsApplication: React.FC = () => {
     { 
       title: 'Asset',
       key: 'asset',
-      render: (text: string, record: AssetApplication) => (
+      render: (_text: string, record: AssetApplication) => (
         <Space>
           <Image
             src={record.assetId.image}

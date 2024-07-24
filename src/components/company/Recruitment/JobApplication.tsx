@@ -3,24 +3,44 @@ import { useParams } from 'react-router-dom';
 import { Card, Form, Input, DatePicker, InputNumber, Upload, Button, message, Row, Col, Typography, List, Divider, Descriptions } from 'antd';
 import { UploadOutlined, ClockCircleOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import { getJobDetails, submitApplication } from '../../../api/company';
+import { RcFile, UploadFile } from 'antd/lib/upload/interface';
 
 const { Title, Paragraph } = Typography;
 
-const JobDetails = () => {
-  const { id } = useParams();
-  const [job, setJob] = useState(null);
+interface JobField {
+  name: string;
+  type: string;
+  required: boolean;
+  fileTypes?: string[];
+}
+
+interface Job {
+  _id: string;
+  title: string;
+  description: string;
+  requirements: string[];
+  status: string;
+  createdAt: string;
+  dynamicFields: JobField[];
+}
+
+const JobDetails: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const [job, setJob] = useState<Job | null>(null);
   const [form] = Form.useForm();
-  const [fileList, setFileList] = useState({});
-  const [place, setPlace] = useState(null);
+  const [fileList, setFileList] = useState<{ [key: string]: UploadFile[] }>({});
+  const [place, setPlace] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchJobDetails();
-    getUserLocation();
+    if (id) {
+      fetchJobDetails();
+      getUserLocation();
+    }
   }, [id]);
 
   const fetchJobDetails = async () => {
     try {
-      const response = await getJobDetails(id);
+      const response = await getJobDetails(id as string);
       setJob(response.data);
     } catch (error) {
       console.error('Failed to fetch job details:', error);
@@ -51,7 +71,7 @@ const JobDetails = () => {
     }
   };
 
-  const onFinish = async (values) => {
+  const onFinish = async (values: any) => {
     try {
       const formData = new FormData();
       
@@ -65,11 +85,13 @@ const JobDetails = () => {
       // Append files
       Object.keys(fileList).forEach(key => {
         fileList[key].forEach(file => {
-          formData.append(key, file.originFileObj);
+          if (file.originFileObj) {
+            formData.append(key, file.originFileObj as RcFile);
+          }
         });
       });
   
-      formData.append('jobId', id);
+      formData.append('jobId', id as string);
       
       if (place) {
         formData.append('place', place);
@@ -85,7 +107,7 @@ const JobDetails = () => {
     }
   };
 
-  const handleFileChange = ({ file, fileList }, fieldName) => {
+  const handleFileChange = ({ fileList }: { fileList: UploadFile[] }, fieldName: string) => {
     setFileList(prev => ({
       ...prev,
       [fieldName]: fileList
@@ -152,7 +174,7 @@ const JobDetails = () => {
                         fileList={fileList[field.name] || []}
                         onChange={(info) => handleFileChange(info, field.name)}
                         beforeUpload={() => false}
-                        accept={field.fileTypes.map(type => type === 'pdf' ? '.pdf' : type === 'image' ? 'image/*' : '.doc,.docx').join(',')}
+                        accept={field.fileTypes?.map(type => type === 'pdf' ? '.pdf' : type === 'image' ? 'image/*' : '.doc,.docx').join(',')}
                       >
                         <Button icon={<UploadOutlined />}>Upload File</Button>
                       </Upload>

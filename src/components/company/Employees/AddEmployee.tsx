@@ -59,11 +59,11 @@ function convertToDate(dayjsObject: any): Date | null {
 const AddEmployee: React.FC = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
-  const [profilePic, setProfilePic] = useState<File | null>(null);
+  // const [profilePic, setProfilePic] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [allowances, setAllowances] = useState<{ name: string; amount: number }[]>([]);
   const [currentTab, setCurrentTab] = useState<string>("1");
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [_isSubmitted, setIsSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const [departments, setDepartments] = useState<Department[]>([]);
@@ -199,10 +199,6 @@ const AddEmployee: React.FC = () => {
     setCurrentTab(nextTabKey);
   };
 
-  const prevTab = () => {
-    const prevTabKey = (parseInt(currentTab) - 1).toString();
-    setCurrentTab(prevTabKey);
-  };
 
   const handleTabChange = (key: string) => {
     setCurrentTab(key);

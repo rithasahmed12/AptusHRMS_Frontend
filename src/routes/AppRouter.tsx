@@ -10,20 +10,31 @@ const AppRouter = () => {
   useEffect(() => {
     const url = new URL(window.location.href);
     const hostname = url.hostname;
-    const tenantName = hostname.includes('.') ? hostname.split('.')[0] : null;
-    setTenantName(tenantName);
-    console.log('Tenant Name:', tenantName);
+
+    let extractedTenantName: string | null;
+
+    if (import.meta.env.PROD) {
+      // Production: Check if the hostname has more than two parts (subdomain.domain.tld)
+      const parts = hostname.split('.');
+      extractedTenantName = parts.length > 2 ? parts[0] : null;
+    } else {
+      // Development: Check if there's any subdomain
+      extractedTenantName = hostname.includes('.') ? hostname.split('.')[0] : null;
+    }
+    
+    setTenantName(extractedTenantName);
+    console.log('Tenant Name:', extractedTenantName);
   }, []);
 
   if (tenantName) {
-    // Render CompanyRoutes component
+    // Render CompanyRoutes component for subdomains
     return (
       <Routes>
         <Route path="/*" element={<CompanyRoutes />} />
       </Routes>
     );
   } else {
-    // Render default routes
+    // Render default routes for main domain
     return (
       <Routes>
         <Route path="/*" element={<UserRoutes />} />

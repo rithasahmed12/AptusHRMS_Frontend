@@ -52,8 +52,10 @@ const PlanSelectionForm = () => {
 
     setIsLoading(true);
 
+    const BASE_URL = import.meta.env.PROD ? 'https://api.shoetopia.site/' : import.meta.env.VITE_BASE_URL;
+
     const response = await fetch(
-      "http://localhost:3001/payment/checkout-session",
+      `${BASE_URL}payment/checkout-session`,
       {
         method: "POST",
         headers: { "Content-Type": "Application/JSON" },

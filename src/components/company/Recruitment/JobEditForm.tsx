@@ -6,22 +6,41 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 const { Option } = Select;
 
-const EditJobForm = () => {
+interface DynamicField {
+  name: string;
+  type: 'text' | 'number' | 'date' | 'file';
+  required: boolean;
+  fileTypes?: string[];
+}
+
+interface JobData {
+  title: string;
+  description: string;
+  requirements: string[];
+  status: 'Open' | 'Closed';
+  dynamicFields?: DynamicField[];
+}
+
+const EditJobForm: React.FC = () => {
   const navigate = useNavigate();
-  const { id } = useParams();
-  const [form] = Form.useForm();
-  const [dynamicFields, setDynamicFields] = useState([]);
+  const { id } = useParams<{ id: string }>();
+  const [form] = Form.useForm<JobData>();
+  const [dynamicFields, setDynamicFields] = useState<DynamicField[]>([]);
 
   useEffect(() => {
-    fetchJobDetails();
+    if (id) {
+      fetchJobDetails();
+    }
   }, [id]);
 
   const fetchJobDetails = async () => {
+    if (!id) return;
+
     try {
       const response = await getJobDetails(id);
-      console.log('responseJob:',response);
+      console.log('responseJob:', response);
       
-      const jobData = response.data;
+      const jobData: JobData = response.data;
       form.setFieldsValue({
         title: jobData.title,
         description: jobData.description,
@@ -35,9 +54,11 @@ const EditJobForm = () => {
     }
   };
 
-  const onFinish = async (values) => {
+  const onFinish = async (values: JobData) => {
+    if (!id) return;
+
     try {
-      const jobData = {
+      const jobData: JobData = {
         ...values,
         dynamicFields: dynamicFields.map(field => ({
           name: field.name,
@@ -58,13 +79,13 @@ const EditJobForm = () => {
     setDynamicFields([...dynamicFields, { name: '', type: 'text', required: false, fileTypes: [] }]);
   };
 
-  const removeDynamicField = (index) => {
+  const removeDynamicField = (index: number) => {
     const newFields = [...dynamicFields];
     newFields.splice(index, 1);
     setDynamicFields(newFields);
   };
 
-  const updateDynamicField = (index, field) => {
+  const updateDynamicField = (index: number, field: Partial<DynamicField>) => {
     const newFields = [...dynamicFields];
     newFields[index] = { ...newFields[index], ...field };
     setDynamicFields(newFields);
@@ -82,7 +103,7 @@ const EditJobForm = () => {
         <Form.List name="requirements">
           {(fields, { add, remove }) => (
             <>
-              {fields.map((field, index) => (
+              {fields.map((field,_index) => (
                 <Space key={field.key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
                   <Form.Item
                     {...field}
@@ -119,7 +140,7 @@ const EditJobForm = () => {
             />
             <Select
               value={field.type}
-              onChange={(value) => updateDynamicField(index, { type: value })}
+              onChange={(value: DynamicField['type']) => updateDynamicField(index, { type: value })}
             >
               <Option value="text">Text</Option>
               <Option value="number">Number</Option>
@@ -130,7 +151,7 @@ const EditJobForm = () => {
               <Select
                 mode="multiple"
                 value={field.fileTypes}
-                onChange={(value) => updateDynamicField(index, { fileTypes: value })}
+                onChange={(value: string[]) => updateDynamicField(index, { fileTypes: value })}
                 placeholder="Select file types"
               >
                 <Option value="pdf">PDF</Option>
@@ -140,7 +161,7 @@ const EditJobForm = () => {
             )}
             <Select
               value={field.required}
-              onChange={(value) => updateDynamicField(index, { required: value })}
+              onChange={(value: boolean) => updateDynamicField(index, { required: value })}
             >
               <Option value={true}>Required</Option>
               <Option value={false}>Optional</Option>

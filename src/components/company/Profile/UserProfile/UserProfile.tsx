@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate, useOutletContext } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { Tabs, Button, Row, Col, Spin, message, Card, Typography } from "antd";
 import { getEmployee } from "../../../../api/company";
 import dayjs from "dayjs";
 import { EditOutlined } from "@ant-design/icons";
-import { useDispatch, useSelector } from "react-redux";
 
 const { Text, Title } = Typography;
 

@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Card, Button, Space, Typography, Row, Col, message } from 'antd';
+import { Card, Button, Typography, Row, Col, message } from 'antd';
 import { ClockCircleOutlined, CheckOutlined } from '@ant-design/icons';
 import { checkIn, checkOut, getCurrentDayEmployeeAttendance, getEmployee } from '../../../../api/company';
 import moment from 'moment';
 import { setLastPunchTime, setPunchStatus } from '../../../../redux/slices/companySlice/attendanceSlice';
 import { toast } from 'react-toastify';
 
-const { Title, Paragraph } = Typography;
+const { Paragraph } = Typography;
 
 const PunchCard = () => {
   const dispatch = useDispatch();
   const userId = useSelector((state: any) => state.companyInfo.companyInfo.id);
   const punchStatus = useSelector((state: any) => state.attendance.punchStatus);
-  const lastPunchTime = useSelector((state: any) => state.attendance.lastPunchTime);
+  // const lastPunchTime = useSelector((state: any) => state.attendance.lastPunchTime);
 
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -91,7 +91,7 @@ const PunchCard = () => {
   const handlePunch = async (type: 'in' | 'out') => {
     try {
       setLoading(true);
-      const response = type === 'in' ? await checkIn(userId) : await checkOut(userId);
+       type === 'in' ? await checkIn(userId) : await checkOut(userId);
       
       const now = moment();
       const timeString = now.format('HH:mm:ss');

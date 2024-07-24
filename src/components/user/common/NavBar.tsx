@@ -16,7 +16,7 @@ const NavBar = () => {
         <div className="ms-16 cursor-pointer md:text-xl text-lg">
             <Link to='/'>
           <h1 className="text-brown-dark hover:text-brown-light transition duration-300 font-extrabold">
-            APTUS
+            APTUS HRMS
           </h1>
             </Link>
         </div>

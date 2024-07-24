@@ -51,7 +51,7 @@ const DesignationPage: React.FC = () => {
     useState<Designation | null>(null);
   const [designations, setDesignations] = useState<Designation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [employees, _setEmployees] = useState<Employee[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [form] = Form.useForm();
 
@@ -89,7 +89,7 @@ const DesignationPage: React.FC = () => {
     setIsAddModalOpen(true);
   };
 
-  const showViewModal = async (designationId: string) => {
+  const showViewModal = async (_designationId: string) => {
     try {
       //   const response = await getEmployeesInDesignation(designationId);
       //   setEmployees(response.data);

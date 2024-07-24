@@ -3,9 +3,7 @@ import NavBar from "../common/NavBar";
 import ContactForm from "./ContactForm";
 import Footer from "../common/Footer";
 
-type Props = {};
-
-const ContactPage = (props: Props) => {
+const ContactPage = () => {
   const [isMobile, setIsMobile] = useState<boolean>(false);
 
   useEffect(() => {

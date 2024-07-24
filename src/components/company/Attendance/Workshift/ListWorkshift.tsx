@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Button, message, Modal } from 'antd';
-import { PlusOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import { PlusOutlined} from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { getAllWorkShifts, deleteWorkShift } from '../../../../api/company';
 import moment from 'moment';

@@ -58,7 +58,7 @@ const HolidayList: React.FC = () => {
     {
       title: "Day",
       key: "day",
-      render: (text: string, record: Holiday) => {
+      render: (_text: string, record: Holiday) => {
         const start = moment(record.startDate);
         const end = moment(record.endDate);
         return end.diff(start, "days") + 1;
@@ -69,7 +69,7 @@ const HolidayList: React.FC = () => {
           {
             title: "Action",
             key: "action",
-            render: (text: string, record: Holiday) => (
+            render: (_text: string, record: Holiday) => (
               <span>
                 <Button
                   icon={<EditOutlined />}
