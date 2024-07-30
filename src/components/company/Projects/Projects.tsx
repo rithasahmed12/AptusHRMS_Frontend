@@ -56,7 +56,9 @@ interface Employee {
 }
 
 const ProjectList: React.FC = () => {
-  const userRole = useSelector((state: any) => state.companyInfo.companyInfo.role);
+  const userRole = useSelector(
+    (state: any) => state.companyInfo.companyInfo.role
+  );
   const userId = useSelector((state: any) => state.companyInfo.companyInfo.id);
 
   const [projects, setProjects] = useState<Project[]>([]);
@@ -82,20 +84,19 @@ const ProjectList: React.FC = () => {
   const fetchProjects = async () => {
     try {
       const response = await getProjects();
-      console.log('Projectresponse:',response);
-      console.log('UserId:',userId);
-      
-      if (userRole === 'admin' || userRole === 'hr') {
+      console.log("Projectresponse:", response);
+      console.log("UserId:", userId);
+
+      if (userRole === "admin" || userRole === "hr") {
         setProjects(response.data);
       } else {
-        // Filter projects assigned to the logged-in employee
         const assignedProjects = response.data.filter(
           (project: Project) => project.assignedPerson?._id === userId
         );
         setProjects(assignedProjects);
       }
-    } catch (error:any) {
-      toast.error(error.message)
+    } catch (error: any) {
+      toast.error(error.message);
     }
   };
 
@@ -200,7 +201,7 @@ const ProjectList: React.FC = () => {
       width: "10%",
       render: (_: any, record: Project) => (
         <Space size="small">
-          {(userRole === 'admin' || userRole === 'hr') && (
+          {(userRole === "admin" || userRole === "hr") && (
             <>
               <Tooltip title="Delete">
                 <Button
@@ -213,23 +214,25 @@ const ProjectList: React.FC = () => {
               </Tooltip>
             </>
           )}
-          {(userRole === 'admin' || userRole === 'hr' || record.assignedPerson?._id === userId) && (
+          {(userRole === "admin" ||
+            userRole === "hr" ||
+            record.assignedPerson?._id === userId) && (
             <>
-            <Tooltip title="Edit">
+              <Tooltip title="Edit">
                 <Button
                   icon={<EditOutlined />}
                   onClick={() => handleEdit(record)}
                   size="small"
                 />
               </Tooltip>
-            <Tooltip title="View More">
-              <Button
-                type="primary"
-                icon={<EyeOutlined />}
-                onClick={() => handleViewMore(record)}
-                size="small"
-              />
-            </Tooltip>
+              <Tooltip title="View More">
+                <Button
+                  type="primary"
+                  icon={<EyeOutlined />}
+                  onClick={() => handleViewMore(record)}
+                  size="small"
+                />
+              </Tooltip>
             </>
           )}
         </Space>
@@ -279,8 +282,8 @@ const ProjectList: React.FC = () => {
       fetchProjects();
       setIsAddModalVisible(false);
       message.success("Project created successfully!");
-    } catch (error:any) {
-      toast.error(error.message)
+    } catch (error: any) {
+      toast.error(error.message);
     }
   };
 
@@ -301,8 +304,8 @@ const ProjectList: React.FC = () => {
       fetchProjects();
       setIsEditModalVisible(false);
       message.success("Project edited successfully!");
-    } catch (error:any) {
-      toast.error(error.message)
+    } catch (error: any) {
+      toast.error(error.message);
     }
   };
 
@@ -325,8 +328,8 @@ const ProjectList: React.FC = () => {
       );
       setIsDeleteModalVisible(false);
       message.success("Project deleted successfully!");
-    } catch (error:any) {
-      toast.error(error.message)
+    } catch (error: any) {
+      toast.error(error.message);
     }
   };
 
@@ -336,7 +339,7 @@ const ProjectList: React.FC = () => {
         <Col>
           <Title level={2}>Project List</Title>
         </Col>
-       {(userRole === 'admin' || userRole === 'hr') && (
+        {(userRole === "admin" || userRole === "hr") && (
           <Col>
             <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
               Add Project
@@ -383,9 +386,7 @@ const ProjectList: React.FC = () => {
           <Form.Item
             name="priority"
             label="Priority"
-            rules={[
-              { required: true, message: "Please select the priority!" },
-            ]}
+            rules={[{ required: true, message: "Please select the priority!" }]}
           >
             <Select placeholder="Select project priority">
               <Option value="Low">Low</Option>
@@ -403,26 +404,52 @@ const ProjectList: React.FC = () => {
                   { required: true, message: "Please select the start date!" },
                 ]}
               >
-                <DatePicker style={{ width: "100%" }} />
+                <DatePicker
+                  style={{ width: "100%" }}
+                  onChange={() => {
+                    // Revalidate the end date when start date changes
+                    form.validateFields(["endDate"]);
+                  }}
+                />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
                 name="endDate"
                 label="End Date"
+                dependencies={["startDate"]}
                 rules={[
                   { required: true, message: "Please select the end date!" },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      const startDate = getFieldValue("startDate");
+                      if (!value || !startDate) {
+                        return Promise.resolve();
+                      }
+                      if (value.isSameOrAfter(startDate)) {
+                        return Promise.resolve();
+                      }
+                      return Promise.reject(
+                        new Error("End date must be after start date!")
+                      );
+                    },
+                  }),
                 ]}
               >
-                <DatePicker style={{ width: "100%" }} />
+                <DatePicker
+                  style={{ width: "100%" }}
+                  disabledDate={(current) => {
+                    const startDate = form.getFieldValue("startDate");
+                    return (
+                      startDate && current && current.isBefore(startDate, "day")
+                    );
+                  }}
+                />
               </Form.Item>
             </Col>
           </Row>
 
-          <Form.Item
-            name="assignedPerson"
-            label="Assigned Person"
-          >
+          <Form.Item name="assignedPerson" label="Assigned Person">
             <Select placeholder="Select an employee">
               {employees.map((employee) => (
                 <Option key={employee._id} value={employee._id}>
@@ -471,9 +498,7 @@ const ProjectList: React.FC = () => {
           <Form.Item
             name="priority"
             label="Priority"
-            rules={[
-              { required: true, message: "Please select the priority!" },
-            ]}
+            rules={[{ required: true, message: "Please select the priority!" }]}
           >
             <Select>
               <Option value="Low">Low</Option>
@@ -481,20 +506,14 @@ const ProjectList: React.FC = () => {
               <Option value="High">High</Option>
             </Select>
           </Form.Item>
-          <Form.Item
-            name="status"
-            label="Status"
-          >
+          <Form.Item name="status" label="Status">
             <Select>
               <Option value="Not Started">Not Started</Option>
               <Option value="In Progress">In Progress</Option>
               <Option value="Completed">Completed</Option>
             </Select>
           </Form.Item>
-          <Form.Item
-            name="progress"
-            label="Progress"
-          >
+          <Form.Item name="progress" label="Progress">
             <Slider min={0} max={100} />
           </Form.Item>
 
@@ -507,26 +526,59 @@ const ProjectList: React.FC = () => {
                   { required: true, message: "Please select the start date!" },
                 ]}
               >
-                <DatePicker style={{ width: "100%" }} />
+                <DatePicker
+                  style={{ width: "100%" }}
+                  onChange={() => {
+                    // Revalidate the end date when start date changes
+                    form.validateFields(["endDate"]);
+                  }}
+                />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
                 name="endDate"
                 label="End Date"
+                dependencies={["startDate"]}
                 rules={[
                   { required: true, message: "Please select the end date!" },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      const startDate = getFieldValue("startDate");
+                      if (!value || !startDate) {
+                        return Promise.resolve();
+                      }
+                      if (
+                        value.isAfter(startDate) ||
+                        value.isSame(startDate, "day")
+                      ) {
+                        return Promise.resolve();
+                      }
+                      return Promise.reject(
+                        new Error(
+                          "End date must be same as or after start date!"
+                        )
+                      );
+                    },
+                  }),
                 ]}
               >
-                <DatePicker style={{ width: "100%" }} />
+                <DatePicker
+                  style={{ width: "100%" }}
+                  disabledDate={(current) => {
+                    const startDate = form.getFieldValue("startDate");
+                    return (
+                      startDate &&
+                      current &&
+                      current.endOf("day").isBefore(startDate)
+                    );
+                  }}
+                />
               </Form.Item>
             </Col>
           </Row>
 
-          <Form.Item
-            name="assignedPerson"
-            label="Assigned Person"
-          >
+          <Form.Item name="assignedPerson" label="Assigned Person">
             <Select>
               {employees.map((employee) => (
                 <Option key={employee._id} value={employee._id}>

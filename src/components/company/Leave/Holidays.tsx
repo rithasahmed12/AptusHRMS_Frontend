@@ -26,6 +26,14 @@ const HolidayList: React.FC = () => {
   const [editingHoliday, setEditingHoliday] = useState<Holiday | null>(null);
   const [form] = Form.useForm();
 
+  const validateDates = (_: any, _value: any) => {
+    const { startDate, endDate } = form.getFieldsValue();
+    if (startDate && endDate && endDate.isBefore(startDate)) {
+      return Promise.reject(new Error("End date must be after start date"));
+    }
+    return Promise.resolve();
+  };
+
   useEffect(() => {
     fetchHolidays();
   }, []);
@@ -112,6 +120,10 @@ const HolidayList: React.FC = () => {
   };
 
   const handleAdd = async (values: any) => {
+    if (values.endDate.isBefore(values.startDate)) {
+      message.error('End date must be after start date');
+      return;
+    }
     const newHoliday = {
       name: values.name,
       startDate: values.startDate.format("YYYY-MM-DD"),
@@ -119,16 +131,19 @@ const HolidayList: React.FC = () => {
     };
     try {
       await createHoliday(newHoliday);
-        setIsAddModalVisible(false);
-        message.success("Holiday added successfully");
-        fetchHolidays();
+      setIsAddModalVisible(false);
+      message.success("Holiday added successfully");
+      fetchHolidays();
     } catch (error:any) {
-      toast.error(error.message)
+      toast.error(error.message);
     }
-   
   };
-
+  
   const handleEdit = async (values: any) => {
+    if (values.endDate.isBefore(values.startDate)) {
+      message.error('End date must be after start date');
+      return;
+    }
     if (editingHoliday) {
       const updatedHoliday = {
         name: values.name,
@@ -138,9 +153,9 @@ const HolidayList: React.FC = () => {
       
       try {   
         await updateHoliday(editingHoliday._id, updatedHoliday);
-          setIsEditModalVisible(false);
-          message.success("Holiday updated successfully");
-          fetchHolidays();
+        setIsEditModalVisible(false);
+        message.success("Holiday updated successfully");
+        fetchHolidays();
       } catch (error:any) {
         toast.error(error.message)
       }
@@ -149,13 +164,13 @@ const HolidayList: React.FC = () => {
 
   const handleDelete = async () => {
     if (editingHoliday) {
-      try {        
+      try {
         await deleteHoliday(editingHoliday._id);
-          setIsDeleteModalVisible(false);
-          message.success("Holiday deleted successfully");
-          fetchHolidays();
-      } catch (error:any) {
-        toast.error(error.message)
+        setIsDeleteModalVisible(false);
+        message.success("Holiday deleted successfully");
+        fetchHolidays();
+      } catch (error: any) {
+        toast.error(error.message);
       }
     }
   };
@@ -187,14 +202,20 @@ const HolidayList: React.FC = () => {
           <Form.Item
             name="startDate"
             label="Start Date"
-            rules={[{ required: true }]}
+            rules={[
+              { required: true, message: "Please select a start date" },
+              { validator: validateDates },
+            ]}
           >
             <DatePicker className="w-full" />
           </Form.Item>
           <Form.Item
             name="endDate"
             label="End Date"
-            rules={[{ required: true }]}
+            rules={[
+              { required: true, message: "Please select an end date" },
+              { validator: validateDates },
+            ]}
           >
             <DatePicker className="w-full" />
           </Form.Item>
@@ -223,14 +244,22 @@ const HolidayList: React.FC = () => {
           <Form.Item
             name="startDate"
             label="Start Date"
-            rules={[{ required: true }]}
+            rules={[
+              { required: true, message: "Please select a start date" },
+              { validator: validateDates },
+            ]}
+            dependencies={["endDate"]}
           >
             <DatePicker className="w-full" />
           </Form.Item>
           <Form.Item
             name="endDate"
             label="End Date"
-            rules={[{ required: true }]}
+            rules={[
+              { required: true, message: "Please select an end date" },
+              { validator: validateDates },
+            ]}
+            dependencies={["startDate"]}
           >
             <DatePicker className="w-full" />
           </Form.Item>

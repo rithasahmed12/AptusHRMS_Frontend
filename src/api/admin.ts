@@ -14,7 +14,7 @@ export const adminLogin = async (body: { email: string, password: string }): Pro
             return error.response;
         } else {
             console.error('Unexpected error:', error);
-            throw error; // or handle accordingly
+            throw error;
         }
     }
 }

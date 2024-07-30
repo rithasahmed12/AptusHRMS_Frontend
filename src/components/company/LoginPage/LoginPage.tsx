@@ -30,27 +30,29 @@ const LoginPages = () => {
   const handleLogin = async (e: any) => {
     e.preventDefault();
 
-    const body = {
-      email: email,
-      password: password,
-    };
-
-    const response = await companyLogin(body);
-    console.log(response);
-    if (response.status === 201) {
-      message.success(response.data.message);
-      dispatch(setCompanyInfo({
-        id:response.data.id,
-        email: response.data.email,
-        token: response.data.accessToken,
-        profilePic:response.data.profilePic,
-        logo:response.data.logo,
-        companyName:response.data.companyName,
-        role:response.data.role,
-      }));
-      navigate('/c/dashboard');
-    } else {
-      message.error(response.data.message);
+    try {
+      const body = {
+        email: email,
+        password: password,
+      };
+  
+      const response = await companyLogin(body);
+      console.log(response);
+      if (response.status === 201) {
+        message.success(response.data.message);
+        dispatch(setCompanyInfo({
+          id:response.data.id,
+          email: response.data.email,
+          token: response.data.accessToken,
+          profilePic:response.data.profilePic,
+          logo:response.data.logo,
+          companyName:response.data.companyName,
+          role:response.data.role,
+        }));
+        navigate('/c/dashboard');
+      }
+    } catch (error:any) {
+      message.error(error.message);
     }
   };
 

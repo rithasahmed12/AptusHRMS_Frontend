@@ -64,10 +64,10 @@ interface Department {
 }
 
 interface WorkShift {
-  _id:string;
-  shiftName:string;
-  shiftIn:string;
-  shiftOut:string
+  _id: string;
+  shiftName: string;
+  shiftIn: string;
+  shiftOut: string;
 }
 
 function convertToDate(dayjsObject: any): Date | null {
@@ -87,14 +87,16 @@ const EditEmployee: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [, setEmployee] = useState<Employee | null>(null);
   const [fileToUpload, setFileToUpload] = useState<File | null>(null);
-const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState<string>("1");
   const [loading, setLoading] = useState(false);
 
   const [departments, setDepartments] = useState<Department[]>([]);
   const [designations, setDesignations] = useState<Designation[]>([]);
   const [workShifts, setWorkShifts] = useState<WorkShift[]>([]);
-  const [allowances, setAllowances] = useState<{ name: string; amount: number }[]>([]);
+  const [allowances, setAllowances] = useState<
+    { name: string; amount: number }[]
+  >([]);
 
   useEffect(() => {
     fetchEmployee();
@@ -132,15 +134,18 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   };
 
   const handleAddAllowance = () => {
-    setAllowances([...allowances, { name: '', amount: 0 }]);
+    setAllowances([...allowances, { name: "", amount: 0 }]);
   };
 
-  const handleAllowanceChange = (index: number, field: 'name' | 'amount', value: string | number) => {
+  const handleAllowanceChange = (
+    index: number,
+    field: "name" | "amount",
+    value: string | number
+  ) => {
     const newAllowances = [...allowances];
     newAllowances[index][field] = value as never;
     setAllowances(newAllowances);
   };
-
 
   const fetchDepartments = async () => {
     try {
@@ -170,7 +175,12 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   };
 
   const isImageFile = (file: File) => {
-    const acceptedImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml'];
+    const acceptedImageTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/gif",
+      "image/svg+xml",
+    ];
     return file && acceptedImageTypes.includes(file.type);
   };
 
@@ -183,11 +193,11 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
         setPreviewUrl(reader.result as string);
       };
       reader.readAsDataURL(file);
-  
+
       // Store the file for later upload
       setFileToUpload(file);
-    }else{
-      message.error('please upload image files only')
+    } else {
+      message.error("please upload image files only");
     }
   };
 
@@ -195,46 +205,49 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     setLoading(true);
     try {
       const formData = new FormData();
-  
+
       // Append all form fields to formData
-      Object.keys(values).forEach(key => {
-        if (key === 'dob' || key === 'hireDate' || key === 'joiningDate') {
+      Object.keys(values).forEach((key) => {
+        if (key === "dob" || key === "hireDate" || key === "joiningDate") {
           const date = convertToDate(values[key]);
-          formData.append(key, date ? date.toISOString() : '');
-        } else if (key === 'basicSalary') {
+          formData.append(key, date ? date.toISOString() : "");
+        } else if (key === "basicSalary") {
           formData.append(key, values[key].toString());
-        } else if (key === 'departmentId' || key === 'designationId' || key === 'workShift') {
+        } else if (
+          key === "departmentId" ||
+          key === "designationId" ||
+          key === "workShift"
+        ) {
           formData.append(key, values[key]?._id || values[key]);
         } else {
           formData.append(key, values[key]);
         }
       });
-  
+
       // Append allowances
-      formData.append('allowances', JSON.stringify(allowances));
-  
+      formData.append("allowances", JSON.stringify(allowances));
+
       // Append the file if a new one was selected
       if (fileToUpload) {
-        formData.append('file', fileToUpload);
+        formData.append("file", fileToUpload);
       }
-  
-      console.log('FormData content:');
+
+      console.log("FormData content:");
       for (let [key, value] of formData.entries()) {
         console.log(key, value);
       }
-  
+
       const response = await updateEmployee(id!, formData);
       console.log(response);
       message.success("Employee updated successfully");
       navigate("/c/employees");
-    } catch (error:any) {
+    } catch (error: any) {
       console.error("Error updating employee:", error);
       toast.error(error.message);
     } finally {
       setLoading(false);
     }
   };
-  
 
   const goBack = () => {
     navigate(-1);
@@ -319,12 +332,27 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
                 name="dob"
                 rules={[
                   {
-                    required: true,
+                    required: false,
                     message: "Please select date of birth!",
+                  },
+                  {
+                    validator: (_, value) => {
+                      if (value && dayjs().diff(value, "year") < 18) {
+                        return Promise.reject(
+                          "Employee must be at least 18 years old"
+                        );
+                      }
+                      return Promise.resolve();
+                    },
                   },
                 ]}
               >
-                <DatePicker style={{ width: "100%" }} />
+                <DatePicker
+                  style={{ width: "100%" }}
+                  disabledDate={(current) =>
+                    current && current > dayjs().subtract(18, "year")
+                  }
+                />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -431,14 +459,44 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
               <Form.Item
                 label="Joining Date"
                 name="joiningDate"
+                dependencies={["hireDate"]}
                 rules={[
                   {
-                    required: true,
+                    required: false,
                     message: "Please select joining date!",
                   },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      const hireDate = getFieldValue("hireDate");
+                      if (!value || !hireDate) {
+                        return Promise.resolve();
+                      }
+                      if (
+                        dayjs(value).isSame(dayjs(hireDate), "day") ||
+                        dayjs(value).isAfter(dayjs(hireDate))
+                      ) {
+                        return Promise.resolve();
+                      }
+                      return Promise.reject(
+                        new Error(
+                          "Joining date must be same as or after hire date!"
+                        )
+                      );
+                    },
+                  }),
                 ]}
               >
-                <DatePicker style={{ width: "100%" }} />
+                <DatePicker
+                  style={{ width: "100%" }}
+                  disabledDate={(current) => {
+                    const hireDate = form.getFieldValue("hireDate");
+                    return (
+                      hireDate &&
+                      current &&
+                      dayjs(current).isBefore(dayjs(hireDate), "day")
+                    );
+                  }}
+                />
               </Form.Item>
             </Col>
           </Row>
@@ -474,38 +532,49 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
               </Form.Item>
             </Col>
             <Row gutter={16}>
-            <Col span={24}>
-              <Form.Item label="Allowances">
-                {allowances.map((allowance, index) => (
-                  <Row key={index} gutter={8} style={{ marginBottom: 8 }}>
-                    <Col span={10}>
-                      <Input
-                        placeholder="Allowance Name"
-                        value={allowance.name}
-                        onChange={(e) => handleAllowanceChange(index, 'name', e.target.value)}
-                      />
-                    </Col>
-                    <Col span={10}>
-                      <Input
-                        type="number"
-                        placeholder="Amount"
-                        value={allowance.amount}
-                        onChange={(e) => handleAllowanceChange(index, 'amount', parseFloat(e.target.value))}
-                      />
-                    </Col>
-                    <Col span={4}>
-                      <Button onClick={() => handleRemoveAllowance(index)} danger>
-                        Remove
-                      </Button>
-                    </Col>
-                  </Row>
-                ))}
-                <Button onClick={handleAddAllowance} type="dashed" block>
-                  Add Allowance
-                </Button>
-              </Form.Item>
-            </Col>
-          </Row>
+              <Col span={24}>
+                <Form.Item label="Allowances">
+                  {allowances.map((allowance, index) => (
+                    <Row key={index} gutter={8} style={{ marginBottom: 8 }}>
+                      <Col span={10}>
+                        <Input
+                          placeholder="Allowance Name"
+                          value={allowance.name}
+                          onChange={(e) =>
+                            handleAllowanceChange(index, "name", e.target.value)
+                          }
+                        />
+                      </Col>
+                      <Col span={10}>
+                        <Input
+                          type="number"
+                          placeholder="Amount"
+                          value={allowance.amount}
+                          onChange={(e) =>
+                            handleAllowanceChange(
+                              index,
+                              "amount",
+                              parseFloat(e.target.value)
+                            )
+                          }
+                        />
+                      </Col>
+                      <Col span={4}>
+                        <Button
+                          onClick={() => handleRemoveAllowance(index)}
+                          danger
+                        >
+                          Remove
+                        </Button>
+                      </Col>
+                    </Row>
+                  ))}
+                  <Button onClick={handleAddAllowance} type="dashed" block>
+                    Add Allowance
+                  </Button>
+                </Form.Item>
+              </Col>
+            </Row>
           </Row>
           <Row gutter={16}>
             <Col span={12}>
@@ -592,20 +661,22 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
               </Form.Item>
             </Col>
             <Col span={12}>
-            <Form.Item
-  label="Shift"
-  name="workShift"
-  rules={[{ required: false, message: "Please select a shift!" }]}
->
-  <Select>
-    {workShifts.map((shift) => (
-      <Option key={shift._id} value={shift._id}>
-        {shift.shiftName} <span className="text-gray-400">({shift.shiftIn} - {shift.shiftOut})</span>
-      </Option>
-    ))}
-  </Select>
-</Form.Item>
-
+              <Form.Item
+                label="Shift"
+                name="workShift"
+                rules={[{ required: false, message: "Please select a shift!" }]}
+              >
+                <Select>
+                  {workShifts.map((shift) => (
+                    <Option key={shift._id} value={shift._id}>
+                      {shift.shiftName}{" "}
+                      <span className="text-gray-400">
+                        ({shift.shiftIn} - {shift.shiftOut})
+                      </span>
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
             </Col>
           </Row>
           <Form.Item style={{ marginTop: "20px" }}>{renderButton()}</Form.Item>
@@ -620,11 +691,17 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     <div>
       <Spin spinning={loading}>
         <div className="container">
-        <div style={{ display: "flex", marginBottom: "20px",justifyContent:'space-between', marginLeft:'1%', alignItems:'center' }}>
-          <Title level={3}>Edit Employee</Title>
-          <Button onClick={goBack}>
-            Go Back
-          </Button>
+          <div
+            style={{
+              display: "flex",
+              marginBottom: "20px",
+              justifyContent: "space-between",
+              marginLeft: "1%",
+              alignItems: "center",
+            }}
+          >
+            <Title level={3}>Edit Employee</Title>
+            <Button onClick={goBack}>Go Back</Button>
           </div>
           <div style={{ display: "flex", marginBottom: "20px" }}>
             <div style={{ marginRight: "20px", textAlign: "center" }}>

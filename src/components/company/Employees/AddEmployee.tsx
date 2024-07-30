@@ -39,10 +39,10 @@ interface Department {
 }
 
 interface WorkShift {
-  _id:string;
-  shiftName:string;
-  shiftIn:string;
-  shiftOut:string
+  _id: string;
+  shiftName: string;
+  shiftIn: string;
+  shiftOut: string;
 }
 
 function convertToDate(dayjsObject: any): Date | null {
@@ -61,7 +61,9 @@ const AddEmployee: React.FC = () => {
   const navigate = useNavigate();
   // const [profilePic, setProfilePic] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [allowances, setAllowances] = useState<{ name: string; amount: number }[]>([]);
+  const [allowances, setAllowances] = useState<
+    { name: string; amount: number }[]
+  >([]);
   const [currentTab, setCurrentTab] = useState<string>("1");
   const [_isSubmitted, setIsSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -74,7 +76,7 @@ const AddEmployee: React.FC = () => {
     try {
       const response = await getDepartment();
       setDepartments(response.data);
-    } catch (error:any) {
+    } catch (error: any) {
       message.error(error.message);
     }
   };
@@ -83,7 +85,7 @@ const AddEmployee: React.FC = () => {
     try {
       const response = await getDesignations();
       setDesignations(response.data);
-    } catch (error:any) {
+    } catch (error: any) {
       message.error(error.message);
     }
   };
@@ -92,7 +94,7 @@ const AddEmployee: React.FC = () => {
     try {
       const response = await getAllWorkShifts();
       setWorkShifts(response.data);
-    } catch (error:any) {
+    } catch (error: any) {
       message.error(error.message);
     }
   };
@@ -112,10 +114,14 @@ const AddEmployee: React.FC = () => {
   };
 
   const handleAddAllowance = () => {
-    setAllowances([...allowances, { name: '', amount: 0 }]);
+    setAllowances([...allowances, { name: "", amount: 0 }]);
   };
 
-  const handleAllowanceChange = (index: number, field: 'name' | 'amount', value: string | number) => {
+  const handleAllowanceChange = (
+    index: number,
+    field: "name" | "amount",
+    value: string | number
+  ) => {
     const newAllowances = [...allowances];
     newAllowances[index][field] = value as never;
     setAllowances(newAllowances);
@@ -136,7 +142,6 @@ const AddEmployee: React.FC = () => {
 
     const file = info.file.originFileObj;
     if (file && isImageFile(file)) {
-      
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreviewUrl(reader.result as string);
@@ -155,7 +160,6 @@ const AddEmployee: React.FC = () => {
     try {
       const formData = new FormData();
 
-
       Object.keys(values).forEach((key) => {
         if (key === "dob" || key === "hireDate" || key === "joiningDate") {
           const date = convertToDate(values[key]);
@@ -163,12 +167,10 @@ const AddEmployee: React.FC = () => {
         } else {
           formData.append(key, values[key]);
         }
-       
       });
 
-      
       if (fileToUpload) {
-        formData.append("file", fileToUpload); 
+        formData.append("file", fileToUpload);
       }
 
       console.log("FormData content:");
@@ -176,13 +178,13 @@ const AddEmployee: React.FC = () => {
         console.log(key, value);
       }
 
-      formData.append('allowances', JSON.stringify(allowances));
+      formData.append("allowances", JSON.stringify(allowances));
 
       const response = await createEmployee(formData);
       console.log(response);
       message.success("Employee added successfully");
       navigate("/c/employees");
-    } catch (error:any) {
+    } catch (error: any) {
       console.error("Error adding employee:", error);
       toast.error(error.message);
     } finally {
@@ -198,7 +200,6 @@ const AddEmployee: React.FC = () => {
     const nextTabKey = (parseInt(currentTab) + 1).toString();
     setCurrentTab(nextTabKey);
   };
-
 
   const handleTabChange = (key: string) => {
     setCurrentTab(key);
@@ -277,9 +278,24 @@ const AddEmployee: React.FC = () => {
                     required: false,
                     message: "Please select date of birth!",
                   },
+                  {
+                    validator: (_, value) => {
+                      if (value && dayjs().diff(value, "year") < 18) {
+                        return Promise.reject(
+                          "Employee must be at least 18 years old"
+                        );
+                      }
+                      return Promise.resolve();
+                    },
+                  },
                 ]}
               >
-                <DatePicker style={{ width: "100%" }} />
+                <DatePicker
+                  style={{ width: "100%" }}
+                  disabledDate={(current) =>
+                    current && current > dayjs().subtract(18, "year")
+                  }
+                />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -297,7 +313,7 @@ const AddEmployee: React.FC = () => {
               </Form.Item>
             </Col>
           </Row>
-        
+
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
@@ -387,14 +403,44 @@ const AddEmployee: React.FC = () => {
               <Form.Item
                 label="Joining Date"
                 name="joiningDate"
+                dependencies={["hireDate"]}
                 rules={[
                   {
                     required: false,
                     message: "Please select joining date!",
                   },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      const hireDate = getFieldValue("hireDate");
+                      if (!value || !hireDate) {
+                        return Promise.resolve();
+                      }
+                      if (
+                        dayjs(value).isSame(dayjs(hireDate), "day") ||
+                        dayjs(value).isAfter(dayjs(hireDate))
+                      ) {
+                        return Promise.resolve();
+                      }
+                      return Promise.reject(
+                        new Error(
+                          "Joining date must be same as or after hire date!"
+                        )
+                      );
+                    },
+                  }),
                 ]}
               >
-                <DatePicker style={{ width: "100%" }} />
+                <DatePicker
+                  style={{ width: "100%" }}
+                  disabledDate={(current) => {
+                    const hireDate = form.getFieldValue("hireDate");
+                    return (
+                      hireDate &&
+                      current &&
+                      dayjs(current).isBefore(dayjs(hireDate), "day")
+                    );
+                  }}
+                />
               </Form.Item>
             </Col>
           </Row>
@@ -430,39 +476,50 @@ const AddEmployee: React.FC = () => {
               </Form.Item>
             </Col>
           </Row>
-            <Row gutter={16}>
-  <Col span={24}>
-    <Form.Item label="Allowances">
-      {allowances.map((allowance, index) => (
-        <Row key={index} gutter={8} style={{ marginBottom: 8 }}>
-          <Col span={10}>
-            <Input
-              placeholder="Allowance Name"
-              value={allowance.name}
-              onChange={(e) => handleAllowanceChange(index, 'name', e.target.value)}
-            />
-          </Col>
-          <Col span={10}>
-            <Input
-              type="number"
-              placeholder="Amount"
-              value={allowance.amount}
-              onChange={(e) => handleAllowanceChange(index, 'amount', parseFloat(e.target.value))}
-            />
-          </Col>
-          <Col span={4}>
-            <Button onClick={() => handleRemoveAllowance(index)} danger>
-              Remove
-            </Button>
-          </Col>
-        </Row>
-      ))}
-      <Button onClick={handleAddAllowance} type="dashed" block>
-        Add Allowance
-      </Button>
-    </Form.Item>
-  </Col>
-</Row>
+          <Row gutter={16}>
+            <Col span={24}>
+              <Form.Item label="Allowances">
+                {allowances.map((allowance, index) => (
+                  <Row key={index} gutter={8} style={{ marginBottom: 8 }}>
+                    <Col span={10}>
+                      <Input
+                        placeholder="Allowance Name"
+                        value={allowance.name}
+                        onChange={(e) =>
+                          handleAllowanceChange(index, "name", e.target.value)
+                        }
+                      />
+                    </Col>
+                    <Col span={10}>
+                      <Input
+                        type="number"
+                        placeholder="Amount"
+                        value={allowance.amount}
+                        onChange={(e) =>
+                          handleAllowanceChange(
+                            index,
+                            "amount",
+                            parseFloat(e.target.value)
+                          )
+                        }
+                      />
+                    </Col>
+                    <Col span={4}>
+                      <Button
+                        onClick={() => handleRemoveAllowance(index)}
+                        danger
+                      >
+                        Remove
+                      </Button>
+                    </Col>
+                  </Row>
+                ))}
+                <Button onClick={handleAddAllowance} type="dashed" block>
+                  Add Allowance
+                </Button>
+              </Form.Item>
+            </Col>
+          </Row>
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
@@ -556,7 +613,11 @@ const AddEmployee: React.FC = () => {
                 <Select>
                   {workShifts.map((shift) => (
                     <Option key={shift._id} value={shift._id}>
-                      {shift.shiftName} <span className="text-gray-400"> ({shift.shiftIn} - {shift.shiftOut})</span>
+                      {shift.shiftName}{" "}
+                      <span className="text-gray-400">
+                        {" "}
+                        ({shift.shiftIn} - {shift.shiftOut})
+                      </span>
                     </Option>
                   ))}
                 </Select>

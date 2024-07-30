@@ -1,12 +1,14 @@
 import companyRoutes from "../endpoints/companyEndpoints";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 const BASE_URL = import.meta.env.PROD ? 'https://api.shoetopia.site/' : import.meta.env.VITE_BASE_URL;
 console.log('BaseUrl:',BASE_URL);
 
 const CompanyApi = axios.create({ baseURL: BASE_URL , withCredentials:true});
 
-
+interface ErrorResponse {
+  message: string;
+}
 
 const getDomainFromSubdomain = () => {
   const url = new URL(window.location.href);
@@ -54,8 +56,12 @@ export const verifyTenant = async (tenantId: string) => {
     localStorage.removeItem('tenantId');
 
     return response;
-  } catch (error: any) {
-    return error.response;
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -63,8 +69,12 @@ export const companyLogin = async (body: { email: string; password: string }) =>
   try {
     const response = await CompanyApi.post(companyRoutes.login, body);
     return response;
-  } catch (error: any) {
-    return error.response;
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -81,8 +91,12 @@ export const addAnnouncements = async (body:Annoucement)=>{
   try {
     const response = await CompanyApi.post(companyRoutes.announcements,body);
     return response;
-  } catch (error:any) { 
-    throw new Error(error.response.data.message);
+  } catch (error) { 
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+    throw new Error('An unexpected error occurred');
   }
 }
 
@@ -90,8 +104,12 @@ export const getAnnouncements = async()=>{
   try {
     const response = await CompanyApi.get(companyRoutes.announcements);
     return response;
-  } catch (error:any) {
-    return error.response;
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+    throw new Error('An unexpected error occurred');
   }
 }
 
@@ -99,8 +117,12 @@ export const AnnoucementmarkAsRead = async(id:string)=>{
   try {
       const response = await CompanyApi.patch(companyRoutes.read(id));
       return response;
-  } catch (error:any) {
-    return error.response;
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+    throw new Error('An unexpected error occurred');
   }
 }
 
@@ -108,8 +130,12 @@ export const editAnnouncement = async(id:string|undefined,body:Annoucement)=>{
   try {
     const response = await CompanyApi.put(companyRoutes.Announcements(id),body);
     return response;
-  } catch (error:any) {
-    throw new Error(error.response.data.message);
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+    throw new Error('An unexpected error occurred');
   }
 }
 
@@ -117,8 +143,12 @@ export const deleteAnnouncement = async(id:string)=>{
   try {
     const response = await CompanyApi.delete(companyRoutes.Announcements(id));
     return response;
-  } catch (error:any) {
-    throw new Error(error.response.data.message);
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+    throw new Error('An unexpected error occurred');
   }
 }
 
@@ -129,9 +159,13 @@ export const getDepartment = async()=>{
   try {
     const response = await CompanyApi.get(companyRoutes.department);
     return response;
-  } catch (error:any) {
-    throw new Error(error.response.data.message);
-  }
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
+  }  
 }
 
 interface Department{
@@ -143,8 +177,12 @@ export const createDepartment = async (body:Department)=>{
   try {
     const response = await CompanyApi.post(companyRoutes.department,body);
     return response;
-  } catch (error:any) {
-    throw new Error(error.response.data.message);
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 }
 
@@ -152,8 +190,12 @@ export const editDepartment = async(id:string|undefined,body:Department)=>{
   try {
     const response = await CompanyApi.put(companyRoutes.Department(id),body);
     return response;
-  } catch (error:any) {
-    throw new Error(error.response.data.message);
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 }
 
@@ -161,8 +203,12 @@ export const deleteDepartment = async(id:string)=>{
   try {
     const response = await CompanyApi.delete(companyRoutes.Department(id));
     return response;
-  } catch (error:any) {
-    throw new Error(error.response.data.message);
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 }
 
@@ -178,8 +224,12 @@ export const createDesignation = async (designation:Designation) => {
   try { 
     const response = await CompanyApi.post(companyRoutes.designation, designation);
     return response;
-  } catch (error:any) {
-    throw new Error(error.response.data.message);
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -188,7 +238,11 @@ export const deleteDesignation = async (id:string) => {
     const response = await CompanyApi.delete(companyRoutes.Designation(id));
     return response;
   } catch (error:any) {
-    throw new Error(error.response.data.message);
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -197,7 +251,11 @@ export const editDesignation = async (id:string|undefined, designation:Designati
     const response = await CompanyApi.put(companyRoutes.Designation(id), designation);
     return response;
   } catch (error:any) {
-    throw new Error(error.response.data.message);
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -206,7 +264,11 @@ export const getDesignations = async () => {
     const response = await CompanyApi.get(companyRoutes.designation);
     return response;
   } catch (error:any) {
-    throw new Error(error.response.data.message);
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -223,9 +285,13 @@ export const createEmployee = async (formData: FormData) => {
       },
     });
     return response;
-  } catch (error: any) {
-    console.error('Error in createEmployee:', error.response?.data || error.message);
-    throw new Error(error.response.data.message);
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      console.error('Error in createEmployee:', error.response?.data || error.message);
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -235,7 +301,11 @@ export const getEmployees = async()=>{
     return response 
   } catch (error:any) {
     console.log(error);
-    throw new Error(error.response.data.message);
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 }
 
@@ -244,7 +314,11 @@ export const getEmployee = async(id:string)=>{
     const response = await CompanyApi.get(companyRoutes.Employee(id));
     return response;
   } catch (error:any) {
-    throw new Error(error.response.data.message);
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   } 
 }
 
@@ -259,7 +333,11 @@ export const updateEmployee = async(id:string,formData:FormData)=>{
     return response;
   } catch (error:any) {
     console.log(error); 
-    throw new Error(error.response.data.message);
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   } 
 }
 
@@ -274,7 +352,11 @@ export const updateEmployeeProfile = async(id:string,formData:FormData)=>{
     return response;
   } catch (error:any) {
     console.log(error); 
-    throw new Error(error.response.data.message);
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   } 
 }
 
@@ -283,7 +365,11 @@ export const deleteEmployee = async(id:string)=>{
     const response = await CompanyApi.delete(companyRoutes.Employee(id));
     return response;
   } catch (error:any) {
-    throw new Error(error.response.data.message);
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   } 
 }
 
@@ -307,9 +393,13 @@ export const createProject = async (body: Omit<Project, '_id'>) => {
       },
     });
     return response;
-  } catch (error: any) {
+  } catch (error) {
     console.log('ERROR:', error);
-    throw new Error(error.response?.data?.message || 'An error occurred');
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -317,8 +407,12 @@ export const getProjects = async () => {
   try {
     const response = await CompanyApi.get(companyRoutes.project);
     return response;
-  } catch (error: any) {
-    throw new Error(error.response?.data?.message || 'An error occurred');
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -327,8 +421,12 @@ export const editProject = async (id: string, body: Project) => {
     console.log('body:', body);
     const response = await CompanyApi.put(companyRoutes.Project(id), body);
     return response;
-  } catch (error: any) {
-    throw new Error(error.response?.data?.message || 'An error occurred');
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -336,8 +434,12 @@ export const deleteProject = async (id: string) => {
   try {
     const response = await CompanyApi.delete(companyRoutes.Project(id));
     return response;
-  } catch (error: any) {
-    throw new Error(error.response?.data?.message || 'An error occurred');
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -351,7 +453,11 @@ export const sentOTP = async(email:string) => {
       return response;
   } catch (error) {
       console.log(error);
-      throw Error;
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 }
 
@@ -361,7 +467,11 @@ export const verifyOTP = async(body:{email:string,otpString:string})=>{
       return response;
   } catch (error) {
       console.log(error);
-      throw Error;
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 }
 
@@ -371,7 +481,11 @@ export const changePassword = async(body:{email:string,newPassword:string})=>{
     return response;
 } catch (error) {
     console.log(error);
-    throw Error;
+  if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
 }
 }
 
@@ -383,7 +497,11 @@ export const getCompanyInfo = async()=>{
     return response;
   } catch (error) {
     console.log(error);
-    throw Error;
+  if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 }
 
@@ -395,7 +513,11 @@ export const companyDataUpsert = async(formData:FormData)=>{
     return response;
   } catch (error:any) {
     console.log(error);
-    throw new Error(error.response.data.message);
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 }
 
@@ -411,7 +533,11 @@ export const profileChangePassword = async(id:string,body:ChangePassword)=>{
     return response;
   } catch (error:any) {
     console.log(error);
-    throw new Error(error.response.data.message);
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 }
 
@@ -431,8 +557,12 @@ export const getAllWorkShifts = async () => {
   try {
     const response = await CompanyApi.get(companyRoutes.workShift);
     return response;
-  } catch (error: any) {
-    throw new Error(error.response.data.message);
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -440,8 +570,12 @@ export const getWorkShift = async (id: string|undefined) => {
   try {
     const response = await CompanyApi.get(companyRoutes.WorkShift(id));
     return response;
-  } catch (error: any) {
-    throw new Error(error.response.data.message);
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -449,8 +583,12 @@ export const createWorkShift = async (workShift: WorkShift) => {
   try {
     const response = await CompanyApi.post(companyRoutes.workShift, workShift);
     return response;
-  } catch (error: any) {
-    throw new Error(error.response.data.message);
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -458,8 +596,12 @@ export const editWorkShift = async (id: string|undefined, workShift: Partial<Wor
   try {
     const response = await CompanyApi.put(companyRoutes.WorkShift(id), workShift);
     return response;
-  } catch (error: any) {
-    throw new Error(error.response.data.message);
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -467,8 +609,12 @@ export const deleteWorkShift = async (id: string) => {
   try {
     const response = await CompanyApi.delete(companyRoutes.WorkShift(id));
     return response;
-  } catch (error: any) {
-    throw new Error(error.response.data.message);
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -485,8 +631,12 @@ export const getAllHolidays = async () => {
   try {
     const response = await CompanyApi.get(companyRoutes.holiday);
     return response;
-  } catch (error: any) {
-    throw new Error(error.response.data.message);
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -494,8 +644,12 @@ export const createHoliday = async (holiday: Omit<Holiday, '_id'>) => {
   try {
     const response = await CompanyApi.post(companyRoutes.holiday, holiday);
     return response;
-  } catch (error: any) {
-    throw new Error(error.response.data.message);
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -503,8 +657,12 @@ export const updateHoliday = async (id: string|undefined, holiday: Partial<Omit<
   try {
     const response = await CompanyApi.put(companyRoutes.Holiday(id), holiday);
     return response;
-  } catch (error: any) {
-    throw new Error(error.response.data.message);
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -512,8 +670,12 @@ export const deleteHoliday = async (id: string) => {
   try {
     const response = await CompanyApi.delete(companyRoutes.Holiday(id));
     return response;
-  } catch (error: any) {
-    throw new Error(error.response.data.message);
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -530,8 +692,12 @@ export const getAllLeaveTypes = async () => {
   try {
     const response = await CompanyApi.get(companyRoutes.leaveType);
     return response;
-  } catch (error: any) {
-    throw new Error(error.response.data.message);
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -539,8 +705,12 @@ export const createLeaveType = async (leaveType: Omit<LeaveType, '_id'>) => {
   try {
     const response = await CompanyApi.post(companyRoutes.leaveType, leaveType);
     return response;
-  } catch (error: any) {
-    throw new Error(error.response.data.message);
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -548,8 +718,12 @@ export const updateLeaveType = async (id: string|undefined, leaveType: Partial<O
   try {
     const response = await CompanyApi.put(companyRoutes.LeaveType(id), leaveType);
     return response;
-  } catch (error: any) {
-    throw new Error(error.response.data.message);
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -557,8 +731,12 @@ export const deleteLeaveType = async (id: string) => {
   try {
     const response = await CompanyApi.delete(companyRoutes.LeaveType(id));
     return response;
-  } catch (error: any) {
-    throw new Error(error.response.data.message);
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -568,7 +746,11 @@ export const getAllLeaveRequests = async () => {
     return response;
   } catch (error:any) {
     console.log(error);
-    throw new Error(error.response.data.message);
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -586,10 +768,14 @@ export const submitLeaveRequest = async (leaveData: LeaveRequestData) => {
     
     const response = await CompanyApi.post(companyRoutes.leaveRequest, leaveData);
     return response;
-  } catch (error: any) {
+  } catch (error) {
     console.log('ERROR:',error);
     
-    throw new Error(error.response.data.message);
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -597,8 +783,12 @@ export const updateLeaveRequestStatus = async (requestId: string, status: string
   try {
     const response = await CompanyApi.put(companyRoutes.updateLeaveRequestStatus(requestId), { status });
     return response;
-  } catch (error: any) {
-    throw new Error(error.response.data.message);
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -606,8 +796,12 @@ export const getEmployeeLeaveDays = async (employeeId: string) => {
   try {
     const response = await CompanyApi.get(companyRoutes.employeeLeaveDays(employeeId));
     return response;
-  } catch (error: any) {
-    throw new Error(error.response.data.message);
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -627,8 +821,12 @@ export const getAllAssets = async () => {
   try {
     const response = await CompanyApi.get(companyRoutes.asset);
     return response;
-  } catch (error: any) {
-    throw new Error(error.response.data.message);
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -638,8 +836,12 @@ export const createAsset = async (asset: FormData) => {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
     return response;
-  } catch (error: any) {
-    throw new Error(error.response.data.message);
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -650,9 +852,13 @@ export const updateAsset = async (id: string|undefined, asset: FormData) => {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
     return response;
-  } catch (error: any) {
+  } catch (error) {
     console.log(error);
-    throw new Error(error.response.data.message);
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -660,8 +866,12 @@ export const deleteAsset = async (id: string) => {
   try {
     const response = await CompanyApi.delete(companyRoutes.Asset(id));
     return response;
-  } catch (error: any) {
-    throw new Error(error.response.data.message);
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -669,8 +879,12 @@ export const assignAsset = async (id: string, assignedTo: string) => {
   try {
     const response = await CompanyApi.put(companyRoutes.AssetAssign(id), { assignedTo });
     return response;
-  } catch (error: any) {
-    throw new Error(error.response.data.message);
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -679,8 +893,12 @@ export const assignAsset = async (id: string, assignedTo: string) => {
     try {
       const response = await CompanyApi.put(companyRoutes.AssetRequest(assetId, userId));
       return response;
-    } catch (error: any) {
-      throw new Error(error.response.data.message);
+    } catch (error) {
+      if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
     }
   };
 
@@ -688,8 +906,12 @@ export const getAssetById = async (id: string|undefined) => {
   try {
     const response = await CompanyApi.get(companyRoutes.Asset(id));
     return response;
-  } catch (error: any) {
-    throw new Error(error.response.data.message);
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -698,7 +920,11 @@ export const getAllAssetApplications = async()=>{
     const response = await CompanyApi.get(companyRoutes.assetRequest);
     return response;
   } catch (error:any) {
-    throw new Error(error.response.data.message);
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
     
   }
 }
@@ -708,40 +934,69 @@ export const updateAssetRequestStatus = async (id: string, status: 'Approved' | 
     const response = await CompanyApi.put(`${companyRoutes.assetRequest}/${id}/status`, { status });
     return response;
   } catch (error:any) {
-    throw new Error(error.response.data.message);
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
 
 // Job Recruitments ********************************************** //
 
+interface JobData {
+  dynamicFields: {
+    name: string;
+    type: "number" | "text" | "date" | "file";
+    required: boolean;
+    fileTypes?: string[];
+  }[];
+  title: string;
+  description: string;
+  requirements: string[];
+  status: "Open" | "Closed";
+}
+
 export const getAllJobs = async () => {
   try {
     const response = await CompanyApi.get(companyRoutes.jobs);
     return response;
-  } catch (error: any) {
+  } catch (error) {
     console.log('ERROR:', error);
-    throw error;
+  if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
-export const createJob = async (jobData: any) => {
+export const createJob = async (jobData:JobData) => {
   try {
     const response = await CompanyApi.post(companyRoutes.jobs, jobData);
     return response;
-  } catch (error: any) {
+  } catch (error) {
     console.log('ERROR:', error);
-    throw error;
+  if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
-export const updateJob = async (jobId: string, jobData: Partial<any>) => {
+export const updateJob = async (jobId: string, jobData: Partial<JobData>) => {
   try {
     const response = await CompanyApi.put(companyRoutes.Job(jobId), jobData);
     return response;
-  } catch (error: any) {
+  } catch (error) {
     console.log('ERROR:', error);
-    throw error;
+  if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -749,9 +1004,13 @@ export const deleteJob = async (jobId: string) => {
   try {
     const response = await CompanyApi.delete(companyRoutes.Job(jobId));
     return response;
-  } catch (error: any) {
+  } catch (error) {
     console.log('ERROR:', error);
-    throw error;
+  if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -759,9 +1018,13 @@ export const getJobDetails = async (jobId: string|undefined) => {
   try {
     const response = await CompanyApi.get(companyRoutes.Job(jobId));
     return response;
-  } catch (error: any) {
+  } catch (error) {
     console.log('ERROR:', error);
-    throw error;
+  if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -773,7 +1036,11 @@ export const submitApplication = async (formData:FormData) => {
     return response;
   } catch (error) {
     console.log('ERROR:', error);
-    throw error;
+  if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -781,9 +1048,13 @@ export const getApplicants = async () => {
   try {
     const response = await CompanyApi.get(companyRoutes.jobApplicants);
     return response;
-  } catch (error: any) {
+  } catch (error) {
     console.log('ERROR:', error);
-    throw error;
+  if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -791,9 +1062,13 @@ export const getShortlistedCandidates = async () => {
   try {
     const response = await CompanyApi.get(companyRoutes.shortlistedCandidates);
     return response;
-  } catch (error: any) {
+  } catch (error) {
     console.log('ERROR:', error);
-    throw error;
+  if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -801,9 +1076,13 @@ export const updateApplicantStatus = async (applicantId: string, status: string)
   try {
     const response = await CompanyApi.put(`${companyRoutes.jobApplicants}/${applicantId}/status`, { status });
     return response;
-  } catch (error: any) {
+  } catch (error) {
     console.log('ERROR:', error);
-    throw error;
+  if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -811,9 +1090,13 @@ export const deleteApplicant = async (applicantId: string) => {
   try {
     const response = await CompanyApi.delete(`${companyRoutes.jobApplicants}/${applicantId}`);
     return response;
-  } catch (error: any) {
+  } catch (error) {
     console.log('ERROR:', error);
-    throw error;
+  if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -821,9 +1104,13 @@ export const updateCandidateStatus = async (candidateId: string, status: string)
   try {
     const response = await CompanyApi.put(companyRoutes.candidateStatus(candidateId), { status });
     return response;
-  } catch (error: any) {
+  } catch (error) {
     console.log('ERROR:', error);
-    throw error;
+  if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -837,7 +1124,11 @@ export const checkIn = async (employeeId:string) => {
   } catch (error) {
     console.log('c-error:',error);
     
-    throw error;
+  if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -846,7 +1137,11 @@ export const checkOut = async (employeeId:string) => {
     const response = await CompanyApi.post(companyRoutes.attendance.checkOut, { employeeId });
     return response.data;
   } catch (error) {
-    throw error;
+  if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -855,7 +1150,11 @@ export const getTodayAttendance = async () => {
     const response = await CompanyApi.get(companyRoutes.attendance.today);
     return response.data;
   } catch (error) {
-    throw error;
+  if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -866,7 +1165,11 @@ export const getCurrentDayEmployeeAttendance = async (employeeId: string) => {
   } catch (error) {
     console.log("Error:",error);
     
-    throw error;
+  if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -884,7 +1187,11 @@ export const getPayrollData = async ({ year, month, employeeId }:any) => {
   } catch (error:any) {
     console.log('AXIOS ERROR:',error);
     
-    throw new Error(error.response.data.message);
+    if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -894,7 +1201,11 @@ export const approvePayroll = async (payrollId: string) => {
     return response.data;
   } catch (error) {
     console.log("Error:", error);
-    throw error;
+  if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
 
@@ -904,6 +1215,10 @@ export const declinePayroll = async (payrollId: string) => {
     return response.data;
   } catch (error) {
     console.log("Error:", error);
-    throw error;
+  if (error instanceof AxiosError && error.response) {
+      const errorData = error.response.data as ErrorResponse;
+      throw new Error(errorData.message);
+    }
+  throw new Error('An unexpected error occurred');
   }
 };
