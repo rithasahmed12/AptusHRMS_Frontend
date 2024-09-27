@@ -9,6 +9,7 @@ import RegsiterForm from "../components/user/RegisterPage/utils/RegsiterForm";
 import PlanSelectionForm from "../components/user/RegisterPage/utils/PlanSelectionForm";
 import ProtectedRoute from "../components/user/protect/ProtectedRoute";
 import ProtectedSuccessRoute from "../components/user/protect/ProtectsuccessRoute";
+import AboutPage from "../components/user/AboutPage/AboutPage";
 
 const UserRoutes = () => {
   return (
@@ -16,6 +17,7 @@ const UserRoutes = () => {
       <Route path="/" element={<UserHomePage />} />
       <Route path="/pricing" element={<PricingPage />} />
       <Route path="/contact" element={<ContactPage />} />
+      <Route path="/about" element={<AboutPage/>} />
       <Route path="/purchase" element={<RegisterPage />}>
         <Route index element={<RegsiterForm />} />
         <Route

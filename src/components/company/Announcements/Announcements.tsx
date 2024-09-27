@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ConfigProvider, Modal, Form, Input, Button, Tooltip } from "antd";
+import { ConfigProvider, Modal, Form, Input, Button, Tooltip, Spin } from "antd";
 import { EditOutlined, DeleteOutlined, EyeOutlined } from "@ant-design/icons";
 import {
   AnnoucementmarkAsRead,
@@ -224,10 +224,12 @@ const Announcements: React.FC = () => {
         )}
       </div>
 
-      <div className="bg-white p-6 rounded-md shadow-lg mb-6">
+      <div className="bg-white relative p-6 rounded-md shadow-lg mb-6">
         <h2 className="text-xl font-medium mb-4">Latest Announcements</h2>
         {isLoading ? (
-          <p>Loading announcements...</p>
+          <div className="absolute inset-0 flex items-center justify-center">
+          <Spin size="large" tip="Loading announcements..." />
+        </div>
         ) : announcements.length > 0 ? (
           <div className="space-y-4">
             {announcements.map((announcement: Annoucement) => (

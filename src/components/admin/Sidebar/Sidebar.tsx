@@ -44,18 +44,6 @@ const Sidebar: React.FC = () => {
         </NavLink>
 
         <NavLink 
-          to='/admin/v1/requests' 
-          className={({ isActive }) =>
-            `py-2.5 px-4 gap-3 flex rounded transition duration-300 cursor-pointer hover:bg-gray-100 ${
-              isActive ? 'bg-gray-200 font-semibold' : ''
-            }`
-          }
-        >
-          <BellAlertIcon height={24} color='#3d3d3d' />
-          Requests
-        </NavLink>
-
-        <NavLink 
           to='/admin/v1/customers' 
           className={({ isActive }) =>
             `py-2.5 px-4 gap-3 flex rounded transition duration-300 cursor-pointer hover:bg-gray-100 ${

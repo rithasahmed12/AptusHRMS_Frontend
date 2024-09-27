@@ -62,6 +62,7 @@ const OTPForm = () => {
     const res = await sentOTP({email:customerInfo.email})
     setTimer(60); 
     setOtpSent(true);
+    setOtp(otp.fill(''));
     if(res?.data.success){
       toast.success(res.data.message)
     }else{

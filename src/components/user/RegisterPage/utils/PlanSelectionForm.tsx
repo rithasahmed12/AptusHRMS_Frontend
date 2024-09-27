@@ -63,6 +63,9 @@ const PlanSelectionForm = () => {
       }
     );
 
+    console.log("STRIPE RESPONSE:",response);
+    
+
     if (response.status === 409) {
       const data = await response.json();
       if (data && data.redirectUrl) {
@@ -84,6 +87,7 @@ const PlanSelectionForm = () => {
           domain: customerInfo.domain,
           email: customerInfo.email,
           password: customerInfo.password,
+          url:`https://${customerInfo.domain}.shoetopia.site`,
           success: true,
         })
       );

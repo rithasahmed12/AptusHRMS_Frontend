@@ -1,5 +1,5 @@
 import Api from './axiosConfig';
-import adminRoutes from '../endpoints/adminEndPoints';
+import adminRoutes from '../endpoints/adminEndPoints';  
 import { AxiosResponse } from 'axios';
 import * as axios from 'axios';
 
@@ -18,35 +18,6 @@ export const adminLogin = async (body: { email: string, password: string }): Pro
         }
     }
 }
-
-export const adminRequests = async()=>{
-    try {
-        const response = await Api.get(adminRoutes.requests,{
-            withCredentials:true
-        });
-        return response;
-    } catch (error) {
-        console.log(error);  
-    }
-}
-
-export const approveRequest = async (id: string) => {
-    try {
-      const response = await Api.patch(adminRoutes.approveRequest(id), {}, { withCredentials: true });
-      return response;
-    } catch (error) {
-      return error;
-    }
-  };
-
-  export const declineRequest = async (id: string,reason:string) => {
-    try {
-      const response = await Api.patch(adminRoutes.declineRequest(id), {reason}, { withCredentials: true });
-      return response;
-    } catch (error) {
-      return error;
-    }
-  };
 
   export const adminCustomers = async()=>{
     try {

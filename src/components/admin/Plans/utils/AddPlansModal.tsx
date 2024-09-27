@@ -8,9 +8,11 @@ const AddPlansModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
     const [planAmount,setPlanAmount] = useState('');
     const [planDuration, setPlanDuration] = useState('');
     const [maxEmployees, setMaxEmployees] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async(e:any) =>{
         e.preventDefault();
+        setIsLoading(true);
         const body = {planName,planAmount,planDuration,maxEmployees}
         try {
             const response = await createPlan(body);
@@ -26,6 +28,8 @@ const AddPlansModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
             }
         } catch (error) {
             toast.error('Something went wrong')
+        }finally{
+          setIsLoading(false);
         }
     }
 
@@ -69,8 +73,15 @@ const AddPlansModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
               </div>
   
               <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button type="submit" onClick={handleSubmit} className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-admin-orange text-base font-medium text-white hover:bg-orange-500 duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 sm:ml-3 sm:w-auto sm:text-sm">
-                  Save
+                <button type="submit" disabled={isLoading} onClick={handleSubmit} className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-admin-orange text-base font-medium text-white hover:bg-orange-500 duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 sm:ml-3 sm:w-auto sm:text-sm">
+                {isLoading ? (
+                  <>
+                    <div className="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
+                    <span className="ml-2">Saving...</span>
+                  </>
+                ) : (
+                  "Save"
+                )}
                 </button>
                 <button onClick={onClose} type="button" className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-admin-orange sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
                   Cancel
