@@ -42,6 +42,4 @@ Follow the step-by-step guide below to start using the HRMS application:
 ### 4. Explore the Features
 - Now you can explore and manage the HRMS features tailored to your company. You can onboard employees, manage leaves, set work shifts, and much more.
 
-Enjoy the streamlined HR processes with our HRMS SaaS application!
-
 ---
