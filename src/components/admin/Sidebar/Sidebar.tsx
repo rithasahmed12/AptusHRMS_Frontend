@@ -1,4 +1,4 @@
-import { ArrowLeftEndOnRectangleIcon, BellAlertIcon, DocumentMagnifyingGlassIcon, InboxStackIcon, UserCircleIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftEndOnRectangleIcon, DocumentMagnifyingGlassIcon, InboxStackIcon, UserCircleIcon } from '@heroicons/react/24/outline';
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { logout } from '../../../redux/slices/adminSlice/adminSlice';

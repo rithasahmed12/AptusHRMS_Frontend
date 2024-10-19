@@ -11,12 +11,14 @@ const AppRouter = () => {
     const url = new URL(window.location.href);
     const hostname = url.hostname;
 
-    let extractedTenantName: string | null;
+    let extractedTenantName: string | null = null;
 
     if (import.meta.env.PROD) {
-      // Production: Check if the hostname has more than two parts (subdomain.domain.tld)
+      // Production: Handle www and other subdomains
       const parts = hostname.split('.');
-      extractedTenantName = parts.length > 2 ? parts[0] : null;
+      if (parts.length > 2) {
+        extractedTenantName = parts[0] === 'www' ? null : parts[0];
+      }
     } else {
       // Development: Check if there's any subdomain
       extractedTenantName = hostname.includes('.') ? hostname.split('.')[0] : null;
